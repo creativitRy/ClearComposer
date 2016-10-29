@@ -9,6 +9,7 @@ package com.ctry.clearcomposer;
 import com.ctry.clearcomposer.music.MusicConstants;
 import com.ctry.clearcomposer.sequencer.GraphicNote;
 import com.ctry.clearcomposer.sequencer.GraphicTrack;
+import com.ctry.clearcomposer.sequencer.TrackMaster;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -49,6 +50,7 @@ public class ClearComposer extends Application
 		{
 			tracks.getChildren().add(new GraphicTrack(Color.GREEN).getTrack());
 		}
+		tracks.getChildren().add(new TrackMaster().getTrack());
 		pane.setCenter(tracks);
 		pane.getStyleClass().add("bg");
 

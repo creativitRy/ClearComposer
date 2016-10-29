@@ -6,6 +6,7 @@
  */
 package com.ctry.clearcomposer.sequencer;
 
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
 
 public class TrackMaster extends GraphicTrack
@@ -15,5 +16,15 @@ public class TrackMaster extends GraphicTrack
 	public TrackMaster()
 	{
 		super(DEFAULT_COLOR);
+
+		for (Node n : getTrack().getChildren())
+		{
+			if (!(n instanceof GraphicNote))
+				continue;
+
+			GraphicNote note = (GraphicNote) n;
+
+			note.makeImmutable();
+		}
 	}
 }

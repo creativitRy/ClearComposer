@@ -17,12 +17,13 @@ import java.util.List;
 public class GraphicNote extends Rectangle
 {
 	private static final int SIZE = 25;
-	private static final Color FILL_OFF = Color.DARKGRAY;
+	private static final Color FILL_OFF = new Color(0.25, 0.25, 0.25, 1);
 
 	private static final Color FILL_PLAY = Color.WHITE;
 
 	private static List<GraphicNote> notes = new ArrayList<>();
 
+	private boolean isImmutable = false;
 	private boolean isToggled = false;
 	private Color fillOn;
 	private Mode on;
@@ -30,6 +31,7 @@ public class GraphicNote extends Rectangle
 	public GraphicNote(Color fillOn)
 	{
 		super(SIZE, SIZE);
+
 
 		getStyleClass().add("shape");
 
@@ -72,6 +74,9 @@ public class GraphicNote extends Rectangle
 
 	private void turnOn()
 	{
+		if (isImmutable)
+			return;
+
 		if (ClearComposer.isPerma())
 			on = Mode.ON_PERMA;
 		else
@@ -82,11 +87,18 @@ public class GraphicNote extends Rectangle
 
 	private void turnOff()
 	{
+		if (isImmutable)
+			return;
+
 		on = Mode.OFF;
 
 		setFill(FILL_OFF);
 	}
 
+	/**
+	 * if on is temporary, changes it to off
+	 * @return true if on, false otherwise
+	 */
 	public boolean isOn()
 	{
 		if (on == Mode.OFF)
@@ -96,6 +108,13 @@ public class GraphicNote extends Rectangle
 			on = Mode.OFF;
 
 		return true;
+	}
+
+	protected void makeImmutable()
+	{
+		isImmutable = true;
+		on = Mode.ON_PERMA;
+		setFill(fillOn);
 	}
 
 	public static void stopToggle()
