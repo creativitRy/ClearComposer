@@ -7,10 +7,14 @@
 package com.ctry.clearcomposer;
 
 import com.ctry.clearcomposer.music.MusicConstants;
+import com.ctry.clearcomposer.sequencer.GraphicNote;
+import com.ctry.clearcomposer.sequencer.GraphicTrack;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import javax.sound.midi.MidiChannel;
@@ -24,16 +28,11 @@ public class ClearComposer extends Application
 	/**
 	 * if true, change on to off and off to on
 	 */
-	private static boolean toggle;
-	/**
-	 * when toggle is false, true = turn all on, false = turn all off
-	 * will be true when you start dragging from turned off note; false otherwise
-	 */
-	private static boolean on;
+	private static boolean toggle = true;
 	/**
 	 * what kind of on? true = permanent, false = temporary
 	 */
-	private static boolean perma;
+	private static boolean perma = true;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception
@@ -41,13 +40,25 @@ public class ClearComposer extends Application
 
 		Button root = createButton("undo", () -> test());
 
-		BorderPane pane = new BorderPane(root);
+		BorderPane pane = new BorderPane();
+		pane.setBottom(root);
 
-
+		VBox tracks = new VBox();
+		for (int i = 0; i < 7; i++)
+		{
+			tracks.getChildren().add(new GraphicTrack(Color.GREEN).getTrack());
+		}
+		pane.setCenter(tracks);
 
 
 		Scene scene = new Scene(pane, 960, 540);
+		scene.setOnMouseReleased(t ->
+		{
+			if (toggle)
+				GraphicNote.stopToggle();
+		});
 		scene.getStylesheets().add(ClearComposer.class.getResource("clearcomposer.css").toExternalForm());
+
 		primaryStage.setScene(scene);
 
 		primaryStage.setTitle("Hello World");
@@ -61,7 +72,8 @@ public class ClearComposer extends Application
 		int volume = 80; // between 0 et 127
 		int duration = 200; // in milliseconds
 
-		try {
+		try
+		{
 			Synthesizer synth = MidiSystem.getSynthesizer();
 			synth.open();
 			MidiChannel[] channels = synth.getChannels();
@@ -72,32 +84,31 @@ public class ClearComposer extends Application
 			// "MIDI note number" (pitch of the note),
 			// and "velocity" (i.e., volume, or intensity).
 			// Each of these arguments is between 0 and 127.
-			channels[channel].noteOn( 60, volume ); // C note
-			Thread.sleep( duration );
-			channels[channel].noteOff( 60 );
-			channels[channel].noteOn( 62, volume ); // D note
-			Thread.sleep( duration );
-			channels[channel].noteOff( 62 );
-			channels[channel].noteOn( 64, volume ); // E note
-			Thread.sleep( duration );
-			channels[channel].noteOff( 64 );
+			channels[channel].noteOn(60, volume); // C note
+			Thread.sleep(duration);
+			channels[channel].noteOff(60);
+			channels[channel].noteOn(62, volume); // D note
+			Thread.sleep(duration);
+			channels[channel].noteOff(62);
+			channels[channel].noteOn(64, volume); // E note
+			Thread.sleep(duration);
+			channels[channel].noteOff(64);
 
-			Thread.sleep( 500 );
+			Thread.sleep(500);
 
 			// --------------------------------------
 			// Play a C major chord.
-			channels[channel].noteOn( 60, volume ); // C
-			channels[channel].noteOn( 64, volume ); // E
-			channels[channel].noteOn( 67, volume ); // G
-			Thread.sleep( 3000 );
+			channels[channel].noteOn(60, volume); // C
+			channels[channel].noteOn(64, volume); // E
+			channels[channel].noteOn(67, volume); // G
+			Thread.sleep(3000);
 			channels[channel].allNotesOff();
-			Thread.sleep( 500 );
-
+			Thread.sleep(500);
 
 
 			synth.close();
-		}
-		catch (Exception e) {
+		} catch (Exception e)
+		{
 			e.printStackTrace();
 		}
 	}
@@ -136,26 +147,6 @@ public class ClearComposer extends Application
 	}
 
 	/**
-	 * Getter for property 'on'.
-	 *
-	 * @return Value for property 'on'.
-	 */
-	public static boolean isOn()
-	{
-		return on;
-	}
-
-	/**
-	 * Setter for property 'on'.
-	 *
-	 * @param on Value to set for property 'on'.
-	 */
-	public static void setOn(boolean on)
-	{
-		ClearComposer.on = on;
-	}
-
-	/**
 	 * Getter for property 'perma'.
 	 *
 	 * @return Value for property 'perma'.
@@ -175,7 +166,8 @@ public class ClearComposer extends Application
 		ClearComposer.perma = perma;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args)
+	{
 		launch(args);
 	}
 }

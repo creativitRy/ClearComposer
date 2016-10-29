@@ -17,16 +17,19 @@ public class MusicConstants
 	public static final AbsoluteNote DEFAULT_KEY = AbsoluteNote.C;
 	public static final int DEFAULT_TEMPO = 120;
 	public static final Chord DEFAULT_CHORD = Chord.I;
+	public static final int DEFAULT_NOTE_AMOUNT = 16;
 
 	private AbsoluteNote key;
 	private int tempo;
 	private Chord chord;
+	private int noteAmount;
 
 	public MusicConstants()
 	{
 		key = DEFAULT_KEY;
 		tempo = DEFAULT_TEMPO;
 		chord = DEFAULT_CHORD;
+		noteAmount = DEFAULT_NOTE_AMOUNT;
 	}
 
 	/**
@@ -87,5 +90,25 @@ public class MusicConstants
 	public void setChord(Chord chord)
 	{
 		this.chord = chord;
+	}
+
+	/**
+	 * Getter for property 'noteAmount'.
+	 *
+	 * @return Value for property 'noteAmount'.
+	 */
+	public int getNoteAmount()
+	{
+		return noteAmount;
+	}
+
+	/**
+	 * Setter for property 'noteAmount'.
+	 *
+	 * @param noteAmount Value to set for property 'noteAmount'.
+	 */
+	public void setNoteAmount(int noteAmount)
+	{
+		this.noteAmount = noteAmount;
 	}
 }
