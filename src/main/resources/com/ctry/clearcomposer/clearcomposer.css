@@ -26,3 +26,11 @@
     -fx-stroke-width: 3;
     -fx-stroke: gray;
 }
+
+.text
+{
+    -fx-font-size: 16pt;
+    -fx-font-family: monospace;
+    -fx-fill: white;
+    -fx-text-alignment: right;
+}

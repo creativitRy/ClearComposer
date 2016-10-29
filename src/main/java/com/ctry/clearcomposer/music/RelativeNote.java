@@ -30,12 +30,17 @@ public enum RelativeNote
 
 	public int getAbsolutePitch(int octave)
 	{
-		return ClearComposer.constants.getKey().getPitch() + 12 * octave + steps;
+		return ClearComposer.constants.getKey().getAbsolutePitch() + 12 * octave + steps;
 	}
 
 	public int getAbsolutePitch()
 	{
 		return getAbsolutePitch(0);
+	}
+
+	public AbsoluteNote getPitch()
+	{
+		return AbsoluteNote.values()[(ClearComposer.constants.getKey().getPitch() + steps) % 12];
 	}
 
 }

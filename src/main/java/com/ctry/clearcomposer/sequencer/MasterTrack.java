@@ -8,12 +8,13 @@ package com.ctry.clearcomposer.sequencer;
 
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
-public class TrackMaster extends GraphicTrack
+public class MasterTrack extends GraphicTrack
 {
 	private static final Color DEFAULT_COLOR = Color.BLACK;
 
-	public TrackMaster()
+	public MasterTrack()
 	{
 		super(DEFAULT_COLOR);
 
@@ -26,5 +27,19 @@ public class TrackMaster extends GraphicTrack
 
 			note.makeImmutable();
 		}
+
+		//needs to be length of 6
+		Text text = new Text("      ");
+		text.getStyleClass().add("text");
+		getTrack().getChildren().add(0, text);
+	}
+
+	public int playNote(int index)
+	{
+		GraphicNote note = (GraphicNote) getTrack().getChildren().get(index);
+
+		note.isOn();
+
+		return -1;
 	}
 }

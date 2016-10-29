@@ -7,10 +7,11 @@
 package com.ctry.clearcomposer.sequencer;
 
 import com.ctry.clearcomposer.ClearComposer;
+import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 
-public class GraphicTrack
+public abstract class GraphicTrack
 {
 	private HBox track;
 	private Color color;
@@ -25,6 +26,8 @@ public class GraphicTrack
 			track.getChildren().add(new GraphicNote(color));
 		}
 	}
+
+	public abstract int playNote(int index);
 
 	/**
 	 * Getter for property 'track'.
@@ -44,5 +47,18 @@ public class GraphicTrack
 	public Color getColor()
 	{
 		return color;
+	}
+
+	public void changeColor(Color to)
+	{
+		for (Node n : getTrack().getChildren())
+		{
+			if (!(n instanceof GraphicNote))
+				continue;
+
+			GraphicNote note = (GraphicNote) n;
+
+			note.changeColor(to);
+		}
 	}
 }

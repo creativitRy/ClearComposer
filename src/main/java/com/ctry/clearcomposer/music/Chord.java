@@ -29,4 +29,9 @@ public enum Chord
 	{
 		return notes;
 	}
+
+	public RelativeNote getNote(int index)
+	{
+		return notes[index];
+	}
 }
