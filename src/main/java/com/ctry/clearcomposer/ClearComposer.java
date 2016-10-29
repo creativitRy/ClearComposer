@@ -38,17 +38,19 @@ public class ClearComposer extends Application
 	public void start(Stage primaryStage) throws Exception
 	{
 
-		Button root = createButton("undo", () -> test());
+		Button root = createButton("undo", this::test);
 
 		BorderPane pane = new BorderPane();
 		pane.setBottom(root);
 
 		VBox tracks = new VBox();
+		tracks.getStyleClass().add("bg");
 		for (int i = 0; i < 7; i++)
 		{
 			tracks.getChildren().add(new GraphicTrack(Color.GREEN).getTrack());
 		}
 		pane.setCenter(tracks);
+		pane.getStyleClass().add("bg");
 
 
 		Scene scene = new Scene(pane, 960, 540);

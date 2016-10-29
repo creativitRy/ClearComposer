@@ -7,6 +7,7 @@
 package com.ctry.clearcomposer.sequencer;
 
 import com.ctry.clearcomposer.ClearComposer;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
@@ -16,9 +17,6 @@ import java.util.List;
 public class GraphicNote extends Rectangle
 {
 	private static final int SIZE = 25;
-	private static final int ARC = 15;
-	private static final double STROKE_WIDTH = 3;
-	private static final Color BORDER = Color.GRAY;
 	private static final Color FILL_OFF = Color.DARKGRAY;
 
 	private static final Color FILL_PLAY = Color.WHITE;
@@ -33,46 +31,43 @@ public class GraphicNote extends Rectangle
 	{
 		super(SIZE, SIZE);
 
+		getStyleClass().add("shape");
+
 		notes.add(this);
 
 		this.fillOn = fillOn;
 		on = Mode.OFF;
 
-		setArcHeight(ARC);
-		setArcWidth(ARC);
-
-		setStroke(BORDER);
-		setStrokeWidth(STROKE_WIDTH);
-
 		setFill(FILL_OFF);
 
 		setOnDragDetected(t -> startFullDrag());
 
-		setOnMouseDragEntered(t ->
-		{
-			if (ClearComposer.isToggle())
-			{
-				if (!isToggled)
-				{
-					if (on == Mode.OFF)
-						turnOn();
-					else
-						turnOff();
+		setOnMousePressed(this::mouseAction);
+		setOnMouseDragEntered(this::mouseAction);
 
-					isToggled = true;
-				}
-			}
-			else
+	}
+
+	private void mouseAction(MouseEvent t)
+	{
+		if (ClearComposer.isToggle())
+		{
+			if (!isToggled)
 			{
-				if (t.isPrimaryButtonDown())
+				if (on == Mode.OFF)
 					turnOn();
 				else
 					turnOff();
+
+				isToggled = true;
 			}
-
-
-		});
-
+		}
+		else
+		{
+			if (t.isPrimaryButtonDown())
+				turnOn();
+			else
+				turnOff();
+		}
 	}
 
 	private void turnOn()

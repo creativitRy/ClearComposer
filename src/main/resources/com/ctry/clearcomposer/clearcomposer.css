@@ -15,3 +15,14 @@
 .button.italic { -fx-background-image: url(italic.png); }
 .button.save { -fx-background-image: url(save.png); }
 .button.open { -fx-background-image: url(open.png); }
+
+.bg { -fx-background-color: black; }
+
+.shape
+{
+    -fx-arc-height: 15;
+    -fx-arc-width: 15;
+
+    -fx-stroke-width: 3;
+    -fx-stroke: gray;
+}
