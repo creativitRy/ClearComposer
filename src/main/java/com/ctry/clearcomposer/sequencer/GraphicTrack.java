@@ -35,6 +35,11 @@ import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 public abstract class GraphicTrack
 {
 	private HBox track;
@@ -54,6 +59,20 @@ public abstract class GraphicTrack
 			track.getChildren().add(new GraphicNote(color));
 		}
 	}
+
+	/**
+	 * Saves track data to a data stream.
+	 * @param out data stream to write to.
+	 * @throws IOException if an error occurs during I/O
+	 */
+	public abstract void saveTrackData(DataOutput out) throws IOException;
+
+	/**
+	 * Loads track data from a data stream.
+	 * @param in data stream to read from.
+	 * @throws IOException if an error occurs during I/O
+	 */
+	public abstract void loadTrackData(DataInput in) throws IOException;
 
 	/**
 	 * returns midi pitch to be played

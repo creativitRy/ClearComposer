@@ -34,6 +34,10 @@ import com.ctry.clearcomposer.ClearComposer;
 import com.ctry.clearcomposer.music.RelativeNote;
 import javafx.scene.text.Text;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
 public class NotesTrack extends GraphicTrack
 {
 	private int octave;
@@ -95,5 +99,16 @@ public class NotesTrack extends GraphicTrack
 		if (note.isOn())
 			return getNote().getAbsolutePitch(octave);
 		return -1;
+	}
+
+	@Override
+	public void saveTrackData(DataOutput out) throws IOException {
+		//TODO
+	}
+
+	@Override
+	public void loadTrackData(DataInput in) throws IOException {
+		//getTrack().getChildren().clear();
+		//TODO
 	}
 }

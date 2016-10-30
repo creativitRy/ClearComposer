@@ -34,6 +34,10 @@ import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
 public class BeatTrack extends GraphicTrack
 {
 	private static final Color DEFAULT_COLOR = Color.BLACK;
@@ -73,5 +77,15 @@ public class BeatTrack extends GraphicTrack
 		note.isOn();
 
 		return -1;
+	}
+
+	@Override
+	public void saveTrackData(DataOutput out) throws IOException {
+		//Does nothing.
+	}
+
+	@Override
+	public void loadTrackData(DataInput in) throws IOException {
+		//Does nothing
 	}
 }
