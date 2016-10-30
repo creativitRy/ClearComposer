@@ -38,6 +38,7 @@ import com.ctry.clearcomposer.sequencer.GraphicNote;
 import com.ctry.clearcomposer.sequencer.BeatTrack;
 import com.ctry.clearcomposer.sequencer.NotesTrack;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -142,11 +143,17 @@ public class ClearComposer extends Application
 		//configure main stage
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Hello World");
+		primaryStage.setOnCloseRequest(e ->
+		{
+			MusicPlayer.turnOffNotes();
+			Platform.exit();
+		});
 		primaryStage.show();
 	}
 
 	/**
 	 * When a chord button is pressed,
+	 *
 	 * @param c chord chosen
 	 */
 	public void setChord(Chord c)
@@ -170,8 +177,9 @@ public class ClearComposer extends Application
 
 	/**
 	 * constructs a button with the given style
+	 *
 	 * @param styleClass name of style to apply in css
-	 * @param action method to run when button is clicked
+	 * @param action     method to run when button is clicked
 	 * @return constructed button
 	 */
 	private Button createButton(String styleClass, Runnable action)

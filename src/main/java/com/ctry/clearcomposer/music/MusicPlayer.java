@@ -38,16 +38,14 @@ import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Synthesizer;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MusicPlayer
 {
 	private static final int VOLUME = 100; // between 0 et 127
 	private static final int CHANNEL = 0; // 0 is a piano, 9 is percussion, other channels are for other instruments
-	private static final Duration DURATION = Duration.millis(1500); // in milliseconds
+	private static final Duration DURATION = Duration.millis(3000); // in milliseconds
 
-	private static Map<Integer, Timeline> times = new HashMap<>();
+	public static Timeline time = null;
 	private static Synthesizer synth;
 
 	static
@@ -74,14 +72,13 @@ public class MusicPlayer
 
 			MidiChannel[] channels = synth.getChannels();
 
-			channels[CHANNEL].noteOff(pitch);
 			channels[CHANNEL].noteOn(pitch, VOLUME);
 
-			if (times.containsKey(pitch))
-				times.get(pitch).stop();
+			if (time != null)
+				time.stop();
 
-			times.put(pitch, new Timeline(new KeyFrame(DURATION, ae -> turnOffNote(pitch))));
-			times.get(pitch).play();
+			time = new Timeline(new KeyFrame(DURATION, ae -> turnOffNotes()));
+			time.play();
 
 
 		} catch (MidiUnavailableException e)
@@ -91,19 +88,20 @@ public class MusicPlayer
 	}
 
 	/**
-	 * after a delay, the note is turned off
-	 * @param pitch pitch to turn off
+	 * after a delay, all notes is turned off
 	 */
-	private static void turnOffNote(int pitch)
+	public static void turnOffNotes()
 	{
 		MidiChannel[] channels = synth.getChannels();
 
-		channels[CHANNEL].noteOff(pitch);
+		if (synth.isOpen())
+		{
+			channels[CHANNEL].allNotesOff();
 
-		times.remove(pitch);
-
-		if (times.isEmpty())
 			synth.close();
+		}
+
+		time = null;
 	}
 
 }
