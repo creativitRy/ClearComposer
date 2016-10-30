@@ -39,8 +39,8 @@ public enum Chord
 	iii(RE, MI, SOL, LA, TI),
 	IV(DO, RE, FA, SOL, LA),
 	V(RE, FA, SOL, LA, TI),
-	vi(DO, RE, MI, SOL, LA),
-	vii(RE, FA, SOL, LA, TI),
+	vi(DO, MI, SOL, LA, TI),
+	vii(TI, RE, FA, SOL, LA),
 	V_ii(DI, MI, SOL, LA, TI),
 	V_iii(DI, RI, FI, LA, TI),
 	V_IV(DO, RE, MI, SOL, TE),
@@ -72,5 +72,10 @@ public enum Chord
 	public RelativeNote getNote(int index)
 	{
 		return notes[index];
+	}
+
+	public String toString()
+	{
+		return name().replace('_', '/');
 	}
 }

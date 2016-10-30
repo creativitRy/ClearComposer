@@ -51,8 +51,8 @@ import java.util.Random;
 
 public class ClearComposer extends Application
 {
-	public static final int DEFAULT_WIDTH = 960;
-	public static final int DEFAULT_HEIGHT = 540;
+	public static final int DEFAULT_WIDTH = 1280;
+	public static final int DEFAULT_HEIGHT = 720;
 
 	/**
 	 * Constants
@@ -114,12 +114,13 @@ public class ClearComposer extends Application
 		pane.setCenter(tracksDisplay);
 
 		//chord buttons
-		chordButtons = new HBox(15);
+		chordButtons = new HBox(10);
 		chordButtons.setAlignment(Pos.CENTER);
 		for (Chord c : Chord.values())
 		{
 			Button button = createButton(c.name(), () -> setChord(c));
-			button.setText(c.name());
+			button.setText(c.toString());
+			button.setPrefWidth(100);
 			button.setStyle("-fx-text-fill: black");
 			chordButtons.getChildren().add(button);
 		}
