@@ -23,13 +23,19 @@ public class NotesTrack extends GraphicTrack
 		this.octave = octave;
 		this.index = index;
 
-		Text text = new Text(String.format("%4s: ", getNote().getPitch().toString()));
+		Text text = new Text(formatNoteName());
 		text.getStyleClass().add("text");
 		getTrack().getChildren().add(0, text);
 	}
 
-	public void updateColor()
+	public String formatNoteName()
 	{
+		return String.format("%4s: ", getNote().getPitch().toString());
+	}
+
+	public void updateNote()
+	{
+		((Text) getTrack().getChildren().get(0)).setText(formatNoteName());
 		changeColor(getNote().getPitch().getColor());
 	}
 
