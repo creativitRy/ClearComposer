@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2016 Gahwon "creativitRy" Lee
+ * Copyright (c) 2016 Gahwon "creativitRy" Lee and Henry "theKidOfArcrania" Wang
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 /**
  * Main class
  *
- * @author creativitRy
+ * @author creativitRy, theKidOfArcrania
  * Date: 10/29/2016.
  */
 package com.ctry.clearcomposer;
@@ -34,8 +34,8 @@ import com.ctry.clearcomposer.music.Chord;
 import com.ctry.clearcomposer.music.MusicConstants;
 import com.ctry.clearcomposer.music.MusicPlayer;
 import com.ctry.clearcomposer.music.TrackPlayer;
-import com.ctry.clearcomposer.sequencer.GraphicNote;
 import com.ctry.clearcomposer.sequencer.BeatTrack;
+import com.ctry.clearcomposer.sequencer.GraphicNote;
 import com.ctry.clearcomposer.sequencer.NotesTrack;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -48,7 +48,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Random;
 
 public class ClearComposer extends Application
@@ -178,6 +181,7 @@ public class ClearComposer extends Application
 
 	/**
 	 * Loads all track data from a data file.
+	 *
 	 * @param f file to load from.
 	 */
 	public void loadData(File f)
@@ -185,8 +189,7 @@ public class ClearComposer extends Application
 		try (FileInputStream fis = new FileInputStream(f))
 		{
 			player.loadTracks(fis);
-		}
-		catch (IOException e)
+		} catch (IOException e)
 		{
 			//TODO: show error while loading.
 		}
@@ -194,6 +197,7 @@ public class ClearComposer extends Application
 
 	/**
 	 * Saves all tracks to a data file.
+	 *
 	 * @param f file to save to.
 	 */
 	public void saveData(File f)
@@ -201,8 +205,7 @@ public class ClearComposer extends Application
 		try (FileOutputStream fos = new FileOutputStream(f))
 		{
 			player.saveTracks(fos);
-		}
-		catch (IOException e)
+		} catch (IOException e)
 		{
 			//TODO: show error while saving.
 		}

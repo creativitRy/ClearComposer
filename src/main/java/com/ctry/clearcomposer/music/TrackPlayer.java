@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2016 Gahwon "creativitRy" Lee
+ * Copyright (c) 2016 Gahwon "creativitRy" Lee and Henry "theKidOfArcrania" Wang
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 /**
  * Plays the tracks
  *
- * @author creativitRy
+ * @author creativitRy, theKidOfArcrania
  * Date: 10/29/2016.
  */
 package com.ctry.clearcomposer.music;
@@ -35,13 +35,10 @@ import com.ctry.clearcomposer.sequencer.GraphicTrack;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
-import java.awt.*;
 import java.io.*;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,9 +50,11 @@ public class TrackPlayer
 
 	private static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... params)
 	{
-		try {
+		try
+		{
 			return type.getConstructor(params);
-		} catch (NoSuchMethodException e) {
+		} catch (NoSuchMethodException e)
+		{
 			return null;
 		}
 	}
@@ -66,7 +65,7 @@ public class TrackPlayer
 	public TrackPlayer()
 	{
 		index = 0;
-		timeline = new Timeline(new KeyFrame(Duration.millis(ClearComposer.constants.getTempo() ), ae -> playNotes()));
+		timeline = new Timeline(new KeyFrame(Duration.millis(ClearComposer.constants.getTempo()), ae -> playNotes()));
 		timeline.setCycleCount(Animation.INDEFINITE);
 
 		tracks = new ArrayList<>();
@@ -78,6 +77,7 @@ public class TrackPlayer
 	/**
 	 * Saves track data to an byte stream.
 	 * Note that this will not close the file.
+	 *
 	 * @param out byte stream to write to.
 	 * @throws IOException when an I/O error occurs while writing
 	 */
@@ -96,6 +96,7 @@ public class TrackPlayer
 	/**
 	 * Loads track data from an byte stream.
 	 * Note that this will not close the file.
+	 *
 	 * @param in byte stream to write to.
 	 * @throws IOException when an I/O error occurs while writing
 	 */
@@ -107,7 +108,8 @@ public class TrackPlayer
 
 		for (int i = 0; i < trackNum; i++)
 		{
-			try {
+			try
+			{
 				GraphicTrack track = getTracks().get(i);
 				Class<?> trackClass = (Class<?>) ois.readObject();
 				if (!GraphicTrack.class.isAssignableFrom(trackClass))
@@ -115,7 +117,8 @@ public class TrackPlayer
 				if (trackClass != track.getClass())
 					throw new FileCorruptionException("File Corruption: Tracks mismatch");
 				track.loadTrackData(ois);
-			} catch (ClassNotFoundException e) {
+			} catch (ClassNotFoundException e)
+			{
 				throw new FileCorruptionException("File Corruption: Unable to locate class");
 			}
 		}
@@ -144,7 +147,7 @@ public class TrackPlayer
 	 */
 	public void updateDelay()
 	{
-		timeline.setDelay(Duration.millis(ClearComposer.constants.getTempo() ));
+		timeline.setDelay(Duration.millis(ClearComposer.constants.getTempo()));
 	}
 
 	/**

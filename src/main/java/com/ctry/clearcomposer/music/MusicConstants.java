@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2016 Gahwon "creativitRy" Lee
+ * Copyright (c) 2016 Gahwon "creativitRy" Lee and Henry "theKidOfArcrania" Wang
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 /**
  * Holds various constants
  *
- * @author creativitRy
+ * @author creativitRy, theKidOfArcrania
  * Date: 10/29/2016.
  */
 package com.ctry.clearcomposer.music;
