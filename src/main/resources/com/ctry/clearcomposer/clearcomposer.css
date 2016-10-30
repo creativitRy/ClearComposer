@@ -2,9 +2,9 @@
 
 .button
 {
+    -fx-text-fill: black;
     -fx-background-position: center;
     -fx-background-repeat: no-repeat;
-    -fx-text-fill: black;
 }
 
 .button.undo { -fx-background-image: url(undo.png); }
@@ -16,6 +16,7 @@
 .button.italic { -fx-background-image: url(italic.png); }
 .button.save { -fx-background-image: url(save.png); }
 .button.open { -fx-background-image: url(open.png); }
+.button.label { -fx-text-fill: black; }
 
 
 .bg { -fx-background-color: black; }

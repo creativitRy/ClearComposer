@@ -1,5 +1,29 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2016 Gahwon "creativitRy" Lee
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 /**
- * Description
+ * Note that can be played and displayed on screen
  *
  * @author creativitRy
  * Date: 10/29/2016.
@@ -31,13 +55,15 @@ public class GraphicNote extends Rectangle
 	private Mode on;
 	private FillTransition ft;
 
+	/**
+	 * creates a new playable graphical note with the given potential color
+	 * @param fillOn color if note will be played
+	 */
 	public GraphicNote(Color fillOn)
 	{
 		super(SIZE, SIZE);
 
 		getStyleClass().add("shape");
-
-		notes.add(this);
 
 		this.fillOn = fillOn;
 		on = Mode.OFF;
@@ -48,6 +74,10 @@ public class GraphicNote extends Rectangle
 		setOnMouseDragEntered(this::mouseAction);
 	}
 
+	/**
+	 * either turns on the note or turns off depending on the action of the mouse
+	 * @param t
+	 */
 	private void mouseAction(MouseEvent t)
 	{
 		if (ClearComposer.isToggle())
@@ -60,6 +90,7 @@ public class GraphicNote extends Rectangle
 					turnOff();
 
 				isToggled = true;
+				notes.add(this);
 			}
 		}
 		else
@@ -71,6 +102,9 @@ public class GraphicNote extends Rectangle
 		}
 	}
 
+	/**
+	 * turns on note
+	 */
 	private void turnOn()
 	{
 		if (isImmutable)
@@ -84,6 +118,9 @@ public class GraphicNote extends Rectangle
 		setFill(fillOn);
 	}
 
+	/**
+	 * turns off note
+	 */
 	private void turnOff()
 	{
 		if (isImmutable)
@@ -114,6 +151,10 @@ public class GraphicNote extends Rectangle
 		return true;
 	}
 
+	/**
+	 * changes color to white and fades it back to ordinary color
+	 * @param to color to fade to
+	 */
 	private void playColor(Color to)
 	{
 		setFill(FILL_PLAY);
@@ -124,6 +165,10 @@ public class GraphicNote extends Rectangle
 		ft.play();
 	}
 
+	/**
+	 * makes the note unable to be turned off from mouse events
+	 * to be used with beat tracks
+	 */
 	protected void makeImmutable()
 	{
 		isImmutable = true;
@@ -132,6 +177,10 @@ public class GraphicNote extends Rectangle
 		notes.remove(this);
 	}
 
+	/**
+	 * changes the filled color for the note wihtout transitions
+	 * @param to color to change to
+	 */
 	public void changeColor(Color to)
 	{
 		fillOn = to;
@@ -139,16 +188,28 @@ public class GraphicNote extends Rectangle
 			setFill(fillOn);
 	}
 
+	/**
+	 * when toggling, you don't want the notes that were toggled to be toggled again
+	 * therefore they are stored in a static list
+	 * calling this method clears the list and makes the notes toggle-able again
+	 */
 	public static void stopToggle()
 	{
 		for (GraphicNote note : notes)
 		{
 			note.isToggled = false;
 		}
+
+		notes.clear();
 	}
 
 }
 
+/**
+ * off = note is turned off
+ * on_temporary = note is turned on but will be switched off once played
+ * on_permanent = note will be on forever
+ */
 enum Mode
 {
 	OFF,

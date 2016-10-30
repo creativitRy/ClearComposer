@@ -1,5 +1,29 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2016 Gahwon "creativitRy" Lee
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 /**
- * Description
+ * A track containing notes
  *
  * @author creativitRy
  * Date: 10/29/2016.
@@ -16,6 +40,10 @@ public abstract class GraphicTrack
 	private HBox track;
 	private Color color;
 
+	/**
+	 * constructs a new track and sets the color
+	 * @param color
+	 */
 	public GraphicTrack(Color color)
 	{
 		track = new HBox();
@@ -27,6 +55,11 @@ public abstract class GraphicTrack
 		}
 	}
 
+	/**
+	 * returns midi pitch to be played
+	 * @param index position of note to be played
+	 * @return -1 if no note is played, a midi pitch otherwise
+	 */
 	public abstract int playNote(int index);
 
 	/**
@@ -49,6 +82,10 @@ public abstract class GraphicTrack
 		return color;
 	}
 
+	/**
+	 * changes the fill colors of all notes
+	 * @param to color to change to
+	 */
 	public void changeColor(Color to)
 	{
 		for (Node n : getTrack().getChildren())
