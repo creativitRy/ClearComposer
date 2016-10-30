@@ -30,7 +30,9 @@
  */
 package com.ctry.clearcomposer.music;
 
-public class MusicConstants
+import java.io.Serializable;
+
+public class MusicConstants implements Serializable
 {
 	/**
 	 * Lowest midi pitch that is A where 60 is C

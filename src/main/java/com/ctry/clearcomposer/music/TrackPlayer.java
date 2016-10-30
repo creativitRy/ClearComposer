@@ -35,8 +35,13 @@ import com.ctry.clearcomposer.sequencer.GraphicTrack;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import java.awt.*;
+import java.io.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +50,15 @@ public class TrackPlayer
 	private int index;
 	private List<GraphicTrack> tracks;
 	private Timeline timeline;
+
+	private static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... params)
+	{
+		try {
+			return type.getConstructor(params);
+		} catch (NoSuchMethodException e) {
+			return null;
+		}
+	}
 
 	/**
 	 * constructs a new track player with multiple blank tracks
@@ -60,6 +74,53 @@ public class TrackPlayer
 		//TODO
 		play();
 	}
+
+	/**
+	 * Saves track data to an byte stream.
+	 * Note that this will not close the file.
+	 * @param out byte stream to write to.
+	 * @throws IOException when an I/O error occurs while writing
+	 */
+	public void saveTracks(OutputStream out) throws IOException
+	{
+		//TODO: constants;
+		ObjectOutputStream oos = new ObjectOutputStream(out);
+		oos.writeInt(tracks.size());
+		for (GraphicTrack track : tracks)
+		{
+			oos.writeObject(track.getClass());
+			track.saveTrackData(oos);
+		}
+	}
+
+	/**
+	 * Loads track data from an byte stream.
+	 * Note that this will not close the file.
+	 * @param in byte stream to write to.
+	 * @throws IOException when an I/O error occurs while writing
+	 */
+	public void loadTracks(InputStream in) throws IOException
+	{
+		//TODO: should we put MusicConstants
+		ObjectInputStream ois = new ObjectInputStream(in);
+		int trackNum = ois.readInt();
+
+		for (int i = 0; i < trackNum; i++)
+		{
+			try {
+				GraphicTrack track = getTracks().get(i);
+				Class<?> trackClass = (Class<?>) ois.readObject();
+				if (!GraphicTrack.class.isAssignableFrom(trackClass))
+					throw new FileCorruptionException("File Corruption: Track not instanceof GraphicsTrack");
+				if (trackClass != track.getClass())
+					throw new FileCorruptionException("File Corruption: Tracks mismatch");
+				track.loadTrackData(ois);
+			} catch (ClassNotFoundException e) {
+				throw new FileCorruptionException("File Corruption: Unable to locate class");
+			}
+		}
+	}
+
 
 	/**
 	 * plays all the notes in the current position

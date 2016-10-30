@@ -32,7 +32,13 @@ package com.ctry.clearcomposer.sequencer;
 
 import com.ctry.clearcomposer.ClearComposer;
 import com.ctry.clearcomposer.music.RelativeNote;
+import javafx.scene.Node;
 import javafx.scene.text.Text;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.List;
 
 public class NotesTrack extends GraphicTrack
 {
@@ -40,7 +46,7 @@ public class NotesTrack extends GraphicTrack
 	private int index;
 
 	/**
-	 * constructs a new track with no notes filled
+	 * Constructs a new track with no notes filled
 	 * @param octave octaves higher than the lowest A
 	 * @param index what note of the chord to play
 	 */
@@ -57,8 +63,8 @@ public class NotesTrack extends GraphicTrack
 	}
 
 	/**
-	 * formatted track name to display pitch of note (no octave)
-	 * @return track name
+	 * Obtains a formatted track name.
+	 * @return track name that displays pitch of note without octaves
 	 */
 	public String formatTrackName()
 	{
@@ -75,8 +81,7 @@ public class NotesTrack extends GraphicTrack
 	}
 
 	/**
-	 * gets a note represented as solfege
-	 * @return
+	 * @return a note represented as solfege
 	 */
 	private RelativeNote getNote()
 	{
@@ -84,7 +89,7 @@ public class NotesTrack extends GraphicTrack
 	}
 
 	/**
-	 * play the midi pitch
+	 * Plays the midi pitch
 	 * @param index position of note to be played
 	 * @return midi pitch or -1 if no note is played
 	 */
@@ -95,5 +100,42 @@ public class NotesTrack extends GraphicTrack
 		if (note.isOn())
 			return getNote().getAbsolutePitch(octave);
 		return -1;
+	}
+
+	/**
+	 * Saves track data to an data stream
+	 * @param out data stream to write to.
+	 * @throws IOException if I/O error occurs while writing
+	 */
+	@Override
+	public void saveTrackData(DataOutput out) throws IOException {
+		List<Node> children = getTrack().getChildren();
+
+		out.writeInt(children.size());
+		for (Node child : children)
+		{
+			GraphicNote note = (GraphicNote) child;
+			out.writeBoolean(note.isOn());
+		}
+	}
+
+	/**
+	 * Loads track data from a data stream.
+	 * @param in data stream to read from.
+	 * @throws IOException if I/O error occurs while reading
+	 */
+	@Override
+	public void loadTrackData(DataInput in) throws IOException {
+		int num = in.readInt();
+
+		List<Node> children = getTrack().getChildren();
+		for (int i = 0; i < num && i < children.size(); i++)
+		{
+			GraphicNote note = (GraphicNote) children.get(i);
+			if (in.readBoolean())
+				note.turnOn();
+			else
+				note.turnOff();
+		}
 	}
 }

@@ -80,6 +80,7 @@ public class GraphicNote extends Rectangle
 	 */
 	private void mouseAction(MouseEvent t)
 	{
+
 		if (ClearComposer.isToggle())
 		{
 			if (!isToggled)
@@ -105,7 +106,7 @@ public class GraphicNote extends Rectangle
 	/**
 	 * turns on note
 	 */
-	private void turnOn()
+	void turnOn()
 	{
 		if (isImmutable)
 			return;
@@ -121,7 +122,7 @@ public class GraphicNote extends Rectangle
 	/**
 	 * turns off note
 	 */
-	private void turnOff()
+	void turnOff()
 	{
 		if (isImmutable)
 			return;

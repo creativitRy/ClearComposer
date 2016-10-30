@@ -11,5 +11,5 @@ Let's see how much I can program in four busy days!
 * Dropdown menu to select key
 * Dropdown menu to select number of notes (16 or 12)
 * Keyboard mapping to chord buttons
-* File IO
+* File IO << Working on that.
 * Bass Track - play the root of the chord an octave lower

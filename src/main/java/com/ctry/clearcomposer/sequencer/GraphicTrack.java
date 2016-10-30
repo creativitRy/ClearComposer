@@ -35,14 +35,19 @@ import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 public abstract class GraphicTrack
 {
 	private HBox track;
 	private Color color;
 
 	/**
-	 * constructs a new track and sets the color
-	 * @param color
+	 * Constructs a new track and sets the color.
+	 * @param color the color to set notes to
 	 */
 	public GraphicTrack(Color color)
 	{
@@ -56,7 +61,21 @@ public abstract class GraphicTrack
 	}
 
 	/**
-	 * returns midi pitch to be played
+	 * Saves track data to a data stream.
+	 * @param out data stream to write to.
+	 * @throws IOException if an error occurs during I/O
+	 */
+	public abstract void saveTrackData(DataOutput out) throws IOException;
+
+	/**
+	 * Loads track data from a data stream.
+	 * @param in data stream to read from.
+	 * @throws IOException if an error occurs during I/O
+	 */
+	public abstract void loadTrackData(DataInput in) throws IOException;
+
+	/**
+	 * Obtains midi pitch to be played
 	 * @param index position of note to be played
 	 * @return -1 if no note is played, a midi pitch otherwise
 	 */
@@ -64,7 +83,6 @@ public abstract class GraphicTrack
 
 	/**
 	 * Getter for property 'track'.
-	 *
 	 * @return Value for property 'track'.
 	 */
 	public HBox getTrack()
@@ -74,7 +92,6 @@ public abstract class GraphicTrack
 
 	/**
 	 * Getter for property 'color'.
-	 *
 	 * @return Value for property 'color'.
 	 */
 	public Color getColor()
@@ -83,7 +100,7 @@ public abstract class GraphicTrack
 	}
 
 	/**
-	 * changes the fill colors of all notes
+	 * Changes the fill colors of all notes
 	 * @param to color to change to
 	 */
 	public void changeColor(Color to)
