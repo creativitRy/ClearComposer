@@ -46,8 +46,8 @@ public abstract class GraphicTrack
 	private Color color;
 
 	/**
-	 * constructs a new track and sets the color
-	 * @param color
+	 * Constructs a new track and sets the color.
+	 * @param color the color to set notes to
 	 */
 	public GraphicTrack(Color color)
 	{
@@ -75,7 +75,7 @@ public abstract class GraphicTrack
 	public abstract void loadTrackData(DataInput in) throws IOException;
 
 	/**
-	 * returns midi pitch to be played
+	 * Obtains midi pitch to be played
 	 * @param index position of note to be played
 	 * @return -1 if no note is played, a midi pitch otherwise
 	 */
@@ -83,7 +83,6 @@ public abstract class GraphicTrack
 
 	/**
 	 * Getter for property 'track'.
-	 *
 	 * @return Value for property 'track'.
 	 */
 	public HBox getTrack()
@@ -93,7 +92,6 @@ public abstract class GraphicTrack
 
 	/**
 	 * Getter for property 'color'.
-	 *
 	 * @return Value for property 'color'.
 	 */
 	public Color getColor()
@@ -102,7 +100,7 @@ public abstract class GraphicTrack
 	}
 
 	/**
-	 * changes the fill colors of all notes
+	 * Changes the fill colors of all notes
 	 * @param to color to change to
 	 */
 	public void changeColor(Color to)

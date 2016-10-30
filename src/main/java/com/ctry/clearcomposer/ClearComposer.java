@@ -47,6 +47,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.io.*;
 import java.util.Random;
 
 public class ClearComposer extends Application
@@ -164,6 +165,38 @@ public class ClearComposer extends Application
 		for (int i = 1; i < player.getTracks().size(); i++)
 		{
 			((NotesTrack) player.getTracks().get(i)).updateTrack();
+		}
+	}
+
+	/**
+	 * Loads all track data from a data file.
+	 * @param f file to load from.
+	 */
+	public void loadData(File f)
+	{
+		try (FileInputStream fis = new FileInputStream(f))
+		{
+			player.loadTracks(fis);
+		}
+		catch (IOException e)
+		{
+			//TODO: show error while loading.
+		}
+	}
+
+	/**
+	 * Saves all tracks to a data file.
+	 * @param f file to save to.
+	 */
+	public void saveData(File f)
+	{
+		try (FileOutputStream fos = new FileOutputStream(f))
+		{
+			player.saveTracks(fos);
+		}
+		catch (IOException e)
+		{
+			//TODO: show error while saving.
 		}
 	}
 

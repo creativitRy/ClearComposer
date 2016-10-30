@@ -81,7 +81,7 @@ public class TrackPlayer
 	 * @param out byte stream to write to.
 	 * @throws IOException when an I/O error occurs while writing
 	 */
-	public void saveTrack(OutputStream out) throws IOException
+	public void saveTracks(OutputStream out) throws IOException
 	{
 		//TODO: constants;
 		ObjectOutputStream oos = new ObjectOutputStream(out);
@@ -89,7 +89,6 @@ public class TrackPlayer
 		for (GraphicTrack track : tracks)
 		{
 			oos.writeObject(track.getClass());
-			oos.writeObject(track.getColor());
 			track.saveTrackData(oos);
 		}
 	}
@@ -100,39 +99,26 @@ public class TrackPlayer
 	 * @param in byte stream to write to.
 	 * @throws IOException when an I/O error occurs while writing
 	 */
-	public void loadTrack(InputStream in) throws IOException
+	public void loadTracks(InputStream in) throws IOException
 	{
-		//TODO: constants
+		//TODO: should we put MusicConstants
 		ObjectInputStream ois = new ObjectInputStream(in);
 		int trackNum = ois.readInt();
 
-
-		List<GraphicTrack> tracksLoad = new ArrayList<>();
 		for (int i = 0; i < trackNum; i++)
 		{
 			try {
-				GraphicTrack track;
+				GraphicTrack track = getTracks().get(i);
 				Class<?> trackClass = (Class<?>) ois.readObject();
 				if (!GraphicTrack.class.isAssignableFrom(trackClass))
-					throw new IOException("Track not instanceof GraphicsTrack");
-				Color color = (Color) ois.readObject();
-
-				Constructor<?> defCon = getConstructor(trackClass);
-				Constructor<?> colorCon = getConstructor(trackClass, Color.class);
-				if (colorCon != null)
-					track = (GraphicTrack)colorCon.newInstance(color);
-				else if (defCon != null)
-					track = (GraphicTrack)defCon.newInstance();
-				else
-					throw new IOException("No suitable constructor found for track");
+					throw new FileCorruptionException("File Corruption: Track not instanceof GraphicsTrack");
+				if (trackClass != track.getClass())
+					throw new FileCorruptionException("File Corruption: Tracks mismatch");
 				track.loadTrackData(ois);
-			} catch (ClassNotFoundException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-				throw new IOException(e);
+			} catch (ClassNotFoundException e) {
+				throw new FileCorruptionException("File Corruption: Unable to locate class");
 			}
 		}
-
-		tracks.clear();
-		tracks.addAll(tracksLoad);
 	}
 
 
