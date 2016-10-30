@@ -62,7 +62,7 @@ public class NotesTrack extends GraphicTrack
 	 */
 	public String formatTrackName()
 	{
-		return String.format("%4s: ", getNote().getPitch().toString());
+		return String.format("%4s: ", getNote().getFormattedPitch());
 	}
 
 	/**

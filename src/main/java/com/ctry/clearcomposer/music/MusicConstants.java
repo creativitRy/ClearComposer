@@ -42,12 +42,12 @@ public class MusicConstants
 	 */
 	public static final int TRACK_AMOUNT = 11;
 
-	public static final AbsoluteNote DEFAULT_KEY = AbsoluteNote.C;
+	public static final Key DEFAULT_KEY = Key.C;
 	public static final double DEFAULT_TEMPO = 200;
-	public static final Chord DEFAULT_CHORD = Chord.I;
+	public static final Chord DEFAULT_CHORD = Chord.V_V;
 	public static final int DEFAULT_NOTE_AMOUNT = 16;
 
-	private AbsoluteNote key;
+	private Key key;
 	private double tempo;
 	private Chord chord;
 	private int noteAmount;
@@ -65,7 +65,7 @@ public class MusicConstants
 	 *
 	 * @return Value for property 'key'.
 	 */
-	public AbsoluteNote getKey()
+	public Key getKey()
 	{
 		return key;
 	}
@@ -75,7 +75,7 @@ public class MusicConstants
 	 *
 	 * @param key Value to set for property 'key'.
 	 */
-	public void setKey(AbsoluteNote key)
+	public void setKey(Key key)
 	{
 		this.key = key;
 	}

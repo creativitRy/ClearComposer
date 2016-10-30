@@ -65,8 +65,6 @@ public enum AbsoluteNote
 		return ordinal();
 	}
 
-	//TODO: when to use flats and when to use sharps
-
 	/**
 	 * note name
 	 * @return note name

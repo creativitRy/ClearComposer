@@ -157,7 +157,7 @@ public class ClearComposer extends Application
 				continue;
 
 			Button b = (Button) n;
-			b.setDisable(b.getStyleClass().get(0).equals(c.name().toLowerCase()));
+			b.setDisable(b.getStyleClass().get(0).equals(c.name()));
 
 		}
 

@@ -23,54 +23,54 @@
  */
 
 /**
- * Chords and their five best matching notes
+ * Keys (all in major)
  *
  * @author creativitRy
  * Date: 10/29/2016.
  */
 package com.ctry.clearcomposer.music;
 
-import static com.ctry.clearcomposer.music.RelativeNote.*;
-
-public enum Chord
+public enum Key
 {
-	I(DO, RE, MI, SOL, LA),
-	ii(RE, MI, FA, SOL, LA),
-	iii(RE, MI, SOL, LA, TI),
-	IV(DO, RE, FA, SOL, LA),
-	V(RE, FA, SOL, LA, TI),
-	vi(DO, RE, MI, SOL, LA),
-	vii(RE, FA, SOL, LA, TI),
-	V_ii(DI, MI, SOL, LA, TI),
-	V_iii(DI, RI, FI, LA, TI),
-	V_IV(DO, RE, MI, SOL, TE),
-	V_V(DO, RE, MI, FI, LA),
-	V_vi(RE, MI, FI, SI, TI),
-	;
+	C(3),
+	G(10),
+	D(5),
+	A(0),
+	E(7),
+	B(2),
+	Fs(9),
+	Cs(4),
+	F(8),
+	Bb(1),
+	Eb(6),
+	Ab(11),
+	Db(4),
+	Gb(9),
+	Cb(2);
 
-	private RelativeNote[] notes;
+	private int pitch;
 
-	Chord(RelativeNote n0, RelativeNote n1, RelativeNote n2, RelativeNote n3, RelativeNote n4)
+	Key(int num)
 	{
-		notes = new RelativeNote[]{n0, n1, n2, n3, n4};
+		pitch = num;
 	}
 
 	/**
-	 * all five notes that best fit the chord
-	 * @return notes
+	 * absolute note of the root of the key
+	 * @return root
 	 */
-	public RelativeNote[] getNotes()
+	public AbsoluteNote getNote()
 	{
-		return notes;
+		return AbsoluteNote.values()[pitch];
 	}
 
 	/**
-	 * one of the notes of the chord
-	 * @param index what note to choose
-	 * @return note
+	 * nicely formatted key root
+	 * @return
 	 */
-	public RelativeNote getNote(int index)
+	public String toString()
 	{
-		return notes[index];
+		return name().replace('s', '#');
 	}
+
 }
