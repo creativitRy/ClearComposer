@@ -15,12 +15,12 @@ public class MusicConstants
 	public static int LOWEST_PITCH = 57;
 
 	public static final AbsoluteNote DEFAULT_KEY = AbsoluteNote.C;
-	public static final int DEFAULT_TEMPO = 120;
+	public static final double DEFAULT_TEMPO = 200;
 	public static final Chord DEFAULT_CHORD = Chord.I;
 	public static final int DEFAULT_NOTE_AMOUNT = 16;
 
 	private AbsoluteNote key;
-	private int tempo;
+	private double tempo;
 	private Chord chord;
 	private int noteAmount;
 
@@ -57,7 +57,7 @@ public class MusicConstants
 	 *
 	 * @return Value for property 'tempo'.
 	 */
-	public int getTempo()
+	public double getTempo()
 	{
 		return tempo;
 	}
@@ -67,7 +67,7 @@ public class MusicConstants
 	 *
 	 * @param tempo Value to set for property 'tempo'.
 	 */
-	public void setTempo(int tempo)
+	public void setTempo(double tempo)
 	{
 		this.tempo = tempo;
 	}

@@ -44,8 +44,6 @@ public class GraphicNote extends Rectangle
 
 		setFill(FILL_OFF);
 
-		//setOnDragDetected(t -> startFullDrag());
-
 		setOnMousePressed(this::mouseAction);
 		setOnMouseDragEntered(this::mouseAction);
 	}
@@ -116,12 +114,13 @@ public class GraphicNote extends Rectangle
 		return true;
 	}
 
-	public void playColor(Color to)
+	private void playColor(Color to)
 	{
 		setFill(FILL_PLAY);
 		ft = new FillTransition(TRANSITION_DURATION, this, FILL_PLAY, to);
 		ft.setCycleCount(10);
 		ft.setAutoReverse(false);
+		ft.setCycleCount(1);
 		ft.play();
 	}
 

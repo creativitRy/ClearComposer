@@ -63,7 +63,6 @@ public class MusicPlayer
 
 	private static void turnOffNote(int pitch)
 	{
-		System.out.println(pitch);
 		MidiChannel[] channels = synth.getChannels();
 
 		channels[CHANNEL].noteOff(pitch);

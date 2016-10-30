@@ -9,9 +9,9 @@ package com.ctry.clearcomposer;
 import com.ctry.clearcomposer.music.Chord;
 import com.ctry.clearcomposer.music.MusicConstants;
 import com.ctry.clearcomposer.music.MusicPlayer;
+import com.ctry.clearcomposer.music.TrackPlayer;
 import com.ctry.clearcomposer.sequencer.GraphicNote;
-import com.ctry.clearcomposer.sequencer.GraphicTrack;
-import com.ctry.clearcomposer.sequencer.MasterTrack;
+import com.ctry.clearcomposer.sequencer.BeatTrack;
 import com.ctry.clearcomposer.sequencer.NotesTrack;
 import javafx.application.Application;
 import javafx.geometry.Pos;
@@ -21,14 +21,8 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import javax.sound.midi.MidiChannel;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.Synthesizer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public class ClearComposer extends Application
@@ -46,7 +40,7 @@ public class ClearComposer extends Application
 
 	private HBox chordButtons;
 
-	private List<GraphicTrack> tracks;
+	private TrackPlayer player;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception
@@ -57,17 +51,17 @@ public class ClearComposer extends Application
 		BorderPane pane = new BorderPane();
 		pane.setRight(root);
 
-		tracks = new ArrayList<>();
+		player = new TrackPlayer();
 		VBox tracksDisplay = new VBox();
 		tracksDisplay.setAlignment(Pos.CENTER);
 		tracksDisplay.getStyleClass().add("bg");
 		for (int i = 7; i >= 0; i--)
 		{
-			tracks.add(0, new NotesTrack(i / 5, i % 5));
-			tracksDisplay.getChildren().add(tracks.get(0).getTrack());
+			player.getTracks().add(0, new NotesTrack(i / 5, i % 5));
+			tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
 		}
-		tracks.add(0, new MasterTrack());
-		tracksDisplay.getChildren().add(tracks.get(0).getTrack());
+		player.getTracks().add(0, new BeatTrack());
+		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
 		pane.setCenter(tracksDisplay);
 		pane.getStyleClass().add("bg");
 
@@ -111,9 +105,9 @@ public class ClearComposer extends Application
 
 		}
 
-		for (int i = 1; i < tracks.size(); i++)
+		for (int i = 1; i < player.getTracks().size(); i++)
 		{
-			((NotesTrack) tracks.get(i)).updateNote();
+			((NotesTrack) player.getTracks().get(i)).updateNote();
 		}
 	}
 

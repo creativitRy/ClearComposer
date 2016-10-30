@@ -8,7 +8,6 @@ package com.ctry.clearcomposer.sequencer;
 
 import com.ctry.clearcomposer.ClearComposer;
 import com.ctry.clearcomposer.music.RelativeNote;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 public class NotesTrack extends GraphicTrack
@@ -46,7 +45,7 @@ public class NotesTrack extends GraphicTrack
 
 	public int playNote(int index)
 	{
-		GraphicNote note = (GraphicNote) getTrack().getChildren().get(index);
+		GraphicNote note = (GraphicNote) getTrack().getChildren().get(index + 1);
 
 		if (note.isOn())
 			return getNote().getAbsolutePitch(octave);

@@ -10,11 +10,11 @@ import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
-public class MasterTrack extends GraphicTrack
+public class BeatTrack extends GraphicTrack
 {
 	private static final Color DEFAULT_COLOR = Color.BLACK;
 
-	public MasterTrack()
+	public BeatTrack()
 	{
 		super(DEFAULT_COLOR);
 
@@ -36,7 +36,7 @@ public class MasterTrack extends GraphicTrack
 
 	public int playNote(int index)
 	{
-		GraphicNote note = (GraphicNote) getTrack().getChildren().get(index);
+		GraphicNote note = (GraphicNote) getTrack().getChildren().get(index + 1);
 
 		note.isOn();
 
