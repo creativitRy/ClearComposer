@@ -1,23 +1,48 @@
-.button.pressed { -fx-background-color: ghostwhite; }
-
-.button
-{
-    -fx-text-fill: black;
-    -fx-background-position: center;
-    -fx-background-repeat: no-repeat;
+.ccbutton.pressed {
+    -fx-background-color: linear-gradient( to bottom, rgba(120, 120, 120), rgba(180, 180, 180)) ;
 }
 
-.button.undo { -fx-background-image: url(undo.png); }
-.button.redo { -fx-background-image: url(redo.png); }
-.button.cut { -fx-background-image: url(cut.png); }
-.button.copy { -fx-background-image: url(copy.png); }
-.button.paste { -fx-background-image: url(paste.png); }
-.button.bold { -fx-background-image: url(bold.png); }
-.button.italic { -fx-background-image: url(italic.png); }
-.button.save { -fx-background-image: url(save.png); }
-.button.open { -fx-background-image: url(open.png); }
-.button.label { -fx-text-fill: black; }
+.ccbutton:hover .highlight {
+    -fx-background-color: rgba(255, 255, 255, .4);
+}
 
+.panel
+{
+    -fx-background-color: linear-gradient( to bottom, rgba(160, 160, 160), rgba(100, 100, 100)) ;
+    -fx-background-image: url(CoarseGrid.png);
+    /*-fx-border-color: rgb(150, 150, 150), rgb(240, 240, 240), rgb(150, 150, 150);
+    -fx-border-insets: 2px, 1px, 0px;
+    -fx-border-width: 1px 0px 0px 0px;
+    -fx-border-style: solid;*/
+}
+.ccbutton
+{
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, .6), 20, 0, 0, 0);
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-color: linear-gradient( to bottom, rgba(220, 220, 220), rgba(160, 160, 160)) ;
+    -fx-background-radius: 10px;
+    -fx-border-color: rgb(150, 150, 150), rgb(240, 240, 240), rgb(150, 150, 150);
+    -fx-border-insets: 2px, 1px, 0px;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px, 8px, 10px;
+    -fx-border-style: solid;
+}
+
+.ccbutton .label .text
+{
+    -fx-fill: black;
+}
+
+.ccbutton.undo .back { -fx-background-image: url(undo.png); }
+.ccbutton.redo .back { -fx-background-image: url(redo.png); }
+.ccbutton.cut .back { -fx-background-image: url(cut.png); }
+.ccbutton.copy .back { -fx-background-image: url(copy.png); }
+.ccbutton.paste .back { -fx-background-image: url(paste.png); }
+.ccbutton.bold .back { -fx-background-image: url(bold.png); }
+.ccbutton.italic .back { -fx-background-image: url(italic.png); }
+.ccbutton.save .back { -fx-background-image: url(save.png); }
+.ccbutton.open .back { -fx-background-image: url(open.png); }
 
 .bg { -fx-background-color: black; }
 
