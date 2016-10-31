@@ -17,6 +17,5 @@ Gahwon Lee and Henry Wang for programming the application.
 * Dropdown menu to select key
 * Dropdown menu to select number of notes (16 or 12)
 * Keyboard mapping to chord buttons
-* Bass Track - play the root of the chord an octave lower
 * Rename the application title to ___ - ClearComposer where ___ is either Untitled or the name of the open file
 * File opening ui and remember opened file. File open and save buttons
