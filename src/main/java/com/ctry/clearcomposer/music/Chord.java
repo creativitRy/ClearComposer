@@ -59,6 +59,10 @@ public enum Chord
 		bass = notes[bassIndex];
 	}
 
+	public boolean isSecondary() {
+		return name().contains("_");
+	}
+
 	/**
 	 * all five notes that best fit the chord
 	 * @return notes

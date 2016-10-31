@@ -30,15 +30,16 @@
  */
 package com.ctry.clearcomposer.sequencer;
 
-import com.ctry.clearcomposer.ClearComposer;
-import com.ctry.clearcomposer.music.RelativeNote;
-import javafx.scene.Node;
-import javafx.scene.text.Text;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.List;
+
+import com.ctry.clearcomposer.ClearComposer;
+import com.ctry.clearcomposer.music.RelativeNote;
+
+import javafx.scene.Node;
+import javafx.scene.text.Text;
 
 public class NotesTrack extends GraphicTrack
 {
@@ -58,7 +59,7 @@ public class NotesTrack extends GraphicTrack
 		this.index = index;
 
 		Text text = new Text(formatTrackName());
-		text.getStyleClass().add("text");
+		text.getStyleClass().add("chordNames");
 		getTrack().getChildren().add(0, text);
 	}
 
@@ -93,6 +94,7 @@ public class NotesTrack extends GraphicTrack
 	 * @param index position of note to be played
 	 * @return midi pitch or -1 if no note is played
 	 */
+	@Override
 	public int playNote(int index)
 	{
 		GraphicNote note = (GraphicNote) getTrack().getChildren().get(index + 1);

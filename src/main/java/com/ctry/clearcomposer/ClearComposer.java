@@ -30,6 +30,13 @@
  */
 package com.ctry.clearcomposer;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ctry.clearcomposer.music.Chord;
 import com.ctry.clearcomposer.music.MusicConstants;
 import com.ctry.clearcomposer.music.MusicPlayer;
@@ -38,24 +45,24 @@ import com.ctry.clearcomposer.sequencer.BassNotesTrack;
 import com.ctry.clearcomposer.sequencer.BeatTrack;
 import com.ctry.clearcomposer.sequencer.GraphicNote;
 import com.ctry.clearcomposer.sequencer.NotesTrack;
+
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Random;
 
 public class ClearComposer extends Application
 {
-	public static final int DEFAULT_WIDTH = 1280;
+	public static final int DEFAULT_WIDTH = 780;
 	public static final int DEFAULT_HEIGHT = 720;
 
 	/**
@@ -75,7 +82,7 @@ public class ClearComposer extends Application
 	/**
 	 * the buttons to change chords
 	 */
-	private HBox chordButtons;
+	private StackPane chordButtons;
 
 	/**
 	 * plays music and keeps track of note/beat tracks
@@ -100,14 +107,16 @@ public class ClearComposer extends Application
 		pane.getStyleClass().add("bg");
 
 		//test button to test midi note playing TODO: remove
-		Button root = createButton("undo", () -> MusicPlayer.playNote(new Random().nextInt(24) + 60));
-		pane.setRight(root);
+		//Button root = createChordButton("undo", () -> MusicPlayer.playNote(new Random().nextInt(24) + 60));
+		//pane.setRight(root);
 
 		//music sequencer
 		player = new TrackPlayer();
 		VBox tracksDisplay = new VBox();
+		tracksDisplay.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 		tracksDisplay.setAlignment(Pos.CENTER);
 		tracksDisplay.getStyleClass().add("bg");
+		tracksDisplay.setPadding(new Insets(0, 100, 0, 0));
 		for (int i = MusicConstants.TRACK_AMOUNT - 1; i >= 0; i--)
 		{
 			player.getTracks().add(0, new NotesTrack(i / 5, i % 5));
@@ -120,15 +129,42 @@ public class ClearComposer extends Application
 		pane.setCenter(tracksDisplay);
 
 		//chord buttons
-		chordButtons = new HBox(10);
-		chordButtons.setAlignment(Pos.CENTER);
+		HBox primaryChords = new HBox(10);
+		HBox secondaryChords = new HBox(10);
+		VBox chordRows = new VBox(10);
+		chordRows.getChildren().addAll(primaryChords, secondaryChords);
+		chordRows.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+
+		chordButtons = new StackPane();
+		chordButtons.setPadding(new Insets(10));
+		chordButtons.getStyleClass().add("panel");
+		chordButtons.getChildren().add(chordRows);
+		List<CCButton> chords = new ArrayList<>();
 		for (Chord c : Chord.values())
 		{
-			Button button = createButton(c.name(), () -> setChord(c));
-			button.setText(c.toString());
-			button.setPrefWidth(100);
-			button.setStyle("-fx-text-fill: black");
-			chordButtons.getChildren().add(button);
+			CCButton button = new CCButton(c.toString(), c.getColor());
+			button.setMinSize(100, 35);
+			button.setPrefSize(100, 35);
+			button.setMaxSize(100, 35);
+			button.setOnMousePressed(evt -> {
+				if (button.isButtonPressed())
+					return;
+				button.setButtonPressed(true);
+				chords.forEach(btn ->
+				{
+					if (btn != button)
+						btn.setButtonPressed(false);
+				});
+				setChord(c);
+			});
+			if (c == constants.getChord())
+				button.setButtonPressed(true);
+
+			chords.add(button);
+			if (c.isSecondary())
+				secondaryChords.getChildren().add(button);
+			else
+				primaryChords.getChildren().add(button);
 		}
 		setChord(constants.getChord());
 		pane.setBottom(chordButtons);
@@ -145,9 +181,11 @@ public class ClearComposer extends Application
 		});
 		//css
 		scene.getStylesheets().add(ClearComposer.class.getResource("clearcomposer.css").toExternalForm());
+
 		//configure main stage
 		primaryStage.setScene(scene);
-		primaryStage.setTitle("Hello World");
+		primaryStage.setResizable(false);
+		primaryStage.setTitle("ClearComposer");
 		primaryStage.setOnCloseRequest(e ->
 		{
 			MusicPlayer.turnOffNotes();
@@ -215,25 +253,7 @@ public class ClearComposer extends Application
 		}
 	}
 
-	/**
-	 * constructs a button with the given style
-	 *
-	 * @param styleClass name of style to apply in css
-	 * @param action     method to run when button is clicked
-	 * @return constructed button
-	 */
-	private Button createButton(String styleClass, Runnable action)
-	{
-		Button button = new Button();
-		button.getStyleClass().add(styleClass);
-		button.setOnAction((evt) ->
-		{
-			action.run();
-		});
-		button.setPrefWidth(20);
-		button.setPrefHeight(20);
-		return button;
-	}
+
 
 	/**
 	 * Getter for property 'toggle'.

@@ -30,14 +30,14 @@
  */
 package com.ctry.clearcomposer.music;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
-
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Synthesizer;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 
 public class MusicPlayer
 {
@@ -71,7 +71,6 @@ public class MusicPlayer
 				synth.open();
 
 			MidiChannel[] channels = synth.getChannels();
-
 			channels[CHANNEL].noteOn(pitch, VOLUME);
 
 			if (time != null)
