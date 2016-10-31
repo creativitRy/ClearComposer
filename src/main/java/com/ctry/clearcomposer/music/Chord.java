@@ -55,6 +55,10 @@ public enum Chord
 		notes = new RelativeNote[]{n0, n1, n2, n3, n4};
 	}
 
+	public boolean isSecondary() {
+		return name().contains("_");
+	}
+
 	/**
 	 * all five notes that best fit the chord
 	 * @return notes

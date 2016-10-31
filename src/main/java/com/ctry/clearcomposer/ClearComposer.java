@@ -44,20 +44,19 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ClearComposer extends Application
 {
-	public static final int DEFAULT_WIDTH = 1380;
+	public static final int DEFAULT_WIDTH = 780;
 	public static final int DEFAULT_HEIGHT = 720;
 
 	/**
@@ -77,7 +76,7 @@ public class ClearComposer extends Application
 	/**
 	 * the buttons to change chords
 	 */
-	private HBox chordButtons;
+	private StackPane chordButtons;
 
 	/**
 	 * plays music and keeps track of note/beat tracks
@@ -122,28 +121,42 @@ public class ClearComposer extends Application
 		pane.setCenter(tracksDisplay);
 
 		//chord buttons
-		chordButtons = new HBox(10);
-		List<Node> btnChilds = chordButtons.getChildren();
-		chordButtons.setAlignment(Pos.CENTER);
+		HBox primaryChords = new HBox(10);
+		HBox secondaryChords = new HBox(10);
+		VBox chordRows = new VBox(10);
+		chordRows.getChildren().addAll(primaryChords, secondaryChords);
+		chordRows.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+
+		chordButtons = new StackPane();
 		chordButtons.setPadding(new Insets(10));
 		chordButtons.getStyleClass().add("panel");
+		chordButtons.getChildren().add(chordRows);
+		List<CCButton> chords = new ArrayList<>();
 		for (Chord c : Chord.values())
 		{
-			ChordButton button = new ChordButton(c);
+			CCButton button = new CCButton(c.toString());
+			button.setMinSize(100, 35);
+			button.setPrefSize(100, 35);
+			button.setMaxSize(100, 35);
 			button.setOnMousePressed(evt -> {
 				if (button.isButtonPressed())
 					return;
 				button.setButtonPressed(true);
-				btnChilds.forEach(btn ->
+				chords.forEach(btn ->
 				{
 					if (btn != button)
-						((ChordButton) btn).setButtonPressed(false);
+						btn.setButtonPressed(false);
 				});
 				setChord(c);
 			});
 			if (c == constants.getChord())
 				button.setButtonPressed(true);
-			chordButtons.getChildren().add(button);
+
+			chords.add(button);
+			if (c.isSecondary())
+				secondaryChords.getChildren().add(button);
+			else
+				primaryChords.getChildren().add(button);
 		}
 		setChord(constants.getChord());
 		pane.setBottom(chordButtons);
@@ -163,7 +176,8 @@ public class ClearComposer extends Application
 
 		//configure main stage
 		primaryStage.setScene(scene);
-		primaryStage.setTitle("Hello World");
+		primaryStage.setResizable(false);
+		primaryStage.setTitle("ClearComposer");
 		primaryStage.setOnCloseRequest(e ->
 		{
 			MusicPlayer.turnOffNotes();

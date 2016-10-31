@@ -26,15 +26,12 @@ package com.ctry.clearcomposer;
 
 import com.ctry.clearcomposer.music.Chord;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-public class ChordButton extends StackPane {
+public class CCButton extends StackPane {
 	private static void roundedEdges(Pane pane)
 	{
 		Rectangle clip = new Rectangle();
@@ -45,16 +42,13 @@ public class ChordButton extends StackPane {
 		pane.setClip(clip);
 	}
 
-	private StackPane button;
 	private Pane buttonBack;
 	private Pane buttonHighlight;
 	private Label buttonText;
 	private boolean pressed;
 
-	public ChordButton(Chord c)
+	public CCButton(String text)
 	{
-		button = new StackPane();
-
 		buttonBack = new Pane();
 		buttonBack.getStyleClass().add("back");
 		roundedEdges(buttonBack);
@@ -63,19 +57,11 @@ public class ChordButton extends StackPane {
 		buttonHighlight.getStyleClass().add("highlight");
 		roundedEdges(buttonHighlight);
 
-		buttonText = new Label(c.toString());
+		buttonText = new Label(text);
 		buttonText.setPadding(new Insets(5));
 
-		button.getChildren().addAll(buttonBack, buttonHighlight, buttonText);
-		button.getStyleClass().addAll("ccbutton");
-
-		//Set size
-		button.setMinSize(100, 35);
-		button.setPrefSize(100, 35);
-		button.setMaxSize(100, 35);
-
-		getChildren().add(button);
-		//setEffect(new DropShadow(3, 2, 2, Color.gray(0, .3)));
+		getChildren().addAll(buttonBack, buttonHighlight, buttonText);
+		getStyleClass().addAll("ccbutton");
 	}
 
 	public boolean isButtonPressed() {
@@ -85,8 +71,8 @@ public class ChordButton extends StackPane {
 	public void setButtonPressed(boolean pressed) {
 		this.pressed = pressed;
 		if (pressed)
-			button.getStyleClass().add("pressed");
+			getStyleClass().add("pressed");
 		else
-			button.getStyleClass().remove("pressed");
+			getStyleClass().remove("pressed");
 	}
 }
