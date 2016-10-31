@@ -30,15 +30,16 @@
  */
 package com.ctry.clearcomposer.sequencer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ctry.clearcomposer.ClearComposer;
-import javafx.animation.FillTransition;
+
+import javafx.animation.Transition;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GraphicNote extends Rectangle
 {
@@ -53,7 +54,7 @@ public class GraphicNote extends Rectangle
 	private boolean isToggled = false;
 	private Color fillOn;
 	private Mode on;
-	private FillTransition ft;
+	private Transition ft;
 
 	/**
 	 * creates a new playable graphical note with the given potential color
@@ -142,27 +143,32 @@ public class GraphicNote extends Rectangle
 			return false;
 
 		if (on == Mode.ON_TEMP)
-		{
 			on = Mode.OFF;
-			playColor(FILL_OFF);
-		}
-		else
-			playColor(fillOn);
-
+		
+		playColor();
 		return true;
 	}
 
 	/**
 	 * changes color to white and fades it back to ordinary color
-	 * @param to color to fade to
 	 */
-	private void playColor(Color to)
+	private void playColor()
 	{
 		setFill(FILL_PLAY);
-		ft = new FillTransition(TRANSITION_DURATION, this, FILL_PLAY, to);
-		ft.setCycleCount(10);
-		ft.setAutoReverse(false);
-		ft.setCycleCount(1);
+		ft = new Transition()
+		{
+			{
+				setCycleDuration(TRANSITION_DURATION);
+			}
+			@Override
+			protected void interpolate(double frac)
+			{
+				if (on != Mode.OFF)
+					setFill(FILL_PLAY.interpolate(fillOn, frac));					
+				else
+					setFill(FILL_PLAY.interpolate(FILL_OFF, frac));
+			}
+		};
 		ft.play();
 	}
 
