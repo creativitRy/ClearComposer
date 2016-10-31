@@ -132,6 +132,7 @@ public class ClearComposer extends Application
 		HBox primaryChords = new HBox(10);
 		HBox secondaryChords = new HBox(10);
 		VBox chordRows = new VBox(10);
+		secondaryChords.setAlignment(Pos.CENTER);
 		chordRows.getChildren().addAll(primaryChords, secondaryChords);
 		chordRows.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
