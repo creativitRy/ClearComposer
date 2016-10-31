@@ -24,14 +24,20 @@
 
 package com.ctry.clearcomposer;
 
-import javafx.geometry.Insets;
-import javafx.scene.control.Label;
+import java.net.URL;
+
+import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-public class CCButton extends StackPane {
+public class ToolbarButton extends StackPane
+{
 	private static void roundedEdges(Pane pane)
 	{
 		Rectangle clip = new Rectangle();
@@ -42,34 +48,66 @@ public class CCButton extends StackPane {
 		pane.setClip(clip);
 	}
 
+	private Pane buttonBack;
 	private Pane buttonHighlight;
-	private Label buttonText;
-	private boolean pressed;
-
-	public CCButton(String text, Color textFill)
+	
+	public ToolbarButton(String name)
 	{
-
 		buttonHighlight = new Pane();
 		buttonHighlight.getStyleClass().add("highlight");
-		roundedEdges(buttonHighlight);
-
-		buttonText = new Label(text);
-		buttonText.setTextFill(textFill);
-		buttonText.setPadding(new Insets(5));
-
-		getChildren().addAll(buttonHighlight, buttonText);
-		getStyleClass().addAll("ccbutton");
+		
+		buttonBack = new Pane();
+		buttonBack.getStyleClass().add("back");
+		
+		URL url = ToolbarButton.class.getResource(name.toLowerCase() + ".png");
+		if (url != null)
+		{
+			Image image = new Image(url.toExternalForm());
+			buttonBack.setBackground(new Background(new BackgroundImage(image, 
+					BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+					BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
+		}
+		
+		roundedEdges(this);
+		getChildren().addAll(buttonBack, buttonHighlight);
+		getStyleClass().add("tblButton");
 	}
 
-	public boolean isButtonPressed() {
-		return pressed;
+	@Override
+	protected double computeMinWidth(double height)
+	{
+		return 40;
 	}
 
-	public void setButtonPressed(boolean pressed) {
-		this.pressed = pressed;
-		if (pressed)
-			getStyleClass().add("pressed");
-		else
-			getStyleClass().remove("pressed");
+	@Override
+	protected double computeMinHeight(double width)
+	{
+		return 40;
 	}
+
+	@Override
+	protected double computePrefWidth(double height)
+	{
+		return 40;
+	}
+
+	@Override
+	protected double computePrefHeight(double width)
+	{
+		return 40;
+	}
+
+	@Override
+	protected double computeMaxWidth(double height)
+	{
+		return 40;
+	}
+
+	@Override
+	protected double computeMaxHeight(double width)
+	{
+		return 40;
+	}
+	
+	
 }

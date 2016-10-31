@@ -30,7 +30,6 @@
     -fx-font-weight: bold;
 }
 
-
 .ccbutton.undo .back { -fx-background-image: url(undo.png); }
 .ccbutton.redo .back { -fx-background-image: url(redo.png); }
 .ccbutton.cut .back { -fx-background-image: url(cut.png); }

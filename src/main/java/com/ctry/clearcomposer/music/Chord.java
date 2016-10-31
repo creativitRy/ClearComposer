@@ -30,9 +30,20 @@
  */
 package com.ctry.clearcomposer.music;
 
-import javafx.scene.paint.Color;
+import static com.ctry.clearcomposer.music.RelativeNote.DI;
+import static com.ctry.clearcomposer.music.RelativeNote.DO;
+import static com.ctry.clearcomposer.music.RelativeNote.FA;
+import static com.ctry.clearcomposer.music.RelativeNote.FI;
+import static com.ctry.clearcomposer.music.RelativeNote.LA;
+import static com.ctry.clearcomposer.music.RelativeNote.MI;
+import static com.ctry.clearcomposer.music.RelativeNote.RE;
+import static com.ctry.clearcomposer.music.RelativeNote.RI;
+import static com.ctry.clearcomposer.music.RelativeNote.SI;
+import static com.ctry.clearcomposer.music.RelativeNote.SOL;
+import static com.ctry.clearcomposer.music.RelativeNote.TE;
+import static com.ctry.clearcomposer.music.RelativeNote.TI;
 
-import static com.ctry.clearcomposer.music.RelativeNote.*;
+import javafx.scene.paint.Color;
 
 public enum Chord
 {
@@ -42,7 +53,7 @@ public enum Chord
 	IV(2, DO, RE, FA, SOL, LA),
 	V(2, RE, FA, SOL, LA, TI),
 	vi(3, DO, MI, SOL, LA, TI),
-	vii(0, TI, RE, FA, SOL, LA),
+	vii$(0, TI, RE, FA, SOL, LA),
 	V_ii(3, DI, MI, SOL, LA, TI),
 	V_iii(4, DI, RI, FI, LA, TI),
 	V_IV(0, DO, RE, MI, SOL, TE),
@@ -55,7 +66,7 @@ public enum Chord
 
 	Chord(int bassIndex, RelativeNote... n)
 	{
-		notes = n.clone();
+		notes = n;
 		bass = notes[bassIndex];
 	}
 
@@ -69,7 +80,7 @@ public enum Chord
 	 */
 	public RelativeNote[] getNotes()
 	{
-		return notes;
+		return notes.clone();
 	}
 
 	/**
@@ -87,9 +98,10 @@ public enum Chord
 		return bass;
 	}
 
+	@Override
 	public String toString()
 	{
-		return name().replace('_', '/');
+		return name().replace('_', '/').replace('$', '°');
 	}
 
 	/**
