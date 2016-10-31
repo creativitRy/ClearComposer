@@ -35,10 +35,14 @@ import java.io.Serializable;
 public class MusicConstants implements Serializable
 {
 	/**
-	 * Lowest midi pitch that is A where 60 is C
+	 * Lowest midi pitch that is A where 60 is C4
 	 * Between 0 and 127
 	 */
 	public static final int LOWEST_PITCH = 57;
+	/**
+	 * Lowest midi pitch that is E. Used for bass. 28 = E1
+	 */
+	public static final int BASS_PITCH = 40;
 	/**
 	 * Amount of tracks
 	 */

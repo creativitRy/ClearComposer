@@ -30,29 +30,33 @@
  */
 package com.ctry.clearcomposer.music;
 
+import javafx.scene.paint.Color;
+
 import static com.ctry.clearcomposer.music.RelativeNote.*;
 
 public enum Chord
 {
-	I(DO, RE, MI, SOL, LA),
-	ii(RE, MI, FA, SOL, LA),
-	iii(RE, MI, SOL, LA, TI),
-	IV(DO, RE, FA, SOL, LA),
-	V(RE, FA, SOL, LA, TI),
-	vi(DO, MI, SOL, LA, TI),
-	vii(TI, RE, FA, SOL, LA),
-	V_ii(DI, MI, SOL, LA, TI),
-	V_iii(DI, RI, FI, LA, TI),
-	V_IV(DO, RE, MI, SOL, TE),
-	V_V(DO, RE, MI, FI, LA),
-	V_vi(RE, MI, FI, SI, TI),
+	I(0, DO, RE, MI, SOL, LA),
+	ii(0, RE, MI, FA, SOL, LA),
+	iii(1, RE, MI, SOL, LA, TI),
+	IV(2, DO, RE, FA, SOL, LA),
+	V(2, RE, FA, SOL, LA, TI),
+	vi(3, DO, MI, SOL, LA, TI),
+	vii(0, TI, RE, FA, SOL, LA),
+	V_ii(3, DI, MI, SOL, LA, TI),
+	V_iii(4, DI, RI, FI, LA, TI),
+	V_IV(0, DO, RE, MI, SOL, TE),
+	V_V(1, DO, RE, MI, FI, LA),
+	V_vi(1, RE, MI, FI, SI, TI),
 	;
 
 	private RelativeNote[] notes;
+	private RelativeNote bass;
 
-	Chord(RelativeNote n0, RelativeNote n1, RelativeNote n2, RelativeNote n3, RelativeNote n4)
+	Chord(int bassIndex, RelativeNote... n)
 	{
-		notes = new RelativeNote[]{n0, n1, n2, n3, n4};
+		notes = n.clone();
+		bass = notes[bassIndex];
 	}
 
 	/**
@@ -74,8 +78,22 @@ public enum Chord
 		return notes[index];
 	}
 
+	public RelativeNote getBassNote()
+	{
+		return bass;
+	}
+
 	public String toString()
 	{
 		return name().replace('_', '/');
+	}
+
+	/**
+	 * Gets the color of the chord as defined by the color of the root as an absolute note
+	 * @return color of the chord
+	 */
+	public Color getColor()
+	{
+		return bass.getPitch().getColor();
 	}
 }

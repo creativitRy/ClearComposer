@@ -25,7 +25,7 @@
 /**
  * Custom exception for file IO
  *
- * @author creativitRy, theKidOfArcrania
+ * @author theKidOfArcrania
  * Date: 10/29/2016.
  */
 

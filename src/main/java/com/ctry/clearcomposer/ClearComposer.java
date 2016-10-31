@@ -34,6 +34,7 @@ import com.ctry.clearcomposer.music.Chord;
 import com.ctry.clearcomposer.music.MusicConstants;
 import com.ctry.clearcomposer.music.MusicPlayer;
 import com.ctry.clearcomposer.music.TrackPlayer;
+import com.ctry.clearcomposer.sequencer.BassNotesTrack;
 import com.ctry.clearcomposer.sequencer.BeatTrack;
 import com.ctry.clearcomposer.sequencer.GraphicNote;
 import com.ctry.clearcomposer.sequencer.NotesTrack;
@@ -43,9 +44,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -116,6 +115,8 @@ public class ClearComposer extends Application
 		}
 		player.getTracks().add(0, new BeatTrack());
 		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
+		player.getTracks().add(0, new BassNotesTrack());
+		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
 		pane.setCenter(tracksDisplay);
 
 		//chord buttons
@@ -173,10 +174,13 @@ public class ClearComposer extends Application
 
 		}
 
-		for (int i = 1; i < player.getTracks().size(); i++)
+		// iterate over all note tracks
+		for (int i = 2; i < player.getTracks().size(); i++)
 		{
 			((NotesTrack) player.getTracks().get(i)).updateTrack();
 		}
+
+		((BassNotesTrack) player.getTracks().get(0)).updateTrack();
 	}
 
 	/**
