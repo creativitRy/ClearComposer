@@ -51,7 +51,10 @@ public class MusicConstants implements Serializable
 	public static final Key DEFAULT_KEY = Key.Cb;
 	public static final double DEFAULT_TEMPO = 200;
 	public static final Chord DEFAULT_CHORD = Chord.I;
-	public static final int DEFAULT_NOTE_AMOUNT = 20;
+	/**
+	 * Either 12 for 3/4 or 16 for 4/4
+	 */
+	public static final int DEFAULT_NOTE_AMOUNT = 16;
 
 	private Key key;
 	private double tempo;

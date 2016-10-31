@@ -22,6 +22,14 @@
  * SOFTWARE.
  */
 
+
+/**
+ * Stylized chord buttons
+ *
+ * @author theKidOfArcrania
+ * Date: 10/29/2016.
+ */
+
 package com.ctry.clearcomposer;
 
 import javafx.geometry.Insets;
@@ -31,7 +39,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-public class CCButton extends StackPane {
+public class CCButton extends StackPane
+{
 	private static void roundedEdges(Pane pane)
 	{
 		Rectangle clip = new Rectangle();
@@ -61,11 +70,13 @@ public class CCButton extends StackPane {
 		getStyleClass().addAll("ccbutton");
 	}
 
-	public boolean isButtonPressed() {
+	public boolean isButtonPressed()
+	{
 		return pressed;
 	}
 
-	public void setButtonPressed(boolean pressed) {
+	public void setButtonPressed(boolean pressed)
+	{
 		this.pressed = pressed;
 		if (pressed)
 			getStyleClass().add("pressed");

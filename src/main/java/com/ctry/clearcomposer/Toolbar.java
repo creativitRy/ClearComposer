@@ -17,7 +17,8 @@ public class Toolbar extends HBox
 	
 	public void addAction(String action, Runnable onAction)
 	{
-		if (buttons.containsKey(action))
-			buttons.get(buttons.)
+		//TODO
+		//if (buttons.containsKey(action))
+			//buttons.get(buttons.)
 	}
 }

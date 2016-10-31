@@ -101,7 +101,7 @@ public enum Chord
 	@Override
 	public String toString()
 	{
-		return name().replace('_', '/').replace('$', '°');
+		return name().replace('_', '/').replace('$', '\u00b0');
 	}
 
 	/**
