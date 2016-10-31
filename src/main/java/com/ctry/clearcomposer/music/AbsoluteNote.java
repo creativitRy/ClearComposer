@@ -48,12 +48,21 @@ public enum AbsoluteNote
 	G$;
 
 	/**
-	 * lowest midi pitch that is the same note
+	 * midi pitch with lowest octave for main
 	 * @return midi pitch
 	 */
 	public int getAbsolutePitch()
 	{
 		return MusicConstants.LOWEST_PITCH + ordinal();
+	}
+
+	/**
+	 * midi pitch with octave for bass
+	 * @return midi pitch
+	 */
+	public int getBassPitch()
+	{
+		return MusicConstants.BASS_PITCH + (ordinal() + 5) % 12;
 	}
 
 	/**
@@ -80,7 +89,6 @@ public enum AbsoluteNote
 	 */
 	public Color getColor()
 	{
-		ordinal();
 		return Color.hsb(ordinal() * 360 / 11.0, 1, 1);
 	}
 }

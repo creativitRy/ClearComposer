@@ -41,6 +41,7 @@ import com.ctry.clearcomposer.music.Chord;
 import com.ctry.clearcomposer.music.MusicConstants;
 import com.ctry.clearcomposer.music.MusicPlayer;
 import com.ctry.clearcomposer.music.TrackPlayer;
+import com.ctry.clearcomposer.sequencer.BassNotesTrack;
 import com.ctry.clearcomposer.sequencer.BeatTrack;
 import com.ctry.clearcomposer.sequencer.GraphicNote;
 import com.ctry.clearcomposer.sequencer.NotesTrack;
@@ -57,7 +58,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class ClearComposer extends Application
@@ -124,6 +124,8 @@ public class ClearComposer extends Application
 		}
 		player.getTracks().add(0, new BeatTrack());
 		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
+		player.getTracks().add(0, new BassNotesTrack());
+		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
 		pane.setCenter(tracksDisplay);
 
 		//chord buttons
@@ -140,7 +142,7 @@ public class ClearComposer extends Application
 		List<CCButton> chords = new ArrayList<>();
 		for (Chord c : Chord.values())
 		{
-			CCButton button = new CCButton(c.toString(), Color.AQUA);
+			CCButton button = new CCButton(c.toString(), c.getColor());
 			button.setMinSize(100, 35);
 			button.setPrefSize(100, 35);
 			button.setMaxSize(100, 35);
@@ -210,10 +212,13 @@ public class ClearComposer extends Application
 
 		}
 
-		for (int i = 1; i < player.getTracks().size(); i++)
+		// iterate over all note tracks
+		for (int i = 2; i < player.getTracks().size(); i++)
 		{
 			((NotesTrack) player.getTracks().get(i)).updateTrack();
 		}
+
+		((BassNotesTrack) player.getTracks().get(0)).updateTrack();
 	}
 
 	/**
