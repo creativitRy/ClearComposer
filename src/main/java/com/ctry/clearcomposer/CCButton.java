@@ -24,11 +24,11 @@
 
 package com.ctry.clearcomposer;
 
-import com.ctry.clearcomposer.music.Chord;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 public class CCButton extends StackPane {
@@ -47,7 +47,7 @@ public class CCButton extends StackPane {
 	private Label buttonText;
 	private boolean pressed;
 
-	public CCButton(String text)
+	public CCButton(String text, Color textFill)
 	{
 		buttonBack = new Pane();
 		buttonBack.getStyleClass().add("back");
@@ -58,6 +58,7 @@ public class CCButton extends StackPane {
 		roundedEdges(buttonHighlight);
 
 		buttonText = new Label(text);
+		buttonText.setTextFill(textFill);
 		buttonText.setPadding(new Insets(5));
 
 		getChildren().addAll(buttonBack, buttonHighlight, buttonText);

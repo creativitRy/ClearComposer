@@ -30,6 +30,13 @@
  */
 package com.ctry.clearcomposer;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ctry.clearcomposer.music.Chord;
 import com.ctry.clearcomposer.music.MusicConstants;
 import com.ctry.clearcomposer.music.MusicPlayer;
@@ -37,6 +44,7 @@ import com.ctry.clearcomposer.music.TrackPlayer;
 import com.ctry.clearcomposer.sequencer.BeatTrack;
 import com.ctry.clearcomposer.sequencer.GraphicNote;
 import com.ctry.clearcomposer.sequencer.NotesTrack;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -44,15 +52,13 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ClearComposer extends Application
 {
@@ -134,7 +140,7 @@ public class ClearComposer extends Application
 		List<CCButton> chords = new ArrayList<>();
 		for (Chord c : Chord.values())
 		{
-			CCButton button = new CCButton(c.toString());
+			CCButton button = new CCButton(c.toString(), Color.AQUA);
 			button.setMinSize(100, 35);
 			button.setPrefSize(100, 35);
 			button.setMaxSize(100, 35);

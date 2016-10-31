@@ -16,3 +16,8 @@ hs_err_pid*
 #other stuff
 /out
 /.idea/workspace.xml
+
+#Eclipse Ignore stuff
+/bin/
+/.project
+/.classpath

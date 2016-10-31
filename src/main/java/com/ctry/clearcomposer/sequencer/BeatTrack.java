@@ -30,13 +30,13 @@
  */
 package com.ctry.clearcomposer.sequencer;
 
-import javafx.scene.Node;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+
+import javafx.scene.Node;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
 public class BeatTrack extends GraphicTrack
 {
@@ -61,7 +61,7 @@ public class BeatTrack extends GraphicTrack
 
 		//needs to be length of 6
 		Text text = new Text("      ");
-		text.getStyleClass().add("text");
+		text.getStyleClass().add("chordNames");
 		getTrack().getChildren().add(0, text);
 	}
 
@@ -70,6 +70,7 @@ public class BeatTrack extends GraphicTrack
 	 * @param index position being played
 	 * @return -1 as in no note is being played
 	 */
+	@Override
 	public int playNote(int index)
 	{
 		GraphicNote note = (GraphicNote) getTrack().getChildren().get(index + 1);

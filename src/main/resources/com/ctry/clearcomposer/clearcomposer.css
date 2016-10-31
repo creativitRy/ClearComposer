@@ -27,12 +27,9 @@
     -fx-border-width: 1px;
     -fx-border-radius: 6px, 8px, 10px;
     -fx-border-style: solid;
+    -fx-font-weight: bold;
 }
 
-.ccbutton .label .text
-{
-    -fx-fill: black;
-}
 
 .ccbutton.undo .back { -fx-background-image: url(undo.png); }
 .ccbutton.redo .back { -fx-background-image: url(redo.png); }
@@ -55,10 +52,15 @@
     -fx-stroke: gray;
 }
 
-.text
+.chordNames
 {
-    -fx-font-size: 16pt;
+	-fx-fill: white;
+}
+
+/* Global Font settings */
+.root
+{
+	-fx-font-size: 16pt;
     -fx-font-family: monospace;
-    -fx-fill: white;
     -fx-text-alignment: right;
 }
