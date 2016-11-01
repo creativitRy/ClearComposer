@@ -122,37 +122,33 @@ public class ClearComposer extends Application
 	{
 		pane = new BorderPane();
 		pane.getStyleClass().add("bg");
-		
-		//test button to test midi note playing TODO: remove
-		//Button root = createChordButton("undo", () -> MusicPlayer.playNote(new Random().nextInt(24) + 60));
-		//pane.setRight(root);
 
 		//Toolbar buttons
 		Toolbar bar = new Toolbar();
-		bar.addRegularButton("Open", () -> {
+		bar.addRegularButton("Open", () ->
+		{
 			File open = showFileChooser(true);
 			if (open != null)
 			{
 				try
 				{
 					player.loadTracks(new FileInputStream(open));
-				} 
-				catch (IOException e1)
+				} catch (IOException e1)
 				{
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
 		});
-		bar.addRegularButton("Save", () -> {
+		bar.addRegularButton("Save", () ->
+		{
 			File save = showFileChooser(false);
 			if (save != null)
 			{
 				try
 				{
 					player.saveTracks(new FileOutputStream(save));
-				} 
-				catch (IOException e1)
+				} catch (IOException e1)
 				{
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -162,7 +158,7 @@ public class ClearComposer extends Application
 		bar.addRegularButton("Undo", () -> System.out.println("TODO"));
 		bar.addRegularButton("Redo", () -> System.out.println("TODO"));
 		pane.setTop(bar);
-		
+
 		//music sequencer
 		player = new TrackPlayer();
 		VBox tracksDisplay = new VBox();
@@ -290,7 +286,7 @@ public class ClearComposer extends Application
 		});
 		primaryStage.show();
 	}
-	
+
 	/**
 	 * When a chord button is pressed,
 	 *

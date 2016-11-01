@@ -58,13 +58,12 @@
 
 .ccbutton.undo .back { -fx-background-image: url(undo.png); }
 .ccbutton.redo .back { -fx-background-image: url(redo.png); }
-.ccbutton.cut .back { -fx-background-image: url(cut.png); }
-.ccbutton.copy .back { -fx-background-image: url(copy.png); }
-.ccbutton.paste .back { -fx-background-image: url(paste.png); }
-.ccbutton.bold .back { -fx-background-image: url(bold.png); }
-.ccbutton.italic .back { -fx-background-image: url(italic.png); }
 .ccbutton.save .back { -fx-background-image: url(save.png); }
 .ccbutton.open .back { -fx-background-image: url(open.png); }
+.ccbutton.new .back { -fx-background-image: url(new.png); }
+.ccbutton.play .back { -fx-background-image: url(play.png); }
+.ccbutton.pause .back { -fx-background-image: url(pause.png); }
+.ccbutton.stop .back { -fx-background-image: url(stop.png); }
 
 .bg { -fx-background-color: black; }
 
