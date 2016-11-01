@@ -53,6 +53,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -83,6 +84,16 @@ public class ClearComposer extends Application
 	 * the buttons to change chords
 	 */
 	private StackPane chordButtons;
+
+	/**
+	 * buttons of chords
+	 */
+	private List<CCButton> chords;
+
+	/**
+	 * true if shift is pressed
+	 */
+	private boolean isShift = false;
 
 	/**
 	 * plays music and keeps track of note/beat tracks
@@ -140,14 +151,15 @@ public class ClearComposer extends Application
 		chordButtons.setPadding(new Insets(10));
 		chordButtons.getStyleClass().add("panel");
 		chordButtons.getChildren().add(chordRows);
-		List<CCButton> chords = new ArrayList<>();
+		chords = new ArrayList<>();
 		for (Chord c : Chord.values())
 		{
 			CCButton button = new CCButton(c.toString(), c.getColor());
 			button.setMinSize(100, 35);
 			button.setPrefSize(100, 35);
 			button.setMaxSize(100, 35);
-			button.setOnMousePressed(evt -> {
+			button.setOnMousePressed(evt ->
+			{
 				if (button.isButtonPressed())
 					return;
 				button.setButtonPressed(true);
@@ -174,6 +186,48 @@ public class ClearComposer extends Application
 		Scene scene = new Scene(pane, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		//allow dragging mouse to trigger notes
 		scene.setOnDragDetected(t -> scene.startFullDrag());
+		//keyboard shortcuts for chords
+		scene.setOnKeyPressed(t ->
+		{
+			//secondary
+			if (isShift)
+			{
+				if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
+					setChord(Chord.V_ii);
+				else if (t.getCode() == KeyCode.DIGIT3 || t.getCode() == KeyCode.NUMPAD3)
+					setChord(Chord.V_iii);
+				else if (t.getCode() == KeyCode.DIGIT4 || t.getCode() == KeyCode.NUMPAD4)
+					setChord(Chord.V_IV);
+				else if (t.getCode() == KeyCode.DIGIT5 || t.getCode() == KeyCode.NUMPAD5)
+					setChord(Chord.V_V);
+				else if (t.getCode() == KeyCode.DIGIT6 || t.getCode() == KeyCode.NUMPAD6)
+					setChord(Chord.V_vi);
+			}
+			else
+			{
+				if (t.getCode() == KeyCode.SHIFT)
+					isShift = true;
+				else if (t.getCode() == KeyCode.DIGIT1 || t.getCode() == KeyCode.NUMPAD1)
+					setChord(Chord.I);
+				else if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
+					setChord(Chord.ii);
+				else if (t.getCode() == KeyCode.DIGIT3 || t.getCode() == KeyCode.NUMPAD3)
+					setChord(Chord.iii);
+				else if (t.getCode() == KeyCode.DIGIT4 || t.getCode() == KeyCode.NUMPAD4)
+					setChord(Chord.IV);
+				else if (t.getCode() == KeyCode.DIGIT5 || t.getCode() == KeyCode.NUMPAD5)
+					setChord(Chord.V);
+				else if (t.getCode() == KeyCode.DIGIT6 || t.getCode() == KeyCode.NUMPAD6)
+					setChord(Chord.vi);
+				else if (t.getCode() == KeyCode.DIGIT7 || t.getCode() == KeyCode.NUMPAD7)
+					setChord(Chord.vii$);
+			}
+		});
+		scene.setOnKeyReleased(t ->
+		{
+			if (t.getCode() == KeyCode.SHIFT)
+				isShift = false;
+		});
 		//signal end of toggling notes
 		scene.setOnMouseReleased(t ->
 		{
@@ -253,7 +307,6 @@ public class ClearComposer extends Application
 			//TODO: show error while saving.
 		}
 	}
-
 
 
 	/**

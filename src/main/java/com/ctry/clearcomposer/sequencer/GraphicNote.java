@@ -154,7 +154,6 @@ public class GraphicNote extends Rectangle
 	 */
 	private void playColor()
 	{
-		setFill(FILL_PLAY);
 		ft = new Transition()
 		{
 			{
