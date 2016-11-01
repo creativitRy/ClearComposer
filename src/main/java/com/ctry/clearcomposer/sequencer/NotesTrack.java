@@ -113,9 +113,15 @@ public class NotesTrack extends GraphicTrack
 	public void saveTrackData(DataOutput out) throws IOException {
 		List<Node> children = getTrack().getChildren();
 
-		out.writeInt(children.size());
+		boolean first = true;
+		out.writeInt(children.size() - 1);
 		for (Node child : children)
 		{
+			if (first)
+			{
+				first = false;
+				continue;
+			}
 			GraphicNote note = (GraphicNote) child;
 			out.writeBoolean(note.isOn());
 		}
@@ -131,13 +137,18 @@ public class NotesTrack extends GraphicTrack
 		int num = in.readInt();
 
 		List<Node> children = getTrack().getChildren();
-		for (int i = 0; i < num && i < children.size(); i++)
+		for (int i = 0; i < num; i++)
 		{
-			GraphicNote note = (GraphicNote) children.get(i);
-			if (in.readBoolean())
-				note.turnOn();
+			if (i >= children.size() - 1)
+				in.readBoolean();
 			else
-				note.turnOff();
+			{
+				GraphicNote note = (GraphicNote) children.get(i + 1);
+				if (in.readBoolean())
+					note.turnOn();
+				else
+					note.turnOff();
+			}
 		}
 	}
 }

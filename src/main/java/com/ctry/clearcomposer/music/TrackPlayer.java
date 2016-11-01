@@ -30,24 +30,31 @@
  */
 package com.ctry.clearcomposer.music;
 
-import com.ctry.clearcomposer.ClearComposer;
-import com.ctry.clearcomposer.sequencer.GraphicTrack;
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
-
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.ctry.clearcomposer.ClearComposer;
+import com.ctry.clearcomposer.sequencer.GraphicTrack;
+
+import javafx.animation.Animation;
+import javafx.animation.Animation.Status;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 
 public class TrackPlayer
 {
 	private int index;
 	private List<GraphicTrack> tracks;
 	private Timeline timeline;
-
+	private Status playState;
+	
 	private static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... params)
 	{
 		try
@@ -150,6 +157,11 @@ public class TrackPlayer
 		timeline.setDelay(Duration.millis(ClearComposer.constants.getTempo()));
 	}
 
+	public Status getPlayState()
+	{
+		return timeline.getStatus();
+	}
+	
 	/**
 	 * play
 	 */

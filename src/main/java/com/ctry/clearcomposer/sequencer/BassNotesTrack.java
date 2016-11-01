@@ -30,15 +30,16 @@
  */
 package com.ctry.clearcomposer.sequencer;
 
-import com.ctry.clearcomposer.ClearComposer;
-import com.ctry.clearcomposer.music.RelativeNote;
-import javafx.scene.Node;
-import javafx.scene.text.Text;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.List;
+
+import com.ctry.clearcomposer.ClearComposer;
+import com.ctry.clearcomposer.music.RelativeNote;
+
+import javafx.scene.Node;
+import javafx.scene.text.Text;
 
 public class BassNotesTrack extends GraphicTrack
 {
@@ -86,6 +87,7 @@ public class BassNotesTrack extends GraphicTrack
 	 * @param index position of note to be played
 	 * @return midi pitch or -1 if no note is played
 	 */
+	@Override
 	public int playNote(int index)
 	{
 		GraphicNote note = (GraphicNote) getTrack().getChildren().get(index + 1);
@@ -104,9 +106,15 @@ public class BassNotesTrack extends GraphicTrack
 	public void saveTrackData(DataOutput out) throws IOException {
 		List<Node> children = getTrack().getChildren();
 
-		out.writeInt(children.size());
+		boolean first = true;
+		out.writeInt(children.size() - 1);
 		for (Node child : children)
 		{
+			if (first)
+			{
+				first = false;
+				continue;
+			}
 			GraphicNote note = (GraphicNote) child;
 			out.writeBoolean(note.isOn());
 		}
@@ -122,13 +130,18 @@ public class BassNotesTrack extends GraphicTrack
 		int num = in.readInt();
 
 		List<Node> children = getTrack().getChildren();
-		for (int i = 0; i < num && i < children.size(); i++)
+		for (int i = 0; i < num; i++)
 		{
-			GraphicNote note = (GraphicNote) children.get(i);
-			if (in.readBoolean())
-				note.turnOn();
+			if (i >= children.size() - 1)
+				in.readBoolean();
 			else
-				note.turnOff();
+			{
+				GraphicNote note = (GraphicNote) children.get(i + 1);
+				if (in.readBoolean())
+					note.turnOn();
+				else
+					note.turnOff();
+			}
 		}
 	}
 }

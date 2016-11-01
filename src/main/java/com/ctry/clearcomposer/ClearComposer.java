@@ -46,6 +46,7 @@ import com.ctry.clearcomposer.sequencer.BeatTrack;
 import com.ctry.clearcomposer.sequencer.GraphicNote;
 import com.ctry.clearcomposer.sequencer.NotesTrack;
 
+import javafx.animation.Animation.Status;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -59,6 +60,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
 public class ClearComposer extends Application
@@ -123,11 +126,38 @@ public class ClearComposer extends Application
 
 		//Toolbar buttons
 		Toolbar bar = new Toolbar();
-		bar.addRegularButton("Open", () -> System.out.println("TODO"));
-		bar.addRegularButton("Save", () -> System.out.println("TODO"));
+		bar.addRegularButton("Open", () -> {
+			File open = showFileChooser(true);
+			if (open != null)
+			{
+				try
+				{
+					player.loadTracks(new FileInputStream(open));
+				} 
+				catch (IOException e1)
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		bar.addRegularButton("Save", () -> {
+			File save = showFileChooser(false);
+			if (save != null)
+			{
+				try
+				{
+					player.saveTracks(new FileOutputStream(save));
+				} 
+				catch (IOException e1)
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
 		bar.addRegularButton("Undo", () -> System.out.println("TODO"));
 		bar.addRegularButton("Redo", () -> System.out.println("TODO"));
-		System.out.println(bar.prefHeight(-1));
 		pane.setTop(bar);
 		
 		//music sequencer
@@ -257,7 +287,7 @@ public class ClearComposer extends Application
 		});
 		primaryStage.show();
 	}
-
+	
 	/**
 	 * When a chord button is pressed,
 	 *
@@ -317,6 +347,28 @@ public class ClearComposer extends Application
 		}
 	}
 
+	private File showFileChooser(boolean open)
+	{
+		boolean running = player.getPlayState() == Status.RUNNING;
+		if (running)
+			player.pause();
+		
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle(open ? "Open CC file" : "Save CC file");
+		fileChooser.getExtensionFilters().add(new ExtensionFilter("CC File", "*.cc"));
+		try
+		{
+			if (open)
+				return fileChooser.showOpenDialog(pane.getScene().getWindow());
+			else
+				return fileChooser.showSaveDialog(pane.getScene().getWindow());
+		} 
+		finally
+		{
+			if (running)
+				player.play();
+		}
+	}
 
 	/**
 	 * Getter for property 'toggle'.
