@@ -30,6 +30,32 @@
     -fx-font-weight: bold;
 }
 
+.tblButton:hover {
+	-fx-background-color: linear-gradient( to bottom, rgba(160, 160, 160), rgba(80, 80, 80));
+	-fx-background-image: url(CoarseGrid.png);
+	-fx-effect: innershadow(gaussian, white, 5, 0, 0, 0); 
+}
+
+.tblButton:hover .highlight {
+	-fx-background-color: rgba(255,255,255,.2);
+}
+
+.tblButton.pressed {
+	-fx-background-color: linear-gradient( to top, rgba(140, 140, 140), rgba(100, 100, 100)) ;
+	-fx-background-image: url(CoarseGrid.png);
+	-fx-effect: innershadow(gaussian, white, 5, 0, 0, 0); 
+}
+
+.tblButton.pressed .highlight{
+	-fx-background-color: rgba(255,255,255,.2);
+}
+
+.Toolbar
+{
+	-fx-background-color: linear-gradient( to bottom, rgba(160, 160, 160), rgba(100, 100, 100)) ;
+	-fx-background-image: url(CoarseGrid.png);
+}
+
 .ccbutton.undo .back { -fx-background-image: url(undo.png); }
 .ccbutton.redo .back { -fx-background-image: url(redo.png); }
 .ccbutton.cut .back { -fx-background-image: url(cut.png); }

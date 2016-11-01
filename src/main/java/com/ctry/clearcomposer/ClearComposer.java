@@ -116,11 +116,20 @@ public class ClearComposer extends Application
 	{
 		pane = new BorderPane();
 		pane.getStyleClass().add("bg");
-
+		
 		//test button to test midi note playing TODO: remove
 		//Button root = createChordButton("undo", () -> MusicPlayer.playNote(new Random().nextInt(24) + 60));
 		//pane.setRight(root);
 
+		//Toolbar buttons
+		Toolbar bar = new Toolbar();
+		bar.addRegularButton("Open", () -> System.out.println("TODO"));
+		bar.addRegularButton("Save", () -> System.out.println("TODO"));
+		bar.addRegularButton("Undo", () -> System.out.println("TODO"));
+		bar.addRegularButton("Redo", () -> System.out.println("TODO"));
+		System.out.println(bar.prefHeight(-1));
+		pane.setTop(bar);
+		
 		//music sequencer
 		player = new TrackPlayer();
 		VBox tracksDisplay = new VBox();

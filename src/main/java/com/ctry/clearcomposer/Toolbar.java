@@ -11,14 +11,30 @@ public class Toolbar extends HBox
 	
 	public Toolbar()
 	{
-		super(10);
-		setPadding(new Insets(10));
+		super(5);
+		setPadding(new Insets(5));
+		getStyleClass().add("Toolbar");
 	}
 	
-	public void addAction(String action, Runnable onAction)
+	public void addRegularButton(String action, Runnable onAction)
 	{
-		//TODO
-		//if (buttons.containsKey(action))
-			//buttons.get(buttons.)
+		ToolbarButton button = buttons.get(action);
+		if (button == null)
+		{
+			button = new ToolbarButton(action);
+			buttons.put(action, button);
+			getChildren().add(button);
+		}
+		ToolbarButton f_button = button;
+		button.setOnMousePressed(evt -> f_button.setButtonPressed(true));
+		button.setOnMouseReleased(evt -> f_button.setButtonPressed(false));
+		button.setOnMouseClicked(evt -> onAction.run());
+	}
+	
+	public void removeButton(String action)
+	{
+		ToolbarButton but = buttons.remove(action);
+		if (but != null)
+			getChildren().remove(but);
 	}
 }

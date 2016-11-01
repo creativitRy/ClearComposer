@@ -26,6 +26,7 @@ package com.ctry.clearcomposer;
 
 import java.net.URL;
 
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
@@ -67,9 +68,13 @@ public class ToolbarButton extends StackPane
 			buttonBack.setBackground(new Background(new BackgroundImage(image, 
 					BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
 					BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
+			buttonBack.setPrefSize(32, 32);
+			buttonBack.setPickOnBounds(true);
 		}
 		
 		roundedEdges(this);
+		
+		Tooltip.install(this, new Tooltip(name));
 		getChildren().addAll(buttonBack, buttonHighlight);
 		getStyleClass().add("tblButton");
 	}
@@ -82,42 +87,46 @@ public class ToolbarButton extends StackPane
 	public void setButtonPressed(boolean press)
 	{
 		pressed = press;
+		if (pressed)
+			getStyleClass().add("pressed");
+		else
+			getStyleClass().remove("pressed");
 	}
 
 	@Override
 	protected double computeMinWidth(double height)
 	{
-		return 40;
+		return 34;
 	}
 
 	@Override
 	protected double computeMinHeight(double width)
 	{
-		return 40;
+		return 34;
 	}
 
 	@Override
 	protected double computePrefWidth(double height)
 	{
-		return 40;
+		return 34;
 	}
 
 	@Override
 	protected double computePrefHeight(double width)
 	{
-		return 40;
+		return 34;
 	}
 
 	@Override
 	protected double computeMaxWidth(double height)
 	{
-		return 40;
+		return 34;
 	}
 
 	@Override
 	protected double computeMaxHeight(double width)
 	{
-		return 40;
+		return 34;
 	}
 	
 	
