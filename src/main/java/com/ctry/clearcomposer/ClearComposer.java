@@ -354,7 +354,7 @@ public class ClearComposer extends Application
 
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle(open ? "Open CC file" : "Save CC file");
-		fileChooser.getExtensionFilters().add(new ExtensionFilter("CC File", "*.cc"));
+		fileChooser.getExtensionFilters().add(new ExtensionFilter("CC File", "*.ccp"));
 
 		String defPath = Preferences.userRoot().get("CCDefaultPath", null);
 		File defFilePath;
