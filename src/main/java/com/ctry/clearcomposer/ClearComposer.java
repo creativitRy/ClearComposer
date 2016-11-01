@@ -36,6 +36,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 import com.ctry.clearcomposer.music.Chord;
 import com.ctry.clearcomposer.music.MusicConstants;
@@ -68,6 +69,8 @@ public class ClearComposer extends Application
 {
 	public static final int DEFAULT_WIDTH = 780;
 	public static final int DEFAULT_HEIGHT = 720;
+
+	public static String DEFAULT_FOLDER_HOME = System.getProperty("user.home");
 
 	/**
 	 * Constants
@@ -352,22 +355,29 @@ public class ClearComposer extends Application
 		boolean running = player.getPlayState() == Status.RUNNING;
 		if (running)
 			player.pause();
-		
+
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle(open ? "Open CC file" : "Save CC file");
 		fileChooser.getExtensionFilters().add(new ExtensionFilter("CC File", "*.cc"));
-		try
-		{
-			if (open)
-				return fileChooser.showOpenDialog(pane.getScene().getWindow());
-			else
-				return fileChooser.showSaveDialog(pane.getScene().getWindow());
-		} 
-		finally
-		{
-			if (running)
-				player.play();
-		}
+
+		String defPath = Preferences.userRoot().get("CCDefaultPath", null);
+		File defFilePath;
+		if (defPath == null || !(defFilePath = new File(defPath)).exists())
+			defFilePath = new File(DEFAULT_FOLDER_HOME);
+		fileChooser.setInitialDirectory(defFilePath);
+
+		File result;
+		if (open)
+			result = fileChooser.showOpenDialog(pane.getScene().getWindow());
+		else
+			result = fileChooser.showSaveDialog(pane.getScene().getWindow());
+
+		if (result != null)
+			Preferences.userRoot().put("CCDefaultPath", result.getParent());
+
+		if (running)
+			player.play();
+		return result;
 	}
 
 	/**

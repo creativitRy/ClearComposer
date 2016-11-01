@@ -98,6 +98,7 @@ public class TrackPlayer
 			oos.writeObject(track.getClass());
 			track.saveTrackData(oos);
 		}
+		oos.flush();
 	}
 
 	/**
