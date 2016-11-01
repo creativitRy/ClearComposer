@@ -50,6 +50,7 @@ public class ToolbarButton extends StackPane
 
 	private Pane buttonBack;
 	private Pane buttonHighlight;
+	private boolean pressed;
 	
 	public ToolbarButton(String name)
 	{
@@ -71,6 +72,16 @@ public class ToolbarButton extends StackPane
 		roundedEdges(this);
 		getChildren().addAll(buttonBack, buttonHighlight);
 		getStyleClass().add("tblButton");
+	}
+
+	public boolean isButtonPressed()
+	{
+		return pressed;
+	}
+	
+	public void setButtonPressed(boolean press)
+	{
+		pressed = press;
 	}
 
 	@Override
