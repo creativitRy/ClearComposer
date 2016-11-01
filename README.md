@@ -20,3 +20,4 @@ Gahwon Lee and Henry Wang for programming the application.
 * Rename the application title to ___ - ClearComposer where ___ is either Untitled or the name of the open file
 * File opening ui and remember opened file. File open and save buttons
 * Chord suggestions - based on past chords, suggest the best chord to transition to
+http://learnhowtowritesongs.com/interactive-chord-progression-generator/
