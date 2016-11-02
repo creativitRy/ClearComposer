@@ -75,6 +75,11 @@ public class ClearComposer extends Application
 	public static MusicConstants constants = new MusicConstants();
 
 	/**
+	 * Main entity
+	 */
+	public static ClearComposer cc;
+
+	/**
 	 * if true, change on to off and off to on. if false, left click is on and right click is off.
 	 */
 	private static boolean toggle = true;
@@ -127,6 +132,8 @@ public class ClearComposer extends Application
 	@Override
 	public void start(Stage primaryStage) throws Exception
 	{
+		cc = this;
+
 		pane = new BorderPane();
 		pane.getStyleClass().add("bg");
 

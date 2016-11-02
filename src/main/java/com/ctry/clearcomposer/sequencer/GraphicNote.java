@@ -77,7 +77,7 @@ public class GraphicNote extends Rectangle
 
 	/**
 	 * either turns on the note or turns off depending on the action of the mouse
-	 * @param t
+	 * @param t mouse event
 	 */
 	private void mouseAction(MouseEvent t)
 	{
@@ -86,10 +86,7 @@ public class GraphicNote extends Rectangle
 		{
 			if (!isToggled)
 			{
-				if (on == Mode.OFF)
-					turnOn();
-				else
-					turnOff();
+				toggle(ClearComposer.isPerma());
 
 				isToggled = true;
 				notes.add(this);
@@ -98,21 +95,33 @@ public class GraphicNote extends Rectangle
 		else
 		{
 			if (t.isPrimaryButtonDown())
-				turnOn();
+				turnOn(ClearComposer.isPerma());
 			else
 				turnOff();
 		}
 	}
 
 	/**
+	 * toggles notes
+	 * @param isPerma true if change to permanent. false if change to temporary
+	 */
+	public void toggle(boolean isPerma)
+	{
+		if (on == Mode.OFF)
+			turnOn(isPerma);
+		else
+			turnOff();
+	}
+
+	/**
 	 * turns on note
 	 */
-	void turnOn()
+	void turnOn(boolean isPerma)
 	{
 		if (isImmutable)
 			return;
 
-		if (ClearComposer.isPerma())
+		if (isPerma)
 			on = Mode.ON_PERMA;
 		else
 			on = Mode.ON_TEMP;

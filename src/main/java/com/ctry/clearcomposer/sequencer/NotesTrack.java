@@ -145,7 +145,7 @@ public class NotesTrack extends GraphicTrack
 			{
 				GraphicNote note = (GraphicNote) children.get(i + 1);
 				if (in.readBoolean())
-					note.turnOn();
+					note.turnOn(true);
 				else
 					note.turnOff();
 			}
