@@ -32,9 +32,11 @@ package com.ctry.clearcomposer.history;
 
 import com.ctry.clearcomposer.ClearComposer;
 import com.ctry.clearcomposer.music.Key;
+import javafx.scene.control.ComboBox;
 
 public class KeyEntry extends AbstractEntry
 {
+	private static ComboBox<Key> box;
 
 	private Key to;
 	private Key from;
@@ -63,6 +65,7 @@ public class KeyEntry extends AbstractEntry
 	public void undo()
 	{
 		ClearComposer.cc.setKey(from);
+		box.setValue(from);
 	}
 
 	/**
@@ -72,5 +75,11 @@ public class KeyEntry extends AbstractEntry
 	public void redo()
 	{
 		ClearComposer.cc.setKey(to);
+		box.setValue(to);
+	}
+
+	public static void setBox(ComboBox<Key> b)
+	{
+		box = b;
 	}
 }

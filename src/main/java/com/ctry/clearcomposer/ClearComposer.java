@@ -270,10 +270,12 @@ public class ClearComposer extends Application
 		//btnPlay.setButtonPressed(true);
 
 		bar.addSeparator();
-		cmbKeys = bar.addComboBox((observable, oldValue, newValue) -> {
+		cmbKeys = bar.addComboBox((observable, oldValue, newValue) ->
+		{
 			pushMove(new KeyEntry(newValue, oldValue));
 			setKey(newValue);
-		} , "Key", constants.getKey().ordinal(), Key.values());
+		}, "Key", constants.getKey().ordinal(), Key.values());
+		KeyEntry.setBox(cmbKeys);
 		cmbNotes = bar.addComboBox((observable, oldValue, newValue) ->
 			setNumNotes(parseNoteInt(newValue)), "Number of Notes", 1, new String[]{"12 Notes", "16 Notes"});
 		tempoSlider = bar.addSlider("Tempo", 100, 500, constants.getTempo(), (observable, oldValue, newValue) ->

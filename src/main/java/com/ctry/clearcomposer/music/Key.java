@@ -70,7 +70,7 @@ public enum Key
 	 */
 	public String toString()
 	{
-		return name().replace('s', '#') + " Major";
+		return String.format("%2s Major", name().replace('s', '#'));
 	}
 
 }
