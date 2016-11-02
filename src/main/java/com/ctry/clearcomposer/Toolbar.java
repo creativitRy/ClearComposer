@@ -32,6 +32,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 
@@ -101,11 +102,11 @@ public class Toolbar extends HBox
 		return button;
 	}
 
-	public <T> void addComboBox(ChangeListener<T> onChange, String tooltip, int selectedIndex, T[] options)
+	public <T> ComboBox<T> addComboBox(ChangeListener<T> onChange, String tooltip, int selectedIndex, T[] options)
 	{
 		ToolbarComboBox<T> comboBox = new ToolbarComboBox<>(onChange, tooltip, selectedIndex, options);
-
 		getChildren().add(comboBox);
+		return comboBox;
 	}
 
 	public void addSeparator()

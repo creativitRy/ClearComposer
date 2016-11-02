@@ -31,7 +31,7 @@
 package com.ctry.clearcomposer;
 
 import java.io.*;
-import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.prefs.Preferences;
 
@@ -48,9 +48,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
@@ -101,7 +100,7 @@ public class ClearComposer extends Application
 	/**
 	 * buttons of chords
 	 */
-	private List<CCButton> chords;
+	private EnumMap<Chord, CCButton> chords;
 
 	/**
 	 * true if shift is pressed
@@ -123,6 +122,41 @@ public class ClearComposer extends Application
 	private ToolbarButton btnStop;
 	private BooleanProperty pauseToggle = new SimpleBooleanProperty(false);
 
+	private ComboBox<Key> cmbKeys;
+	private ComboBox<String> cmbNotes;
+
+	/**
+	 * Sets all ui stuff to match MusicConstants
+	 */
+	public void resetUI()
+	{
+		//Scale Key
+		cmbKeys.getSelectionModel().select(constants.getKey().ordinal());
+
+		//Number of notes
+		int numNotesInd = -1;
+		List<String> numNotes = cmbNotes.getItems();
+		for (int i = 0; i < numNotes.size(); i++)
+		{
+			if (parseNoteInt(numNotes.get(i)) == constants.getNoteAmount())
+			{
+				numNotesInd = i;
+				break;
+			}
+		}
+
+		if (numNotesInd == -1)
+		{
+			numNotesInd = numNotes.size();
+			numNotes.add(constants.getNoteAmount() + " Notes");
+		}
+
+		cmbNotes.getSelectionModel().select(numNotesInd);
+
+		//Chord
+		setChord(constants.getChord());
+	}
+
 	/**
 	 * Main javafx method
 	 *
@@ -142,7 +176,9 @@ public class ClearComposer extends Application
 		bar.addRegularButton("New", () ->
 		{
 			openFile = null;
-			//TODO: load default music constants.
+			constants = new MusicConstants();
+			resetUI();
+			((Stage)pane.getScene().getWindow()).setTitle("ClearComposer - Untitled");
 			createMusicSequencer();
 		});
 		bar.addRegularButton("Open", () ->
@@ -218,10 +254,10 @@ public class ClearComposer extends Application
 		//btnPlay.setButtonPressed(true);
 
 		bar.addSeparator();
-		bar.addComboBox((observable, oldValue, newValue) -> setKey(newValue), "Key",
+		cmbKeys = bar.addComboBox((observable, oldValue, newValue) -> setKey(newValue), "Key",
 			constants.getKey().ordinal(), Key.values());
-		bar.addComboBox((observable, oldValue, newValue) ->
-			setNumNotes(Integer.parseInt(newValue.replaceAll("\\D", ""))),"Number of Notes", 1, new String[]{"12 Notes", "16 Notes"});
+		cmbNotes = bar.addComboBox((observable, oldValue, newValue) ->
+			setNumNotes(parseNoteInt(newValue)),"Number of Notes", 1, new String[]{"12 Notes", "16 Notes"});
 
 		pane.setTop(bar);
 
@@ -240,7 +276,7 @@ public class ClearComposer extends Application
 		chordButtons.setPadding(new Insets(10));
 		chordButtons.getStyleClass().add("panel");
 		chordButtons.getChildren().add(chordRows);
-		chords = new ArrayList<>();
+		chords = new EnumMap<>(Chord.class);
 		for (Chord c : Chord.values())
 		{
 			CCButton button = new CCButton(c.toString(), c.getColor());
@@ -251,18 +287,12 @@ public class ClearComposer extends Application
 			{
 				if (button.isButtonPressed())
 					return;
-				button.setButtonPressed(true);
-				chords.forEach(btn ->
-				{
-					if (btn != button)
-						btn.setButtonPressed(false);
-				});
 				setChord(c);
 			});
 			if (c == constants.getChord())
 				button.setButtonPressed(true);
 
-			chords.add(button);
+			chords.put(c, button);
 			if (c.isSecondary())
 				secondaryChords.getChildren().add(button);
 			else
@@ -330,7 +360,7 @@ public class ClearComposer extends Application
 		primaryStage.getIcons().add(new Image(ClearComposer.class.getResourceAsStream("Logo.png")));
 		primaryStage.setScene(scene);
 		primaryStage.setResizable(false);
-		primaryStage.setTitle("ClearComposer");
+		primaryStage.setTitle("ClearComposer - Untitled");
 		primaryStage.setOnCloseRequest(e ->
 		{
 			MusicPlayer.turnOffNotes();
@@ -367,23 +397,15 @@ public class ClearComposer extends Application
 	}
 
 	/**
-	 * When a chord button is pressed,
+	 * This sets the chord to MusicConstants and
+	 * updates the ui for the chord
 	 *
-	 * @param c chord chosen
+	 * @param ch chord chosen
 	 */
-	public void setChord(Chord c)
+	public void setChord(Chord ch)
 	{
-		constants.setChord(c);
-		for (Node n : chordButtons.getChildren())
-		{
-			if (!(n instanceof Button))
-				continue;
-
-			Button b = (Button) n;
-			b.setDisable(b.getStyleClass().get(0).equals(c.name()));
-
-		}
-
+		constants.setChord(ch);
+		chords.forEach((c, btn) -> btn.setButtonPressed(c == ch));
 		updateTracks();
 	}
 
@@ -405,11 +427,15 @@ public class ClearComposer extends Application
 	{
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			player.saveTracks(baos);
+			ObjectOutputStream oos = new ObjectOutputStream(baos);
+			player.saveTracks(oos);
+			oos.flush();
+
 			constants.setNoteAmount(numNotes);
 			createMusicSequencer();
 			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-			player.loadTracks(bais);
+			ObjectInputStream ois = new ObjectInputStream(bais);
+			player.loadTracks(ois);
 		} catch (IOException e) {
 			//TODO: alert user of error
 			e.printStackTrace();
@@ -434,11 +460,13 @@ public class ClearComposer extends Application
 	 */
 	public void loadData(File f)
 	{
-		try (FileInputStream fis = new FileInputStream(f))
+		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f)))
 		{
+			constants = (MusicConstants) ois.readObject();
+			resetUI();
 			createMusicSequencer();
-			player.loadTracks(fis);
-		} catch (IOException e)
+			player.loadTracks(ois);
+		} catch (ClassNotFoundException | IOException e)
 		{
 			e.printStackTrace();
 			//TODO: show error while loading.
@@ -452,10 +480,12 @@ public class ClearComposer extends Application
 	 */
 	public void saveData(File f)
 	{
-		try (FileOutputStream fos = new FileOutputStream(f))
+		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f)))
 		{
-			player.saveTracks(fos);
-		} catch (IOException e)
+			oos.writeObject(constants);
+			player.saveTracks(oos);
+		}
+		catch (IOException e)
 		{
 			e.printStackTrace();
 			//TODO: show error while saving.
@@ -548,5 +578,10 @@ public class ClearComposer extends Application
 	public static void main(String[] args)
 	{
 		launch(args);
+	}
+
+	private static int parseNoteInt(String notes)
+	{
+		return Integer.parseInt(notes.replaceAll("\\D", ""));
 	}
 }

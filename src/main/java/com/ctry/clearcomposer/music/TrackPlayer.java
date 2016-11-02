@@ -83,16 +83,14 @@ public class TrackPlayer
 	}
 
 	/**
-	 * Saves track data to an byte stream.
+	 * Saves track data to an data stream.
 	 * Note that this will not close the file.
 	 *
-	 * @param out byte stream to write to.
+	 * @param oos data stream to write to.
 	 * @throws IOException when an I/O error occurs while writing
 	 */
-	public void saveTracks(OutputStream out) throws IOException
+	public void saveTracks(ObjectOutputStream oos) throws IOException
 	{
-		//TODO: constants;
-		ObjectOutputStream oos = new ObjectOutputStream(out);
 		oos.writeInt(tracks.size());
 		for (GraphicTrack track : tracks)
 		{
@@ -103,16 +101,14 @@ public class TrackPlayer
 	}
 
 	/**
-	 * Loads track data from an byte stream.
+	 * Loads track data from an data stream.
 	 * Note that this will not close the file.
 	 *
-	 * @param in byte stream to write to.
-	 * @throws IOException when an I/O error occurs while writing
+	 * @param ois data stream to read from.
+	 * @throws IOException when an I/O error occurs while reading.
 	 */
-	public void loadTracks(InputStream in) throws IOException
+	public void loadTracks(ObjectInputStream ois) throws IOException
 	{
-		//TODO: should we put MusicConstants
-		ObjectInputStream ois = new ObjectInputStream(in);
 		int trackNum = ois.readInt();
 
 		for (int i = 0; i < trackNum; i++)
