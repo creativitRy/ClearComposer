@@ -203,6 +203,8 @@ public class ClearComposer extends Application
 			}
 		});
 		btnPlay.setButtonPressed(true);
+
+		bar.addSeparator();
 		bar.addComboBox((observable, oldValue, newValue) -> setKey(newValue), constants.getKey().ordinal(), Key.values());
 
 		pane.setTop(bar);
