@@ -30,10 +30,7 @@
  */
 package com.ctry.clearcomposer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -115,6 +112,11 @@ public class ClearComposer extends Application
 	 */
 	private BorderPane pane;
 
+	private ToolbarButton btnPlay;
+	private ToolbarButton btnPause;
+	private ToolbarButton btnStop;
+	private BooleanProperty pauseToggle = new SimpleBooleanProperty(false);
+
 	/**
 	 * Main javafx method
 	 *
@@ -177,10 +179,9 @@ public class ClearComposer extends Application
 		bar.addRegularButton("Undo", () -> System.out.println("TODO"));
 		bar.addRegularButton("Redo", () -> System.out.println("TODO"));
 		bar.addSeparator();
-
-		BooleanProperty pauseToggle = new SimpleBooleanProperty(false);
-		ToolbarButton btnPlay = bar.addButton("Play");
-		ToolbarButton btnPause = bar.addToggleButton("Pause", pauseToggle, (pressed) -> {
+		
+		btnPlay = bar.addButton("Play");
+		btnPause = bar.addToggleButton("Pause", pauseToggle, (pressed) -> {
 			if (pressed)
 				player.play();
 			else
@@ -190,12 +191,13 @@ public class ClearComposer extends Application
 					player.pause();
 			}
 		});
-		ToolbarButton btnStop = bar.addRegularButton("Stop", () -> {
+		btnStop = bar.addRegularButton("Stop", () -> {
 			btnPlay.setButtonPressed(false);
 			btnPause.setButtonPressed(false);
 			pauseToggle.setValue(false);
 			player.stop();
 		});
+
 
 		btnPlay.setOnMousePressed(evt -> btnPlay.setButtonPressed(true));
 		btnPlay.setOnMouseClicked(evt -> {
@@ -329,8 +331,14 @@ public class ClearComposer extends Application
 	}
 
 	private void createMusicSequencer() {
+		//Stop everything
+		if (btnPause != null)
+			btnPause.setButtonPressed(false);
+		if (btnPlay != null)
+			btnPlay.setButtonPressed(false);
 		if (player != null)
 			player.stop();
+
 		player = new TrackPlayer();
 		VBox tracksDisplay = new VBox();
 		tracksDisplay.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
@@ -386,7 +394,17 @@ public class ClearComposer extends Application
 	 */
 	public void setNumNotes(int numNotes)
 	{
-		//TODO
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			player.saveTracks(baos);
+			constants.setNoteAmount(numNotes);
+			createMusicSequencer();
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			player.loadTracks(bais);
+		} catch (IOException e) {
+			//TODO: alert user of error
+			e.printStackTrace();
+		}
 	}
 
 	private void updateTracks()
