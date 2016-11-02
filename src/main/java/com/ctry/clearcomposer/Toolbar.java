@@ -31,6 +31,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 
@@ -42,6 +43,7 @@ public class Toolbar extends HBox
 	{
 		super(5);
 		setPadding(new Insets(5));
+		setAlignment(Pos.CENTER_LEFT);
 		getStyleClass().add("Toolbar");
 	}
 

@@ -95,37 +95,37 @@ public class ToolbarButton extends StackPane
 	@Override
 	protected double computeMinWidth(double height)
 	{
-		return 34;
+		return 40;
 	}
 
 	@Override
 	protected double computeMinHeight(double width)
 	{
-		return 34;
+		return 40;
 	}
 
 	@Override
 	protected double computePrefWidth(double height)
 	{
-		return 34;
+		return 40;
 	}
 
 	@Override
 	protected double computePrefHeight(double width)
 	{
-		return 34;
+		return 40;
 	}
 
 	@Override
 	protected double computeMaxWidth(double height)
 	{
-		return 34;
+		return 40;
 	}
 
 	@Override
 	protected double computeMaxHeight(double width)
 	{
-		return 34;
+		return 40;
 	}
 
 }
