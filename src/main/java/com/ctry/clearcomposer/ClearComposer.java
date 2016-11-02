@@ -130,15 +130,18 @@ public class ClearComposer extends Application
 		bar.addRegularButton("New", () ->
 		{
 			openFile = null;
-			//TODO: load default file
+			//TODO: load default music constants.
+			createMusicSequencer();
 		});
 		bar.addRegularButton("Open", () ->
 		{
 			File open = showFileChooser(true);
+			//TODO: ask if the user wants to save
 			if (open != null)
 			{
 				try
 				{
+					createMusicSequencer();
 					player.loadTracks(new FileInputStream(open));
 					openFile = open;
 				} catch (IOException e1)
@@ -158,6 +161,7 @@ public class ClearComposer extends Application
 			{
 				try
 				{
+					createMusicSequencer();
 					player.saveTracks(new FileOutputStream(save));
 				} catch (IOException e1)
 				{
@@ -176,25 +180,10 @@ public class ClearComposer extends Application
 		bar.addComboBox((observable, oldValue, newValue) -> setKey(newValue), constants.getKey().ordinal(), Key.values());
 		pane.setTop(bar);
 
-		//music sequencer
-		player = new TrackPlayer();
-		VBox tracksDisplay = new VBox();
-		tracksDisplay.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-		tracksDisplay.setAlignment(Pos.CENTER);
-		tracksDisplay.getStyleClass().add("bg");
-		tracksDisplay.setPadding(new Insets(0, 100, 0, 0));
-		for (int i = MusicConstants.TRACK_AMOUNT - 1; i >= 0; i--)
-		{
-			player.getTracks().add(0, new NotesTrack(i / 5, i % 5));
-			tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
-		}
-		player.getTracks().add(0, new BeatTrack());
-		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
-		player.getTracks().add(0, new BassNotesTrack());
-		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
-		pane.setCenter(tracksDisplay);
+		//Music sequencer
+		createMusicSequencer();
 
-		//chord buttons
+		//Chord buttons
 		HBox primaryChords = new HBox(10);
 		HBox secondaryChords = new HBox(10);
 		VBox chordRows = new VBox(10);
@@ -302,6 +291,27 @@ public class ClearComposer extends Application
 			Platform.exit();
 		});
 		primaryStage.show();
+	}
+
+	private void createMusicSequencer() {
+		if (player != null)
+			player.stop();
+		player = new TrackPlayer();
+		VBox tracksDisplay = new VBox();
+		tracksDisplay.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+		tracksDisplay.setAlignment(Pos.CENTER);
+		tracksDisplay.getStyleClass().add("bg");
+		tracksDisplay.setPadding(new Insets(0, 100, 0, 0));
+		for (int i = MusicConstants.TRACK_AMOUNT - 1; i >= 0; i--)
+		{
+			player.getTracks().add(0, new NotesTrack(i / 5, i % 5));
+			tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
+		}
+		player.getTracks().add(0, new BeatTrack());
+		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
+		player.getTracks().add(0, new BassNotesTrack());
+		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
+		pane.setCenter(tracksDisplay);
 	}
 
 	/**
