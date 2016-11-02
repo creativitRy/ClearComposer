@@ -31,10 +31,15 @@
 package com.ctry.clearcomposer;
 
 import java.io.*;
+import java.util.Deque;
 import java.util.EnumMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+import com.ctry.clearcomposer.history.AbstractEntry;
+import com.ctry.clearcomposer.history.ChordEntry;
+import com.ctry.clearcomposer.history.KeyEntry;
 import com.ctry.clearcomposer.music.*;
 import com.ctry.clearcomposer.sequencer.BassNotesTrack;
 import com.ctry.clearcomposer.sequencer.BeatTrack;
@@ -126,6 +131,9 @@ public class ClearComposer extends Application
 	private ComboBox<Key> cmbKeys;
 	private ComboBox<String> cmbNotes;
 	private Slider tempoSlider;
+
+	private Deque<AbstractEntry> undoes = new LinkedList<>();
+	private Deque<AbstractEntry> redoes = new LinkedList<>();
 
 	/**
 	 * Sets all ui stuff to match MusicConstants
@@ -222,8 +230,8 @@ public class ClearComposer extends Application
 		});
 
 		bar.addSeparator();
-		bar.addRegularButton("Undo", () -> System.out.println("TODO"));
-		bar.addRegularButton("Redo", () -> System.out.println("TODO"));
+		bar.addRegularButton("Undo", this::undo);
+		bar.addRegularButton("Redo", this::redo);
 		bar.addSeparator();
 
 		btnPlay = bar.addButton("Play");
@@ -259,8 +267,10 @@ public class ClearComposer extends Application
 		//btnPlay.setButtonPressed(true);
 
 		bar.addSeparator();
-		cmbKeys = bar.addComboBox((observable, oldValue, newValue) -> setKey(newValue), "Key",
-			constants.getKey().ordinal(), Key.values());
+		cmbKeys = bar.addComboBox((observable, oldValue, newValue) -> {
+			pushMove(new KeyEntry(newValue, oldValue));
+			setKey(newValue);
+		} , "Key", constants.getKey().ordinal(), Key.values());
 		cmbNotes = bar.addComboBox((observable, oldValue, newValue) ->
 			setNumNotes(parseNoteInt(newValue)), "Number of Notes", 1, new String[]{"12 Notes", "16 Notes"});
 		tempoSlider = bar.addSlider("Tempo", 100, 500, 500 - constants.getTempo(), (observable, oldValue, newValue) ->
@@ -280,28 +290,15 @@ public class ClearComposer extends Application
 		HBox secondaryChords = new HBox(10);
 		VBox chordRows = new VBox(10);
 		secondaryChords.setAlignment(Pos.CENTER);
-		chordRows.getChildren().
-
-			addAll(primaryChords, secondaryChords);
+		chordRows.getChildren().addAll(primaryChords, secondaryChords);
 		chordRows.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
-		chordButtons = new
-
-			StackPane();
-		chordButtons.setPadding(new
-
-			Insets(10));
-		chordButtons.getStyleClass().
-
-			add("panel");
-		chordButtons.getChildren().
-
-			add(chordRows);
-
+		chordButtons = new StackPane();
+		chordButtons.setPadding(new Insets(10));
+		chordButtons.getStyleClass().add("panel");
+		chordButtons.getChildren().add(chordRows);
 		chords = new EnumMap<>(Chord.class);
-		for (
-			Chord c : Chord.values())
-
+		for (Chord c : Chord.values())
 		{
 			CCButton button = new CCButton(c.toString(), c.getColor());
 			button.setMinSize(100, 35);
@@ -311,6 +308,7 @@ public class ClearComposer extends Application
 			{
 				if (button.isButtonPressed())
 					return;
+				pushMove(new ChordEntry(c, constants.getChord()));
 				setChord(c);
 			});
 			if (c == constants.getChord())
@@ -333,39 +331,43 @@ public class ClearComposer extends Application
 		//keyboard shortcuts for chords
 		scene.setOnKeyPressed(t ->
 		{
+			Chord cSelect = null;
 			//secondary
 			if (isShift)
 			{
 				if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
-					setChord(Chord.V_ii);
+					cSelect = Chord.V_ii;
 				else if (t.getCode() == KeyCode.DIGIT3 || t.getCode() == KeyCode.NUMPAD3)
-					setChord(Chord.V_iii);
+					cSelect = Chord.V_iii;
 				else if (t.getCode() == KeyCode.DIGIT4 || t.getCode() == KeyCode.NUMPAD4)
-					setChord(Chord.V_IV);
+					cSelect = Chord.V_IV;
 				else if (t.getCode() == KeyCode.DIGIT5 || t.getCode() == KeyCode.NUMPAD5)
-					setChord(Chord.V_V);
+					cSelect = Chord.V_V;
 				else if (t.getCode() == KeyCode.DIGIT6 || t.getCode() == KeyCode.NUMPAD6)
-					setChord(Chord.V_vi);
+					cSelect = Chord.V_vi;
 			}
 			else
 			{
 				if (t.getCode() == KeyCode.SHIFT)
 					isShift = true;
 				else if (t.getCode() == KeyCode.DIGIT1 || t.getCode() == KeyCode.NUMPAD1)
-					setChord(Chord.I);
+					cSelect = Chord.I;
 				else if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
-					setChord(Chord.ii);
+					cSelect = Chord.ii;
 				else if (t.getCode() == KeyCode.DIGIT3 || t.getCode() == KeyCode.NUMPAD3)
-					setChord(Chord.iii);
+					cSelect = Chord.iii;
 				else if (t.getCode() == KeyCode.DIGIT4 || t.getCode() == KeyCode.NUMPAD4)
-					setChord(Chord.IV);
+					cSelect = Chord.IV;
 				else if (t.getCode() == KeyCode.DIGIT5 || t.getCode() == KeyCode.NUMPAD5)
-					setChord(Chord.V);
+					cSelect = Chord.V;
 				else if (t.getCode() == KeyCode.DIGIT6 || t.getCode() == KeyCode.NUMPAD6)
-					setChord(Chord.vi);
+					cSelect = Chord.vi;
 				else if (t.getCode() == KeyCode.DIGIT7 || t.getCode() == KeyCode.NUMPAD7)
-					setChord(Chord.vii$);
+					cSelect = Chord.vii$;
 			}
+
+			pushMove(new ChordEntry(cSelect, constants.getChord()));
+			setChord(cSelect);
 		});
 		scene.setOnKeyReleased(t ->
 		{
@@ -410,6 +412,11 @@ public class ClearComposer extends Application
 		if (player != null)
 			player.stop();
 
+		//Reset undo/redoes
+		//TODO: if user sets number of notes, all undoes/redoes will be lost.
+		undoes.clear();
+		redoes.clear();
+
 		player = new TrackPlayer();
 		VBox tracksDisplay = new VBox();
 		tracksDisplay.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
@@ -426,6 +433,30 @@ public class ClearComposer extends Application
 		player.getTracks().add(0, new BassNotesTrack());
 		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
 		pane.setCenter(tracksDisplay);
+	}
+
+	public void pushMove(AbstractEntry move)
+	{
+		redoes.clear();
+		undoes.push(move);
+	}
+
+	public void undo()
+	{
+		if (undoes.isEmpty())
+			return;
+		AbstractEntry move = undoes.pop();
+		redoes.push(move);
+		move.undo();
+	}
+
+	public void redo()
+	{
+		if (redoes.isEmpty())
+			return;
+		AbstractEntry move = redoes.pop();
+		undoes.push(move);
+		move.redo();
 	}
 
 	/**

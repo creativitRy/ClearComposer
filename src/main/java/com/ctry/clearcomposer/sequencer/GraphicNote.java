@@ -35,6 +35,8 @@ import java.util.List;
 
 import com.ctry.clearcomposer.ClearComposer;
 
+import com.ctry.clearcomposer.history.KeyEntry;
+import com.ctry.clearcomposer.history.NotesEntry;
 import javafx.animation.Transition;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -210,11 +212,13 @@ public class GraphicNote extends Rectangle
 	 */
 	public static void stopToggle()
 	{
+		//TODO: perma notes
+		if (!notes.isEmpty())
+			ClearComposer.cc.pushMove(new NotesEntry(new ArrayList<>(notes), ClearComposer.isPerma()));
 		for (GraphicNote note : notes)
 		{
 			note.isToggled = false;
 		}
-
 		notes.clear();
 	}
 
