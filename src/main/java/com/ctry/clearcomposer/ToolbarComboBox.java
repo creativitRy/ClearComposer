@@ -33,13 +33,15 @@ package com.ctry.clearcomposer;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Tooltip;
 
 public class ToolbarComboBox<T> extends ComboBox<T>
 {
-	public ToolbarComboBox(ChangeListener<T> onChange, int selectedIndex, T[] options)
+	public ToolbarComboBox(ChangeListener<T> onChange, String tooltip, int selectedIndex, T[] options)
 	{
 		super(FXCollections.observableArrayList(options));
 		getSelectionModel().select(selectedIndex);
+		setTooltip(new Tooltip(tooltip));
 		valueProperty().addListener(onChange);
 	}
 }

@@ -101,9 +101,9 @@ public class Toolbar extends HBox
 		return button;
 	}
 
-	public <T> void addComboBox(ChangeListener<T> onChange, int selectedIndex, T... options)
+	public <T> void addComboBox(ChangeListener<T> onChange, String tooltip, int selectedIndex, T[] options)
 	{
-		ToolbarComboBox<T> comboBox = new ToolbarComboBox<>(onChange, selectedIndex, options);
+		ToolbarComboBox<T> comboBox = new ToolbarComboBox<>(onChange, tooltip, selectedIndex, options);
 
 		getChildren().add(comboBox);
 	}

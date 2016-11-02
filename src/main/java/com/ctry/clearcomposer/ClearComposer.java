@@ -205,7 +205,10 @@ public class ClearComposer extends Application
 		btnPlay.setButtonPressed(true);
 
 		bar.addSeparator();
-		bar.addComboBox((observable, oldValue, newValue) -> setKey(newValue), constants.getKey().ordinal(), Key.values());
+		bar.addComboBox((observable, oldValue, newValue) -> setKey(newValue), "Key",
+			constants.getKey().ordinal(), Key.values());
+		bar.addComboBox((observable, oldValue, newValue) ->
+			setNumNotes(Integer.parseInt(newValue.replaceAll("\\D", ""))),"Number of Notes", 1, new String[]{"12 Notes", "16 Notes"});
 
 		pane.setTop(bar);
 
@@ -364,10 +367,23 @@ public class ClearComposer extends Application
 		updateTracks();
 	}
 
+	/**
+	 * Sets key to new key
+	 * @param key new key
+	 */
 	public void setKey(Key key)
 	{
 		constants.setKey(key);
 		updateTracks();
+	}
+
+	/**
+	 * Sets number of notes to new number of notes
+	 * @param numNotes new number of notes
+	 */
+	public void setNumNotes(int numNotes)
+	{
+		//TODO
 	}
 
 	private void updateTracks()
