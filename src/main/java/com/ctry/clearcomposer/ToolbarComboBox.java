@@ -23,54 +23,23 @@
  */
 
 /**
- * Keys (all in major)
+ * Description
  *
  * @author creativitRy
- * Date: 10/29/2016.
+ * Date: 11/1/2016.
  */
-package com.ctry.clearcomposer.music;
+package com.ctry.clearcomposer;
 
-public enum Key
+import javafx.beans.value.ChangeListener;
+import javafx.collections.FXCollections;
+import javafx.scene.control.ComboBox;
+
+public class ToolbarComboBox<T> extends ComboBox<T>
 {
-	C(3),
-	G(10),
-	D(5),
-	A(0),
-	E(7),
-	B(2),
-	Fs(9),
-	Cs(4),
-	F(8),
-	Bb(1),
-	Eb(6),
-	Ab(11),
-	Db(4),
-	Gb(9),
-	Cb(2);
-
-	private int pitch;
-
-	Key(int num)
+	public ToolbarComboBox(ChangeListener<T> onChange, int selectedIndex, T[] options)
 	{
-		pitch = num;
+		super(FXCollections.observableArrayList(options));
+		getSelectionModel().select(selectedIndex);
+		valueProperty().addListener(onChange);
 	}
-
-	/**
-	 * absolute note of the root of the key
-	 * @return root
-	 */
-	public AbsoluteNote getNote()
-	{
-		return AbsoluteNote.values()[pitch];
-	}
-
-	/**
-	 * nicely formatted key root
-	 * @return
-	 */
-	public String toString()
-	{
-		return name().replace('s', '#') + " Major";
-	}
-
 }

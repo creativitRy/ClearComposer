@@ -38,10 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
-import com.ctry.clearcomposer.music.Chord;
-import com.ctry.clearcomposer.music.MusicConstants;
-import com.ctry.clearcomposer.music.MusicPlayer;
-import com.ctry.clearcomposer.music.TrackPlayer;
+import com.ctry.clearcomposer.music.*;
 import com.ctry.clearcomposer.sequencer.BassNotesTrack;
 import com.ctry.clearcomposer.sequencer.BeatTrack;
 import com.ctry.clearcomposer.sequencer.GraphicNote;
@@ -78,7 +75,7 @@ public class ClearComposer extends Application
 	public static MusicConstants constants = new MusicConstants();
 
 	/**
-	 * if true, change on to off and off to on
+	 * if true, change on to off and off to on. if false, left click is on and right click is off.
 	 */
 	private static boolean toggle = true;
 	/**
@@ -172,9 +169,11 @@ public class ClearComposer extends Application
 		bar.addRegularButton("Undo", () -> System.out.println("TODO"));
 		bar.addRegularButton("Redo", () -> System.out.println("TODO"));
 		bar.addSeparator();
-		bar.addRegularButton("Play", () -> player.play() );
-		bar.addRegularButton("Pause", () -> player.pause() );
-		bar.addRegularButton("Stop", () -> player.stop() );
+		bar.addRegularButton("Play", () -> player.play());
+		bar.addRegularButton("Pause", () -> player.pause());
+		bar.addRegularButton("Stop", () -> player.stop());
+		bar.addSeparator();
+		bar.addComboBox((observable, oldValue, newValue) -> setKey(newValue), constants.getKey().ordinal(), Key.values());
 		pane.setTop(bar);
 
 		//music sequencer
@@ -323,6 +322,17 @@ public class ClearComposer extends Application
 
 		}
 
+		updateTracks();
+	}
+
+	public void setKey(Key key)
+	{
+		constants.setKey(key);
+		updateTracks();
+	}
+
+	private void updateTracks()
+	{
 		// iterate over all note tracks
 		for (int i = 2; i < player.getTracks().size(); i++)
 		{
@@ -366,6 +376,7 @@ public class ClearComposer extends Application
 
 	/**
 	 * Shows file choosing dialog
+	 *
 	 * @param open true if opening file, false if saving file
 	 * @return opened file or null
 	 */
@@ -401,6 +412,7 @@ public class ClearComposer extends Application
 
 	/**
 	 * Getter for property 'toggle'.
+	 * if true, change on to off and off to on. if false, left click is on and right click is off.
 	 *
 	 * @return Value for property 'toggle'.
 	 */
@@ -411,6 +423,7 @@ public class ClearComposer extends Application
 
 	/**
 	 * Setter for property 'toggle'.
+	 * if true, change on to off and off to on. if false, left click is on and right click is off.
 	 *
 	 * @param toggle Value to set for property 'toggle'.
 	 */
@@ -421,6 +434,7 @@ public class ClearComposer extends Application
 
 	/**
 	 * Getter for property 'perma'.
+	 * what kind of on? true = permanent, false = temporary
 	 *
 	 * @return Value for property 'perma'.
 	 */
@@ -431,6 +445,7 @@ public class ClearComposer extends Application
 
 	/**
 	 * Setter for property 'perma'.
+	 * what kind of on? true = permanent, false = temporary
 	 *
 	 * @param perma Value to set for property 'perma'.
 	 */

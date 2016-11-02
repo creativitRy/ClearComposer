@@ -26,6 +26,7 @@ package com.ctry.clearcomposer;
 
 import java.util.HashMap;
 
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Separator;
@@ -55,6 +56,13 @@ public class Toolbar extends HBox
 		button.setOnMousePressed(evt -> f_button.setButtonPressed(true));
 		button.setOnMouseReleased(evt -> f_button.setButtonPressed(false));
 		button.setOnMouseClicked(evt -> onAction.run());
+	}
+
+	public <T> void addComboBox(ChangeListener<T> onChange, int selectedIndex, T... options)
+	{
+		ToolbarComboBox<T> comboBox = new ToolbarComboBox<>(onChange, selectedIndex, options);
+
+		getChildren().add(comboBox);
 	}
 
 	public void addSeparator()

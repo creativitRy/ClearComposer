@@ -52,27 +52,27 @@ public class ToolbarButton extends StackPane
 	private Pane buttonBack;
 	private Pane buttonHighlight;
 	private boolean pressed;
-	
+
 	public ToolbarButton(String name)
 	{
 		buttonHighlight = new Pane();
 		buttonHighlight.getStyleClass().add("highlight");
-		
+
 		buttonBack = new Pane();
 		buttonBack.getStyleClass().add("back");
-		
+
 		URL url = ToolbarButton.class.getResource(name.toLowerCase() + ".png");
 		if (url != null)
 		{
 			Image image = new Image(url.toExternalForm());
-			buttonBack.setBackground(new Background(new BackgroundImage(image, 
-					BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
-					BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
+			buttonBack.setBackground(new Background(new BackgroundImage(image,
+				BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+				BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
 			buttonBack.setPickOnBounds(true);
 		}
-		
+
 		roundedEdges(this);
-		
+
 		Tooltip.install(this, new Tooltip(name));
 		getChildren().addAll(buttonBack, buttonHighlight);
 		getStyleClass().add("tblButton");
@@ -82,7 +82,7 @@ public class ToolbarButton extends StackPane
 	{
 		return pressed;
 	}
-	
+
 	public void setButtonPressed(boolean press)
 	{
 		pressed = press;
@@ -127,6 +127,5 @@ public class ToolbarButton extends StackPane
 	{
 		return 34;
 	}
-	
-	
+
 }
