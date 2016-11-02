@@ -50,6 +50,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
@@ -63,7 +64,7 @@ import javafx.stage.Stage;
 
 public class ClearComposer extends Application
 {
-	public static final int DEFAULT_WIDTH = 830;
+	public static final int DEFAULT_WIDTH = 960;
 	public static final int DEFAULT_HEIGHT = 720;
 
 	public static String DEFAULT_FOLDER_HOME = System.getProperty("user.home");
@@ -124,6 +125,7 @@ public class ClearComposer extends Application
 
 	private ComboBox<Key> cmbKeys;
 	private ComboBox<String> cmbNotes;
+	private Slider tempoSlider;
 
 	/**
 	 * Sets all ui stuff to match MusicConstants
@@ -178,7 +180,7 @@ public class ClearComposer extends Application
 			openFile = null;
 			constants = new MusicConstants();
 			resetUI();
-			((Stage)pane.getScene().getWindow()).setTitle("ClearComposer - Untitled");
+			((Stage) pane.getScene().getWindow()).setTitle("ClearComposer - Untitled");
 			createMusicSequencer();
 		});
 		bar.addRegularButton("Open", () ->
@@ -189,7 +191,7 @@ public class ClearComposer extends Application
 			{
 				loadData(open);
 				openFile = open;
-				((Stage)pane.getScene().getWindow()).setTitle("ClearComposer - " + openFile.getAbsolutePath());
+				((Stage) pane.getScene().getWindow()).setTitle("ClearComposer - " + openFile.getAbsolutePath());
 			}
 		});
 		bar.addRegularButton("Save", () ->
@@ -201,7 +203,7 @@ public class ClearComposer extends Application
 				if (save == null)
 					return;
 				openFile = save;
-				((Stage)pane.getScene().getWindow()).setTitle("ClearComposer - " + openFile.getAbsolutePath());
+				((Stage) pane.getScene().getWindow()).setTitle("ClearComposer - " + openFile.getAbsolutePath());
 			}
 			else
 				save = openFile;
@@ -214,7 +216,7 @@ public class ClearComposer extends Application
 			if (save == null)
 				return;
 			openFile = save;
-			((Stage)pane.getScene().getWindow()).setTitle("ClearComposer - " + openFile.getAbsolutePath());
+			((Stage) pane.getScene().getWindow()).setTitle("ClearComposer - " + openFile.getAbsolutePath());
 			saveData(openFile);
 
 		});
@@ -225,7 +227,8 @@ public class ClearComposer extends Application
 		bar.addSeparator();
 
 		btnPlay = bar.addButton("Play");
-		btnPause = bar.addToggleButton("Pause", pauseToggle, (pressed) -> {
+		btnPause = bar.addToggleButton("Pause", pauseToggle, (pressed) ->
+		{
 			if (pressed)
 				player.play();
 			else
@@ -235,7 +238,8 @@ public class ClearComposer extends Application
 					player.pause();
 			}
 		});
-		btnStop = bar.addRegularButton("Stop", () -> {
+		btnStop = bar.addRegularButton("Stop", () ->
+		{
 			btnPlay.setButtonPressed(false);
 			btnPause.setButtonPressed(false);
 			pauseToggle.setValue(false);
@@ -244,7 +248,8 @@ public class ClearComposer extends Application
 
 
 		btnPlay.setOnMousePressed(evt -> btnPlay.setButtonPressed(true));
-		btnPlay.setOnMouseClicked(evt -> {
+		btnPlay.setOnMouseClicked(evt ->
+		{
 			if (!btnPause.isButtonPressed() && player.getPlayState() != Status.RUNNING) //Only play if we are stopped
 			{
 				btnPlay.setButtonPressed(true);
@@ -257,7 +262,13 @@ public class ClearComposer extends Application
 		cmbKeys = bar.addComboBox((observable, oldValue, newValue) -> setKey(newValue), "Key",
 			constants.getKey().ordinal(), Key.values());
 		cmbNotes = bar.addComboBox((observable, oldValue, newValue) ->
-			setNumNotes(parseNoteInt(newValue)),"Number of Notes", 1, new String[]{"12 Notes", "16 Notes"});
+			setNumNotes(parseNoteInt(newValue)), "Number of Notes", 1, new String[]{"12 Notes", "16 Notes"});
+		tempoSlider = bar.addSlider("Tempo", 100, 500, 500 - constants.getTempo(), (observable, oldValue, newValue) ->
+		{
+			constants.setTempo(500 - newValue.doubleValue());
+			player.setTempo();
+		});
+
 
 		pane.setTop(bar);
 
@@ -269,15 +280,28 @@ public class ClearComposer extends Application
 		HBox secondaryChords = new HBox(10);
 		VBox chordRows = new VBox(10);
 		secondaryChords.setAlignment(Pos.CENTER);
-		chordRows.getChildren().addAll(primaryChords, secondaryChords);
+		chordRows.getChildren().
+
+			addAll(primaryChords, secondaryChords);
 		chordRows.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
-		chordButtons = new StackPane();
-		chordButtons.setPadding(new Insets(10));
-		chordButtons.getStyleClass().add("panel");
-		chordButtons.getChildren().add(chordRows);
+		chordButtons = new
+
+			StackPane();
+		chordButtons.setPadding(new
+
+			Insets(10));
+		chordButtons.getStyleClass().
+
+			add("panel");
+		chordButtons.getChildren().
+
+			add(chordRows);
+
 		chords = new EnumMap<>(Chord.class);
-		for (Chord c : Chord.values())
+		for (
+			Chord c : Chord.values())
+
 		{
 			CCButton button = new CCButton(c.toString(), c.getColor());
 			button.setMinSize(100, 35);
@@ -298,6 +322,7 @@ public class ClearComposer extends Application
 			else
 				primaryChords.getChildren().add(button);
 		}
+
 		setChord(constants.getChord());
 		pane.setBottom(chordButtons);
 
@@ -354,10 +379,16 @@ public class ClearComposer extends Application
 				GraphicNote.stopToggle();
 		});
 		//css
-		scene.getStylesheets().add(ClearComposer.class.getResource("clearcomposer.css").toExternalForm());
+		scene.getStylesheets().
+
+			add(ClearComposer.class.getResource("clearcomposer.css").
+
+				toExternalForm());
 
 		//configure main stage
-		primaryStage.getIcons().add(new Image(ClearComposer.class.getResourceAsStream("Logo.png")));
+		primaryStage.getIcons().
+
+			add(new Image(ClearComposer.class.getResourceAsStream("Logo.png")));
 		primaryStage.setScene(scene);
 		primaryStage.setResizable(false);
 		primaryStage.setTitle("ClearComposer - Untitled");
@@ -369,7 +400,8 @@ public class ClearComposer extends Application
 		primaryStage.show();
 	}
 
-	private void createMusicSequencer() {
+	private void createMusicSequencer()
+	{
 		//Stop everything
 		if (btnPause != null)
 			btnPause.setButtonPressed(false);
@@ -411,6 +443,7 @@ public class ClearComposer extends Application
 
 	/**
 	 * Sets key to new key
+	 *
 	 * @param key new key
 	 */
 	public void setKey(Key key)
@@ -421,11 +454,13 @@ public class ClearComposer extends Application
 
 	/**
 	 * Sets number of notes to new number of notes
+	 *
 	 * @param numNotes new number of notes
 	 */
 	public void setNumNotes(int numNotes)
 	{
-		try {
+		try
+		{
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ObjectOutputStream oos = new ObjectOutputStream(baos);
 			player.saveTracks(oos);
@@ -436,7 +471,8 @@ public class ClearComposer extends Application
 			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 			ObjectInputStream ois = new ObjectInputStream(bais);
 			player.loadTracks(ois);
-		} catch (IOException e) {
+		} catch (IOException e)
+		{
 			//TODO: alert user of error
 			e.printStackTrace();
 		}
@@ -484,8 +520,7 @@ public class ClearComposer extends Application
 		{
 			oos.writeObject(constants);
 			player.saveTracks(oos);
-		}
-		catch (IOException e)
+		} catch (IOException e)
 		{
 			e.printStackTrace();
 			//TODO: show error while saving.

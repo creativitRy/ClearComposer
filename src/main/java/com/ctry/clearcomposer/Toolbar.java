@@ -34,6 +34,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Separator;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 
 public class Toolbar extends HBox
@@ -107,6 +108,14 @@ public class Toolbar extends HBox
 		ToolbarComboBox<T> comboBox = new ToolbarComboBox<>(onChange, tooltip, selectedIndex, options);
 		getChildren().add(comboBox);
 		return comboBox;
+	}
+
+	public Slider addSlider(String action, double min, double max, double value, ChangeListener<Number> onChange)
+	{
+		Slider slider = new Slider(min, max, value);
+		slider.valueProperty().addListener(onChange);
+		getChildren().add(slider);
+		return slider;
 	}
 
 	public void addSeparator()

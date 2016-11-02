@@ -76,10 +76,11 @@ public class TrackPlayer
 		timeline.setCycleCount(Animation.INDEFINITE);
 
 		tracks = new ArrayList<>();
+	}
 
-		//TODO
-		//Don't play by default
-		//play();
+	public void setTempo()
+	{
+		//TODO: idk
 	}
 
 	/**
