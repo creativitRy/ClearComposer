@@ -66,7 +66,7 @@ import javafx.stage.Stage;
 
 public class ClearComposer extends Application
 {
-	public static final int DEFAULT_WIDTH = 780;
+	public static final int DEFAULT_WIDTH = 830;
 	public static final int DEFAULT_HEIGHT = 720;
 
 	public static String DEFAULT_FOLDER_HOME = System.getProperty("user.home");
@@ -141,35 +141,38 @@ public class ClearComposer extends Application
 			//TODO: ask if the user wants to save
 			if (open != null)
 			{
-				try
-				{
-					createMusicSequencer();
-					player.loadTracks(new FileInputStream(open));
-					openFile = open;
-				} catch (IOException e1)
-				{
-					e1.printStackTrace();
-				}
+				loadData(open);
+				openFile = open;
+				((Stage)pane.getScene().getWindow()).setTitle("ClearComposer - " + openFile.getAbsolutePath());
 			}
 		});
 		bar.addRegularButton("Save", () ->
 		{
 			File save;
 			if (openFile == null)
+			{
 				save = showFileChooser(false);
+				if (save == null)
+					return;
+				openFile = save;
+				((Stage)pane.getScene().getWindow()).setTitle("ClearComposer - " + openFile.getAbsolutePath());
+			}
 			else
 				save = openFile;
-			if (save != null)
-			{
-				try
-				{
-					player.saveTracks(new FileOutputStream(save));
-				} catch (IOException e1)
-				{
-					e1.printStackTrace();
-				}
-			}
+
+			saveData(openFile);
 		});
+		bar.addRegularButton("Save As", () ->
+		{
+			File save = showFileChooser(false);
+			if (save == null)
+				return;
+			openFile = save;
+			((Stage)pane.getScene().getWindow()).setTitle("ClearComposer - " + openFile.getAbsolutePath());
+			saveData(openFile);
+
+		});
+
 		bar.addSeparator();
 		bar.addRegularButton("Undo", () -> System.out.println("TODO"));
 		bar.addRegularButton("Redo", () -> System.out.println("TODO"));
@@ -202,7 +205,7 @@ public class ClearComposer extends Application
 				player.play();
 			}
 		});
-		btnPlay.setButtonPressed(true);
+		//btnPlay.setButtonPressed(true);
 
 		bar.addSeparator();
 		bar.addComboBox((observable, oldValue, newValue) -> setKey(newValue), "Key",
@@ -406,9 +409,11 @@ public class ClearComposer extends Application
 	{
 		try (FileInputStream fis = new FileInputStream(f))
 		{
+			createMusicSequencer();
 			player.loadTracks(fis);
 		} catch (IOException e)
 		{
+			e.printStackTrace();
 			//TODO: show error while loading.
 		}
 	}
@@ -425,6 +430,7 @@ public class ClearComposer extends Application
 			player.saveTracks(fos);
 		} catch (IOException e)
 		{
+			e.printStackTrace();
 			//TODO: show error while saving.
 		}
 	}
@@ -442,6 +448,9 @@ public class ClearComposer extends Application
 			player.pause();
 
 		FileChooser fileChooser = new FileChooser();
+
+		if (!open && openFile != null)
+			fileChooser.setInitialFileName(openFile.getName());
 		fileChooser.setTitle(open ? "Open CC file" : "Save CC file");
 		fileChooser.getExtensionFilters().add(new ExtensionFilter("CC File", "*.ccp"));
 

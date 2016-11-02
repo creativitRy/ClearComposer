@@ -78,7 +78,8 @@ public class TrackPlayer
 		tracks = new ArrayList<>();
 
 		//TODO
-		play();
+		//Don't play by default
+		//play();
 	}
 
 	/**

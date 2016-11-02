@@ -61,7 +61,7 @@ public class ToolbarButton extends StackPane
 		buttonBack = new Pane();
 		buttonBack.getStyleClass().add("back");
 
-		URL url = ToolbarButton.class.getResource(name.toLowerCase() + ".png");
+		URL url = ToolbarButton.class.getResource(name.toLowerCase().replace(' ', '_') + ".png");
 		if (url != null)
 		{
 			Image image = new Image(url.toExternalForm());
