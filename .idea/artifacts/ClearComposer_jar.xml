@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ClearComposer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ClearComposer_jar</output-path>
+    <root id="archive" name="ClearComposer.jar">
+      <element id="module-output" name="ClearComposer" />
+    </root>
+  </artifact>
+</component>
