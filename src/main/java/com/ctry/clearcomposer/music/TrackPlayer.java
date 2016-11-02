@@ -44,15 +44,18 @@ import com.ctry.clearcomposer.sequencer.GraphicTrack;
 
 import javafx.animation.Animation;
 import javafx.animation.Animation.Status;
+import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 
 public class TrackPlayer
 {
+	private double lastUpdate = -1;
+	private double elapsed = 0;
 	private int index;
 	private List<GraphicTrack> tracks;
-	private Timeline timeline;
+	private AnimationTimer tmr;
 	private Status playState;
 
 	private static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... params)
@@ -72,16 +75,27 @@ public class TrackPlayer
 	public TrackPlayer()
 	{
 		index = 0;
-		timeline = new Timeline(new KeyFrame(Duration.millis(ClearComposer.constants.getTempo()), ae -> playNotes()));
-		timeline.setCycleCount(Animation.INDEFINITE);
+
+		tmr = new AnimationTimer() {
+			@Override
+			public void handle(long xxx) {
+				double now = System.currentTimeMillis() * .001;
+				if (lastUpdate != -1) {
+					elapsed += now - lastUpdate;
+					if (elapsed >= 60.0 / ClearComposer.constants.getTempo())
+					{
+						elapsed = 0;
+						playNotes();
+					}
+				}
+				lastUpdate = now;
+			}
+		};
+		tmr.start();
 
 		tracks = new ArrayList<>();
 	}
 
-	public void setTempo()
-	{
-		//TODO: idk
-	}
 
 	/**
 	 * Saves track data to an data stream.
@@ -148,17 +162,10 @@ public class TrackPlayer
 			index -= ClearComposer.constants.getNoteAmount();
 	}
 
-	/**
-	 * changes the delay of the timeline to match the new tempo
-	 */
-	public void updateDelay()
-	{
-		timeline.setDelay(Duration.millis(ClearComposer.constants.getTempo()));
-	}
 
 	public Status getPlayState()
 	{
-		return timeline.getStatus();
+		return playState;
 	}
 
 	/**
@@ -166,8 +173,8 @@ public class TrackPlayer
 	 */
 	public void play()
 	{
-		if (timeline.getStatus() != Status.RUNNING)
-			timeline.play();
+		playState = Status.RUNNING;
+		tmr.start();
 	}
 
 	/**
@@ -175,8 +182,8 @@ public class TrackPlayer
 	 */
 	public void pause()
 	{
-		if (timeline.getStatus() == Status.RUNNING)
-			timeline.stop();
+		playState = Status.PAUSED;
+		tmr.stop();
 	}
 
 	/**

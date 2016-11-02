@@ -165,6 +165,9 @@ public class ClearComposer extends Application
 
 		//Chord
 		setChord(constants.getChord());
+
+		//Tempo
+		tempoSlider.setValue(constants.getTempo());
 	}
 
 	/**
@@ -273,10 +276,9 @@ public class ClearComposer extends Application
 		} , "Key", constants.getKey().ordinal(), Key.values());
 		cmbNotes = bar.addComboBox((observable, oldValue, newValue) ->
 			setNumNotes(parseNoteInt(newValue)), "Number of Notes", 1, new String[]{"12 Notes", "16 Notes"});
-		tempoSlider = bar.addSlider("Tempo", 100, 500, 500 - constants.getTempo(), (observable, oldValue, newValue) ->
+		tempoSlider = bar.addSlider("Tempo", 100, 500, constants.getTempo(), (observable, oldValue, newValue) ->
 		{
-			constants.setTempo(500 - newValue.doubleValue());
-			player.setTempo();
+			constants.setTempo(newValue.doubleValue());
 		});
 
 

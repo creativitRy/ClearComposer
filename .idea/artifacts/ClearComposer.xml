@@ -1,6 +1,19 @@
 <component name="ArtifactManager">
   <artifact type="javafx" name="ClearComposer">
     <output-path>$PROJECT_DIR$/out/artifacts/ClearComposer</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="com.ctry.clearcomposer.ClearComposer" />
+        <option name="description" value="" />
+        <option name="height" value="720" />
+        <option name="htmlParamFile" value="" />
+        <option name="nativeBundle" value="exe" />
+        <option name="paramFile" value="" />
+        <option name="title" value="ClearComposer" />
+        <option name="vendor" value="" />
+        <option name="width" value="960" />
+      </options>
+    </properties>
     <root id="root">
       <element id="archive" name="ClearComposer.jar">
         <element id="module-output" name="ClearComposer" />
