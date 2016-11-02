@@ -51,6 +51,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -179,7 +180,7 @@ public class ClearComposer extends Application
 		bar.addRegularButton("Undo", () -> System.out.println("TODO"));
 		bar.addRegularButton("Redo", () -> System.out.println("TODO"));
 		bar.addSeparator();
-		
+
 		btnPlay = bar.addButton("Play");
 		btnPause = bar.addToggleButton("Pause", pauseToggle, (pressed) -> {
 			if (pressed)
@@ -319,6 +320,7 @@ public class ClearComposer extends Application
 		scene.getStylesheets().add(ClearComposer.class.getResource("clearcomposer.css").toExternalForm());
 
 		//configure main stage
+		primaryStage.getIcons().add(new Image(ClearComposer.class.getResourceAsStream("Logo.png")));
 		primaryStage.setScene(scene);
 		primaryStage.setResizable(false);
 		primaryStage.setTitle("ClearComposer");
