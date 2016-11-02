@@ -54,7 +54,7 @@ public class TrackPlayer
 	private List<GraphicTrack> tracks;
 	private Timeline timeline;
 	private Status playState;
-	
+
 	private static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... params)
 	{
 		try
@@ -162,13 +162,14 @@ public class TrackPlayer
 	{
 		return timeline.getStatus();
 	}
-	
+
 	/**
 	 * play
 	 */
 	public void play()
 	{
-		timeline.play();
+		if (timeline.getStatus() != Status.RUNNING)
+			timeline.play();
 	}
 
 	/**
@@ -176,7 +177,8 @@ public class TrackPlayer
 	 */
 	public void pause()
 	{
-		timeline.stop();
+		if (timeline.getStatus() == Status.RUNNING)
+			timeline.stop();
 	}
 
 	/**

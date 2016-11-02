@@ -87,6 +87,11 @@ public class ClearComposer extends Application
 	private static boolean perma = true;
 
 	/**
+	 * file opened currently or null
+	 */
+	private static File openFile = null;
+
+	/**
 	 * the buttons to change chords
 	 */
 	private StackPane chordButtons;
@@ -125,6 +130,11 @@ public class ClearComposer extends Application
 
 		//Toolbar buttons
 		Toolbar bar = new Toolbar();
+		bar.addRegularButton("New", () ->
+		{
+			openFile = null;
+			//TODO: load default file
+		});
 		bar.addRegularButton("Open", () ->
 		{
 			File open = showFileChooser(true);
@@ -133,16 +143,20 @@ public class ClearComposer extends Application
 				try
 				{
 					player.loadTracks(new FileInputStream(open));
+					openFile = open;
 				} catch (IOException e1)
 				{
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
 		});
 		bar.addRegularButton("Save", () ->
 		{
-			File save = showFileChooser(false);
+			File save;
+			if (openFile == null)
+				save = showFileChooser(false);
+			else
+				save = openFile;
 			if (save != null)
 			{
 				try
@@ -150,13 +164,17 @@ public class ClearComposer extends Application
 					player.saveTracks(new FileOutputStream(save));
 				} catch (IOException e1)
 				{
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
 		});
+		bar.addSeparator();
 		bar.addRegularButton("Undo", () -> System.out.println("TODO"));
 		bar.addRegularButton("Redo", () -> System.out.println("TODO"));
+		bar.addSeparator();
+		bar.addRegularButton("Play", () -> player.play() );
+		bar.addRegularButton("Pause", () -> player.pause() );
+		bar.addRegularButton("Stop", () -> player.stop() );
 		pane.setTop(bar);
 
 		//music sequencer
@@ -346,6 +364,11 @@ public class ClearComposer extends Application
 		}
 	}
 
+	/**
+	 * Shows file choosing dialog
+	 * @param open true if opening file, false if saving file
+	 * @return opened file or null
+	 */
 	private File showFileChooser(boolean open)
 	{
 		boolean running = player.getPlayState() == Status.RUNNING;

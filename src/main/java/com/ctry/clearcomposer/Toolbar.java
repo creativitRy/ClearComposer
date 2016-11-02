@@ -27,6 +27,8 @@ package com.ctry.clearcomposer;
 import java.util.HashMap;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 
 public class Toolbar extends HBox
@@ -53,6 +55,14 @@ public class Toolbar extends HBox
 		button.setOnMousePressed(evt -> f_button.setButtonPressed(true));
 		button.setOnMouseReleased(evt -> f_button.setButtonPressed(false));
 		button.setOnMouseClicked(evt -> onAction.run());
+	}
+
+	public void addSeparator()
+	{
+		Separator separator = new Separator();
+		separator.setOrientation(Orientation.VERTICAL);
+		separator.setMaxWidth(34);
+		getChildren().add(separator);
 	}
 
 	public void removeButton(String action)
