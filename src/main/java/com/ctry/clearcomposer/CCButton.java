@@ -78,9 +78,9 @@ public class CCButton extends StackPane
 	public void setButtonPressed(boolean pressed)
 	{
 		this.pressed = pressed;
-		if (pressed)
+		if (pressed && !getStyleClass().contains("pressed"))
 			getStyleClass().add("pressed");
-		else
+		else if (!pressed)
 			getStyleClass().remove("pressed");
 	}
 }

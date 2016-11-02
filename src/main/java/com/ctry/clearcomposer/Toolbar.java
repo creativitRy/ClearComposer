@@ -25,7 +25,9 @@
 package com.ctry.clearcomposer;
 
 import java.util.HashMap;
+import java.util.function.Consumer;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -43,7 +45,34 @@ public class Toolbar extends HBox
 		getStyleClass().add("Toolbar");
 	}
 
-	public void addRegularButton(String action, Runnable onAction)
+	/**
+	 * Adds a toggle toolbar button that toggles between
+	 * on and off state whenever the user clicks on the button.
+	 * @param action name of button.
+	 * @param permState state of whether if button is toggled or not.
+	 * @param onAction called whenever user clicks on button. Passes in button's previous state
+	 * @return the created button.
+	 */
+	public ToolbarButton addToggleButton(String action, BooleanProperty permState, Consumer<Boolean> onAction)
+	{
+		ToolbarButton button = addButton(action);
+		button.setOnMouseReleased(null);
+		button.setOnMousePressed(evt -> button.setButtonPressed(true));
+		button.setOnMouseClicked(evt -> {
+			boolean pressed = permState.get();
+			button.setButtonPressed(!pressed);
+			permState.set(!pressed);
+			onAction.accept(pressed);
+		});
+		return button;
+	}
+
+	/**
+	 * Adds a button (with no events attached to it)
+	 * @param action name of button.
+	 * @return the created button
+	 */
+	public ToolbarButton addButton(String action)
 	{
 		ToolbarButton button = buttons.get(action);
 		if (button == null)
@@ -52,10 +81,22 @@ public class Toolbar extends HBox
 			buttons.put(action, button);
 			getChildren().add(button);
 		}
-		ToolbarButton f_button = button;
-		button.setOnMousePressed(evt -> f_button.setButtonPressed(true));
-		button.setOnMouseReleased(evt -> f_button.setButtonPressed(false));
+		return button;
+	}
+
+	/**
+	 * Adds a regular button that will press-release after clicking it
+	 * @param action name of button.
+	 * @param onAction called whenever user clicks on the button
+	 * @return the created button
+	 */
+	public ToolbarButton addRegularButton(String action, Runnable onAction)
+	{
+		ToolbarButton button = addButton(action);
+		button.setOnMousePressed(evt -> button.setButtonPressed(true));
+		button.setOnMouseReleased(evt -> button.setButtonPressed(false));
 		button.setOnMouseClicked(evt -> onAction.run());
+		return button;
 	}
 
 	public <T> void addComboBox(ChangeListener<T> onChange, int selectedIndex, T... options)

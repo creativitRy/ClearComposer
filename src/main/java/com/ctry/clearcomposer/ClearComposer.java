@@ -47,6 +47,8 @@ import com.ctry.clearcomposer.sequencer.NotesTrack;
 import javafx.animation.Animation.Status;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -161,7 +163,6 @@ public class ClearComposer extends Application
 			{
 				try
 				{
-					createMusicSequencer();
 					player.saveTracks(new FileOutputStream(save));
 				} catch (IOException e1)
 				{
@@ -173,11 +174,37 @@ public class ClearComposer extends Application
 		bar.addRegularButton("Undo", () -> System.out.println("TODO"));
 		bar.addRegularButton("Redo", () -> System.out.println("TODO"));
 		bar.addSeparator();
-		bar.addRegularButton("Play", () -> player.play());
-		bar.addRegularButton("Pause", () -> player.pause());
-		bar.addRegularButton("Stop", () -> player.stop());
-		bar.addSeparator();
+
+		BooleanProperty pauseToggle = new SimpleBooleanProperty(false);
+		ToolbarButton btnPlay = bar.addButton("Play");
+		ToolbarButton btnPause = bar.addToggleButton("Pause", pauseToggle, (pressed) -> {
+			if (pressed)
+				player.play();
+			else
+			{
+				btnPlay.setButtonPressed(true); //In case user presses pause first.
+				if (player.getPlayState() == Status.RUNNING)
+					player.pause();
+			}
+		});
+		ToolbarButton btnStop = bar.addRegularButton("Stop", () -> {
+			btnPlay.setButtonPressed(false);
+			btnPause.setButtonPressed(false);
+			pauseToggle.setValue(false);
+			player.stop();
+		});
+
+		btnPlay.setOnMousePressed(evt -> btnPlay.setButtonPressed(true));
+		btnPlay.setOnMouseClicked(evt -> {
+			if (!btnPause.isButtonPressed() && player.getPlayState() != Status.RUNNING) //Only play if we are stopped
+			{
+				btnPlay.setButtonPressed(true);
+				player.play();
+			}
+		});
+		btnPlay.setButtonPressed(true);
 		bar.addComboBox((observable, oldValue, newValue) -> setKey(newValue), constants.getKey().ordinal(), Key.values());
+
 		pane.setTop(bar);
 
 		//Music sequencer

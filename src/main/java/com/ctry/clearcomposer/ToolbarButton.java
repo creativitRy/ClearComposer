@@ -86,9 +86,9 @@ public class ToolbarButton extends StackPane
 	public void setButtonPressed(boolean press)
 	{
 		pressed = press;
-		if (pressed)
+		if (pressed && !getStyleClass().contains("pressed"))
 			getStyleClass().add("pressed");
-		else
+		else if (!pressed)
 			getStyleClass().remove("pressed");
 	}
 
