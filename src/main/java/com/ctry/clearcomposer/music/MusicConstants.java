@@ -54,7 +54,7 @@ public class MusicConstants implements Serializable
 	/**
 	 * Either 12 for 3/4 or 16 for 4/4
 	 */
-	public static final int DEFAULT_NOTE_AMOUNT = 12;
+	public static final int DEFAULT_NOTE_AMOUNT = 16;
 
 	private Key key;
 	private double tempo;
