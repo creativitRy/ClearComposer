@@ -31,23 +31,26 @@
 package com.ctry.clearcomposer.history;
 
 import com.ctry.clearcomposer.sequencer.GraphicNote;
+import com.ctry.clearcomposer.sequencer.NotePlayState;
+import com.ctry.clearcomposer.sequencer.NotePrevState;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NotesEntry extends AbstractEntry
 {
-	private List<GraphicNote> notes;
+	private HashMap<GraphicNote, NotePrevState> notesState;
 	private boolean isPerma;
 
 	/**
 	 * new notes entry instance
 	 *
-	 * @param notes   all CHANGED notes
-	 * @param isPerma when changing notes, was isPerma on or off?
+	 * @param noteStates all CHANGED notes with their initial states
+	 * @param isPerma    when changing notes, was isPerma on or off?
 	 */
-	public NotesEntry(List<GraphicNote> notes, boolean isPerma)
+	public NotesEntry(HashMap<GraphicNote, NotePrevState> noteStates, boolean isPerma)
 	{
-		this.notes = notes;
+		this.notesState = noteStates;
 		this.isPerma = isPerma;
 	}
 
@@ -69,7 +72,7 @@ public class NotesEntry extends AbstractEntry
 	@Override
 	public void undo()
 	{
-		toggle();
+		setNotes(false);
 	}
 
 	/**
@@ -78,14 +81,20 @@ public class NotesEntry extends AbstractEntry
 	@Override
 	public void redo()
 	{
-		toggle();
+		setNotes(true);
 	}
 
-	private void toggle()
+	private void setNotes(boolean invert)
 	{
-		for (GraphicNote note : notes)
+		for (Map.Entry<GraphicNote, NotePrevState> entry : notesState.entrySet())
 		{
-			note.toggle(isPerma);
+			GraphicNote note = entry.getKey();
+			NotePrevState prev = entry.getValue();
+			boolean turnOn = invert ^ prev.wasOn();
+
+			//Only toggle if we need to change note state.
+			if (turnOn ^ note.getPlayState() != NotePlayState.OFF)
+				note.toggle(prev.wasPerma());
 		}
 	}
 }

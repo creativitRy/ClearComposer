@@ -319,7 +319,7 @@ public class ClearComposer extends Application
 		tempoIndicator.setTextFill(Color.WHITE);
 		bar.addNode(tempoIndicator);
 
-		//Edit Mode
+		//Edit NotePlayState
 		bar.addSeparator();
 		btnPermaToggle = bar.addToggleButton("Perma", permaToggle, null);
 		btnNoteToggle = bar.addToggleButton("Toggling", noteToggle, null);
@@ -635,17 +635,6 @@ public class ClearComposer extends Application
 	}
 
 	/**
-	 * Setter for property 'toggle'.
-	 * if true, change on to off and off to on. if false, left click is on and right click is off.
-	 *
-	 * @param toggle Value to set for property 'toggle'.
-	 */
-	public static void setToggle(boolean toggle)
-	{
-		ClearComposer.toggle = toggle;
-	}
-
-	/**
 	 * Getter for property 'perma'.
 	 * what kind of on? true = permanent, false = temporary
 	 *
@@ -654,17 +643,6 @@ public class ClearComposer extends Application
 	public static boolean isPerma()
 	{
 		return perma;
-	}
-
-	/**
-	 * Setter for property 'perma'.
-	 * what kind of on? true = permanent, false = temporary
-	 *
-	 * @param perma Value to set for property 'perma'.
-	 */
-	public static void setPerma(boolean perma)
-	{
-		ClearComposer.perma = perma;
 	}
 
 	public static void main(String[] args)

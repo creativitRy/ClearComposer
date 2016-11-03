@@ -30,8 +30,7 @@
  */
 package com.ctry.clearcomposer.sequencer;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 import com.ctry.clearcomposer.ClearComposer;
 import com.ctry.clearcomposer.history.NotesEntry;
@@ -44,6 +43,7 @@ import javafx.util.Duration;
 
 public class GraphicNote extends Rectangle
 {
+
 	private static final Color PERMA_STROKE = Color.GRAY;
 	private static final Color TEMP_STROKE = Color.YELLOW;
 	
@@ -52,12 +52,12 @@ public class GraphicNote extends Rectangle
 	private static final Duration TRANSITION_DURATION = Duration.millis(500);
 	private static final Color FILL_PLAY = Color.WHITE;
 
-	private static List<GraphicNote> notes = new ArrayList<>();
+	private static HashMap<GraphicNote, NotePrevState> noteStates = new HashMap<>();
 
 	private boolean isImmutable = false;
 	private boolean isTouched = false;
 	private Color fillOn;
-	private Mode on;
+	private NotePlayState on;
 	private Transition ft;
 
 	/**
@@ -71,7 +71,7 @@ public class GraphicNote extends Rectangle
 		getStyleClass().add("shape");
 
 		this.fillOn = fillOn;
-		on = Mode.OFF;
+		on = NotePlayState.OFF;
 
 		setFill(FILL_OFF);
 		setStroke(PERMA_STROKE);
@@ -88,16 +88,22 @@ public class GraphicNote extends Rectangle
 	{
 		if (!isTouched)
 		{
-			isTouched = true;
-			notes.add(this);
-			if (ClearComposer.isToggle())
-				toggle(ClearComposer.isPerma());
-			else
+			//We need this to make change
+			if (ClearComposer.isToggle() || (on != NotePlayState.OFF ^ t.isPrimaryButtonDown()))
 			{
-				if (t.isPrimaryButtonDown())
-					turnOn(ClearComposer.isPerma());
-				else
-					turnOff();
+				boolean isOn = on != NotePlayState.OFF;
+				boolean isPerma = isOn ? on == NotePlayState.ON_PERMA : ClearComposer.isPerma();
+				noteStates.put(this, new NotePrevState(isOn, isPerma));
+
+				isTouched = true;
+				if (ClearComposer.isToggle())
+					toggle(ClearComposer.isPerma());
+				else {
+					if (t.isPrimaryButtonDown())
+						turnOn(ClearComposer.isPerma());
+					else
+						turnOff();
+				}
 			}
 		}
 	}
@@ -108,7 +114,7 @@ public class GraphicNote extends Rectangle
 	 */
 	public void toggle(boolean isPerma)
 	{
-		if (on == Mode.OFF)
+		if (on == NotePlayState.OFF)
 			turnOn(isPerma);
 		else
 			turnOff();
@@ -123,9 +129,9 @@ public class GraphicNote extends Rectangle
 			return;
 
 		if (isPerma)
-			on = Mode.ON_PERMA;
+			on = NotePlayState.ON_PERMA;
 		else
-			on = Mode.ON_TEMP;
+			on = NotePlayState.ON_TEMP;
 
 		setStroke(isPerma ? PERMA_STROKE : TEMP_STROKE);
 		setFill(fillOn);
@@ -139,10 +145,15 @@ public class GraphicNote extends Rectangle
 		if (isImmutable)
 			return;
 
-		on = Mode.OFF;
+		on = NotePlayState.OFF;
 
 		setStroke(PERMA_STROKE);
 		setFill(FILL_OFF);
+	}
+
+	public NotePlayState getPlayState()
+	{
+		return on;
 	}
 
 	/**
@@ -151,11 +162,11 @@ public class GraphicNote extends Rectangle
 	 */
 	protected boolean isOn()
 	{
-		if (on == Mode.OFF)
+		if (on == NotePlayState.OFF)
 			return false;
 
-		if (on == Mode.ON_TEMP)
-			on = Mode.OFF;
+		if (on == NotePlayState.ON_TEMP)
+			on = NotePlayState.OFF;
 		
 		playColor();
 		return true;
@@ -175,11 +186,16 @@ public class GraphicNote extends Rectangle
 			@Override
 			protected void interpolate(double frac)
 			{
-				if (on != Mode.OFF)
-					setFill(FILL_PLAY.interpolate(fillOn, frac));					
+				if (on != NotePlayState.OFF)
+				{
+					setFill(FILL_PLAY.interpolate(fillOn, frac));
+					setStroke(stroke.interpolate(on == NotePlayState.ON_PERMA ? PERMA_STROKE : TEMP_STROKE, frac));
+				}
 				else
+				{
 					setFill(FILL_PLAY.interpolate(FILL_OFF, frac));
-				setStroke(stroke.interpolate(PERMA_STROKE, frac));
+					setStroke(stroke.interpolate(PERMA_STROKE, frac));
+				}
 			}
 		};
 		ft.play();
@@ -192,10 +208,10 @@ public class GraphicNote extends Rectangle
 	protected void makeImmutable()
 	{
 		isImmutable = true;
-		on = Mode.ON_PERMA;
+		on = NotePlayState.ON_PERMA;
 		setFill(fillOn);
 		setStroke(PERMA_STROKE);
-		notes.remove(this);
+		noteStates.remove(this);
 	}
 
 	/**
@@ -205,7 +221,7 @@ public class GraphicNote extends Rectangle
 	public void changeColor(Color to)
 	{
 		fillOn = to;
-		if (on != Mode.OFF)
+		if (on != NotePlayState.OFF)
 			setFill(fillOn);
 	}
 
@@ -216,23 +232,12 @@ public class GraphicNote extends Rectangle
 	 */
 	public static void finishNotesEditing()
 	{
-		if (!notes.isEmpty())
-			ClearComposer.cc.pushMove(new NotesEntry(new ArrayList<>(notes), ClearComposer.isPerma()));
-		for (GraphicNote note : notes)
+		if (!noteStates.isEmpty())
+			ClearComposer.cc.pushMove(new NotesEntry(new HashMap<>(noteStates), ClearComposer.isPerma()));
+		for (GraphicNote note : noteStates.keySet())
 			note.isTouched = false;
-		notes.clear();
+		noteStates.clear();
 	}
 
 }
 
-/**
- * off = note is turned off
- * on_temporary = note is turned on but will be switched off once played
- * on_permanent = note will be on forever
- */
-enum Mode
-{
-	OFF,
-	ON_TEMP,
-	ON_PERMA;
-}
