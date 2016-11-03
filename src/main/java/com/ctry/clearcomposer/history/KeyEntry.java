@@ -36,7 +36,6 @@ import javafx.scene.control.ComboBox;
 
 public class KeyEntry extends AbstractEntry
 {
-	private static ComboBox<Key> box;
 
 	private Key to;
 	private Key from;
@@ -65,7 +64,7 @@ public class KeyEntry extends AbstractEntry
 	public void undo()
 	{
 		ClearComposer.cc.setKey(from);
-		box.setValue(from);
+		ClearComposer.cc.resetUI();
 	}
 
 	/**
@@ -75,11 +74,7 @@ public class KeyEntry extends AbstractEntry
 	public void redo()
 	{
 		ClearComposer.cc.setKey(to);
-		box.setValue(to);
+		ClearComposer.cc.resetUI();
 	}
 
-	public static void setBox(ComboBox<Key> b)
-	{
-		box = b;
-	}
 }

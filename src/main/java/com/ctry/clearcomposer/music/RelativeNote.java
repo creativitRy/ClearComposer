@@ -41,6 +41,7 @@ public enum RelativeNote
 	SOL(7),
 	LA(9),
 	TI(11),
+	TI_LOWER(11, 6, 0, -1),
 	DI(1,0,1),
 	RA(1,1,-1),
 	RI(3,1,1),
@@ -58,19 +59,25 @@ public enum RelativeNote
 	private int steps;
 	private int position;
 	private int accidental;
+	private int octaveOff;
 
 	RelativeNote(int step)
 	{
-		steps = step;
+		this(step, 0, 0);
 		position = ordinal();
-		accidental = 0;
 	}
 
 	RelativeNote(int step, int position, int accidental)
 	{
-		steps = step;
+		this(step, position, accidental, 0);
+	}
+
+	RelativeNote(int step, int position, int accidental, int octaveOff)
+	{
+		this.steps = step;
 		this.position = position;
 		this.accidental = accidental;
+		this.octaveOff = octaveOff;
 	}
 
 	/**
@@ -81,7 +88,7 @@ public enum RelativeNote
 	 */
 	public int getAbsolutePitch(int octave)
 	{
-		return ClearComposer.constants.getKey().getNote().getAbsolutePitch() + 12 * octave + steps;
+		return ClearComposer.constants.getKey().getNote().getAbsolutePitch() + 12 * (octave + octaveOff) + steps;
 	}
 
 	/**

@@ -42,6 +42,7 @@ import static com.ctry.clearcomposer.music.RelativeNote.SI;
 import static com.ctry.clearcomposer.music.RelativeNote.SOL;
 import static com.ctry.clearcomposer.music.RelativeNote.TE;
 import static com.ctry.clearcomposer.music.RelativeNote.TI;
+import static com.ctry.clearcomposer.music.RelativeNote.TI_LOWER;
 
 import javafx.scene.paint.Color;
 
@@ -53,7 +54,7 @@ public enum Chord
 	IV(2, DO, RE, FA, SOL, LA),
 	V(2, RE, FA, SOL, LA, TI),
 	vi(3, DO, MI, SOL, LA, TI),
-	vii$(0, TI, RE, FA, SOL, LA),
+	vii$(0, TI_LOWER, RE, FA, SOL, LA),
 	V_ii(3, DI, MI, SOL, LA, TI),
 	V_iii(4, DI, RI, FI, LA, TI),
 	V_IV(0, DO, RE, MI, SOL, TE),

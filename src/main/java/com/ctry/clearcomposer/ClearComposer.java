@@ -84,6 +84,7 @@ public class ClearComposer extends Application
 {
 	public static final int DEFAULT_WIDTH = 1250;
 	public static final int DEFAULT_HEIGHT = 720;
+	public static final int MAX_UNDOS = 1000;
 
 	public static String DEFAULT_FOLDER_HOME = System.getProperty("user.home");
 
@@ -120,11 +121,6 @@ public class ClearComposer extends Application
 	 * buttons of chords
 	 */
 	private EnumMap<Chord, CCButton> chords;
-
-	/**
-	 * true if shift is pressed
-	 */
-	private boolean isShift = false;
 
 	/**
 	 * plays music and keeps track of note/beat tracks
@@ -172,7 +168,9 @@ public class ClearComposer extends Application
 	public void resetUI()
 	{
 		//Scale Key
-		cmbKeys.getSelectionModel().select(constants.getKey().ordinal());
+		cmbKeys.setValue(constants.getKey());
+
+		//cmbKeys.getSelectionModel().select(constants.getKey().ordinal());
 
 		//Number of notes
 		int numNotesInd = -1;
@@ -304,14 +302,14 @@ public class ClearComposer extends Application
 
 		//Note config
 		bar.addSeparator();
-		cmbKeys = bar.addComboBox((observable, oldValue, newValue) ->
+		cmbKeys = bar.addComboBox(() ->
 		{
-			pushMove(new KeyEntry(newValue, oldValue));
+			Key newValue = cmbKeys.getValue();
+			pushMove(new KeyEntry(newValue, constants.getKey()));
 			setKey(newValue);
 		}, "Key", constants.getKey().ordinal(), Key.values());
-		KeyEntry.setBox(cmbKeys);
-		cmbNotes = bar.addComboBox((observable, oldValue, newValue) ->
-			setNumNotes(parseNoteInt(newValue)), "Number of Notes", 1, new String[]{"12 Notes", "16 Notes"});
+		cmbNotes = bar.addComboBox(() ->
+			setNumNotes(parseNoteInt(cmbNotes.getValue())), "Number of Notes", 1, "12 Notes", "16 Notes");
 		tempoSlider = bar.addSlider("Tempo", 10, 999, constants.getTempo(), (observable, oldValue, newValue) ->
 		{
 			constants.setTempo(newValue.doubleValue());
@@ -327,8 +325,6 @@ public class ClearComposer extends Application
 		btnNoteToggle = bar.addToggleButton("Toggling", noteToggle, null);
 		
 		pane.setTop(bar);
-
-		
 		
 		//Music sequencer
 		createMusicSequencer();
@@ -372,16 +368,14 @@ public class ClearComposer extends Application
 		setChord(constants.getChord());
 		pane.setBottom(chordButtons);
 
-		//scene
+		//Scene settings
 		Scene scene = new Scene(pane, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-		//allow dragging mouse to trigger notes
 		scene.setOnDragDetected(t -> scene.startFullDrag());
-		//keyboard shortcuts for chords
 		scene.setOnKeyPressed(t ->
 		{
 			Chord cSelect = null;
 			//secondary
-			if (isShift)
+			if (t.isShiftDown())
 			{
 				if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
 					cSelect = Chord.V_ii;
@@ -396,9 +390,7 @@ public class ClearComposer extends Application
 			}
 			else
 			{
-				if (t.getCode() == KeyCode.SHIFT)
-					isShift = true;
-				else if (t.getCode() == KeyCode.DIGIT1 || t.getCode() == KeyCode.NUMPAD1)
+				if (t.getCode() == KeyCode.DIGIT1 || t.getCode() == KeyCode.NUMPAD1)
 					cSelect = Chord.I;
 				else if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
 					cSelect = Chord.ii;
@@ -420,28 +412,11 @@ public class ClearComposer extends Application
 				setChord(cSelect);
 			}
 		});
-		scene.setOnKeyReleased(t ->
-		{
-			if (t.getCode() == KeyCode.SHIFT)
-				isShift = false;
-		});
-		//signal end of toggling notes
-		scene.setOnMouseReleased(t ->
-		{
-			if (toggle)
-				GraphicNote.stopToggle();
-		});
-		//css
-		scene.getStylesheets().
+		scene.setOnMouseReleased(t -> GraphicNote.finishNotesEditing());
+		scene.getStylesheets().add(ClearComposer.class.getResource("clearcomposer.css").toExternalForm());
 
-			add(ClearComposer.class.getResource("clearcomposer.css").
-
-				toExternalForm());
-
-		//configure main stage
-		primaryStage.getIcons().
-
-			add(new Image(ClearComposer.class.getResourceAsStream("Logo.png")));
+		//Configure main stage
+		primaryStage.getIcons().add(new Image(ClearComposer.class.getResourceAsStream("Logo.png")));
 		primaryStage.setScene(scene);
 		primaryStage.setResizable(false);
 		primaryStage.setTitle("ClearComposer - Untitled");
@@ -489,6 +464,8 @@ public class ClearComposer extends Application
 	public void pushMove(AbstractEntry move)
 	{
 		redoes.clear();
+		if (undoes.size() >= MAX_UNDOS)
+			undoes.removeLast();
 		undoes.push(move);
 	}
 

@@ -24,11 +24,14 @@
 
 package com.ctry.clearcomposer;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -37,6 +40,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 
 public class Toolbar extends HBox
@@ -48,7 +52,7 @@ public class Toolbar extends HBox
 		super(5);
 		setPadding(new Insets(5));
 		setAlignment(Pos.CENTER_LEFT);
-		getStyleClass().add("Toolbar");
+		getStyleClass().add("panel");
 	}
 
 	/**
@@ -108,9 +112,28 @@ public class Toolbar extends HBox
 		return button;
 	}
 
-	public <T> ComboBox<T> addComboBox(ChangeListener<T> onChange, String tooltip, int selectedIndex, T[] options)
+	public <T> ComboBox<T> addComboBox(Runnable onChange, String tooltip, int selectedIndex, T... options)
 	{
-		ToolbarComboBox<T> comboBox = new ToolbarComboBox<>(onChange, tooltip, selectedIndex, options);
+		class Val {
+			T val;
+		}
+		Val before = new Val();
+		ComboBox<T> comboBox = new ComboBox<>();
+		comboBox.getItems().addAll(options);
+		comboBox.getSelectionModel().select(selectedIndex);
+		comboBox.setTooltip(new Tooltip(tooltip));
+		comboBox.setOnHidden(evt -> {
+			onChange.run();
+			before.val = comboBox.getValue();
+		});
+		comboBox.setOnKeyReleased(evt -> {
+			T now = comboBox.getValue();
+			if (now != before.val)
+			{
+				onChange.run();
+				before.val = now;
+			}
+		});
 		getChildren().add(comboBox);
 		return comboBox;
 	}

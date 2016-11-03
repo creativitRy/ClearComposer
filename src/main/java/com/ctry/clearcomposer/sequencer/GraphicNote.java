@@ -55,7 +55,7 @@ public class GraphicNote extends Rectangle
 	private static List<GraphicNote> notes = new ArrayList<>();
 
 	private boolean isImmutable = false;
-	private boolean isToggled = false;
+	private boolean isTouched = false;
 	private Color fillOn;
 	private Mode on;
 	private Transition ft;
@@ -86,23 +86,19 @@ public class GraphicNote extends Rectangle
 	 */
 	private void mouseAction(MouseEvent t)
 	{
-
-		if (ClearComposer.isToggle())
+		if (!isTouched)
 		{
-			if (!isToggled)
-			{
+			isTouched = true;
+			notes.add(this);
+			if (ClearComposer.isToggle())
 				toggle(ClearComposer.isPerma());
-
-				isToggled = true;
-				notes.add(this);
-			}
-		}
-		else
-		{
-			if (t.isPrimaryButtonDown())
-				turnOn(ClearComposer.isPerma());
 			else
-				turnOff();
+			{
+				if (t.isPrimaryButtonDown())
+					turnOn(ClearComposer.isPerma());
+				else
+					turnOff();
+			}
 		}
 	}
 
@@ -214,19 +210,16 @@ public class GraphicNote extends Rectangle
 	}
 
 	/**
-	 * when toggling, you don't want the notes that were toggled to be toggled again
-	 * therefore they are stored in a static list
-	 * calling this method clears the list and makes the notes toggle-able again
+	 * This is called when the user finishes editing a series of notes.
+	 * For example this will record the note editing move. This will also
+	 * reset the flag that the user has 'touched' or selected a note.
 	 */
-	public static void stopToggle()
+	public static void finishNotesEditing()
 	{
-		//TODO: perma notes
 		if (!notes.isEmpty())
 			ClearComposer.cc.pushMove(new NotesEntry(new ArrayList<>(notes), ClearComposer.isPerma()));
 		for (GraphicNote note : notes)
-		{
-			note.isToggled = false;
-		}
+			note.isTouched = false;
 		notes.clear();
 	}
 
