@@ -82,7 +82,7 @@ import javafx.stage.Stage;
 
 public class ClearComposer extends Application
 {
-	public static final int DEFAULT_WIDTH = 1560;
+	public static final int DEFAULT_WIDTH = 1250;
 	public static final int DEFAULT_HEIGHT = 720;
 
 	public static String DEFAULT_FOLDER_HOME = System.getProperty("user.home");
