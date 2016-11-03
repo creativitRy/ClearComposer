@@ -31,10 +31,8 @@
 package com.ctry.clearcomposer.music;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,12 +40,8 @@ import java.util.List;
 import com.ctry.clearcomposer.ClearComposer;
 import com.ctry.clearcomposer.sequencer.GraphicTrack;
 
-import javafx.animation.Animation;
 import javafx.animation.Animation.Status;
 import javafx.animation.AnimationTimer;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
 
 public class TrackPlayer
 {
@@ -70,7 +64,8 @@ public class TrackPlayer
 	}
 
 	/**
-	 * constructs a new track player with multiple blank tracks
+	 * Constructs a new track player with multiple blank tracks
+	 * Note: this will have the TrackPlayer not running by default
 	 */
 	public TrackPlayer()
 	{
@@ -88,10 +83,14 @@ public class TrackPlayer
 						playNotes();
 					}
 				}
+				else
+				{
+					elapsed = 0;
+					playNotes();
+				}
 				lastUpdate = now;
 			}
 		};
-		tmr.start();
 
 		tracks = new ArrayList<>();
 	}
@@ -183,6 +182,7 @@ public class TrackPlayer
 	public void pause()
 	{
 		playState = Status.PAUSED;
+		lastUpdate = -1;
 		tmr.stop();
 	}
 
@@ -192,6 +192,7 @@ public class TrackPlayer
 	public void stop()
 	{
 		index = 0;
+		lastUpdate = -1;
 		pause();
 	}
 

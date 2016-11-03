@@ -34,9 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ctry.clearcomposer.ClearComposer;
-
-import com.ctry.clearcomposer.history.KeyEntry;
 import com.ctry.clearcomposer.history.NotesEntry;
+
 import javafx.animation.Transition;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -45,6 +44,9 @@ import javafx.util.Duration;
 
 public class GraphicNote extends Rectangle
 {
+	private static final Color PERMA_STROKE = Color.GRAY;
+	private static final Color TEMP_STROKE = Color.YELLOW;
+	
 	private static final int SIZE = 25;
 	private static final Color FILL_OFF = new Color(0.25, 0.25, 0.25, 1);
 	private static final Duration TRANSITION_DURATION = Duration.millis(500);
@@ -72,6 +74,7 @@ public class GraphicNote extends Rectangle
 		on = Mode.OFF;
 
 		setFill(FILL_OFF);
+		setStroke(PERMA_STROKE);
 
 		setOnMousePressed(this::mouseAction);
 		setOnMouseDragEntered(this::mouseAction);
@@ -128,6 +131,7 @@ public class GraphicNote extends Rectangle
 		else
 			on = Mode.ON_TEMP;
 
+		setStroke(isPerma ? PERMA_STROKE : TEMP_STROKE);
 		setFill(fillOn);
 	}
 
@@ -141,6 +145,7 @@ public class GraphicNote extends Rectangle
 
 		on = Mode.OFF;
 
+		setStroke(PERMA_STROKE);
 		setFill(FILL_OFF);
 	}
 
@@ -165,6 +170,7 @@ public class GraphicNote extends Rectangle
 	 */
 	private void playColor()
 	{
+		Color stroke = (Color)getStroke();
 		ft = new Transition()
 		{
 			{
@@ -177,6 +183,7 @@ public class GraphicNote extends Rectangle
 					setFill(FILL_PLAY.interpolate(fillOn, frac));					
 				else
 					setFill(FILL_PLAY.interpolate(FILL_OFF, frac));
+				setStroke(stroke.interpolate(PERMA_STROKE, frac));
 			}
 		};
 		ft.play();
@@ -191,6 +198,7 @@ public class GraphicNote extends Rectangle
 		isImmutable = true;
 		on = Mode.ON_PERMA;
 		setFill(fillOn);
+		setStroke(PERMA_STROKE);
 		notes.remove(this);
 	}
 

@@ -32,9 +32,11 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 
 public class Toolbar extends HBox
@@ -60,13 +62,15 @@ public class Toolbar extends HBox
 	public ToolbarButton addToggleButton(String action, BooleanProperty permState, Consumer<Boolean> onAction)
 	{
 		ToolbarButton button = addButton(action);
+		button.setButtonPressed(permState.get());
 		button.setOnMouseReleased(null);
 		button.setOnMousePressed(evt -> button.setButtonPressed(true));
 		button.setOnMouseClicked(evt -> {
 			boolean pressed = permState.get();
 			button.setButtonPressed(!pressed);
 			permState.set(!pressed);
-			onAction.accept(pressed);
+			if (onAction != null)
+				onAction.accept(pressed);
 		});
 		return button;
 	}
@@ -99,7 +103,8 @@ public class Toolbar extends HBox
 		ToolbarButton button = addButton(action);
 		button.setOnMousePressed(evt -> button.setButtonPressed(true));
 		button.setOnMouseReleased(evt -> button.setButtonPressed(false));
-		button.setOnMouseClicked(evt -> onAction.run());
+		if (onAction != null)
+			button.setOnMouseClicked(evt -> onAction.run());
 		return button;
 	}
 
@@ -110,11 +115,17 @@ public class Toolbar extends HBox
 		return comboBox;
 	}
 
+	public void addNode(Node n)
+	{
+		getChildren().add(n);
+	}
+	
 	public Slider addSlider(String action, double min, double max, double value, ChangeListener<Number> onChange)
 	{
 		Slider slider = new Slider(min, max, value);
 		slider.valueProperty().addListener(onChange);
 		getChildren().add(slider);
+		Tooltip.install(slider, new Tooltip(action));
 		return slider;
 	}
 
@@ -126,6 +137,14 @@ public class Toolbar extends HBox
 		getChildren().add(separator);
 	}
 
+	public void removeNode(Node n)
+	{
+		if (n instanceof ToolbarButton)
+			removeButton(((ToolbarButton)n).getActionName());
+		else
+			getChildren().remove(n);
+	}
+	
 	public void removeButton(String action)
 	{
 		ToolbarButton but = buttons.remove(action);

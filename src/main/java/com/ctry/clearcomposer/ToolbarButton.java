@@ -26,6 +26,9 @@ package com.ctry.clearcomposer;
 
 import java.net.URL;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
@@ -35,6 +38,7 @@ import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 public class ToolbarButton extends StackPane
@@ -49,18 +53,23 @@ public class ToolbarButton extends StackPane
 		pane.setClip(clip);
 	}
 
+	private String actionName;
 	private Pane buttonBack;
 	private Pane buttonHighlight;
-	private boolean pressed;
+	private BooleanProperty pressed; //Lazily create property
+	
 
 	public ToolbarButton(String name)
 	{
+		actionName = name;
+		
 		buttonHighlight = new Pane();
 		buttonHighlight.getStyleClass().add("highlight");
 
 		buttonBack = new Pane();
 		buttonBack.getStyleClass().add("back");
-
+		getChildren().addAll(buttonBack, buttonHighlight);
+		
 		URL url = ToolbarButton.class.getResource(name.toLowerCase().replace(' ', '_') + ".png");
 		if (url != null)
 		{
@@ -69,63 +78,65 @@ public class ToolbarButton extends StackPane
 				BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
 				BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
 			buttonBack.setPickOnBounds(true);
+			buttonBack.setPrefSize(image.getWidth() + 8, image.getHeight() + 8);
+		}
+		else
+		{
+			Label text = new Label(name);
+			text.setTextFill(Color.WHITE);
+			getChildren().add(text);
 		}
 
 		roundedEdges(this);
-
 		Tooltip.install(this, new Tooltip(name));
-		getChildren().addAll(buttonBack, buttonHighlight);
 		getStyleClass().add("tblButton");
 	}
 
-	public boolean isButtonPressed()
+	public String getActionName()
 	{
+		return actionName;
+	}
+	
+	public final boolean isButtonPressed()
+	{
+		return pressed != null && pressed.get();
+	}
+
+	public final void setButtonPressed(boolean press)
+	{
+		buttonPressedProperty().set(press);
+	}
+
+	public final BooleanProperty buttonPressedProperty()
+	{
+		if (pressed == null)
+		{
+			pressed = new SimpleBooleanProperty(this, "pressed")
+			{
+				@Override
+				protected void invalidated()
+				{
+					boolean pressed = get();
+					if (pressed && !getStyleClass().contains("pressed"))
+						getStyleClass().add("pressed");
+					else if (!pressed)
+						getStyleClass().remove("pressed");					
+				}
+			};
+		}
 		return pressed;
 	}
-
-	public void setButtonPressed(boolean press)
-	{
-		pressed = press;
-		if (pressed && !getStyleClass().contains("pressed"))
-			getStyleClass().add("pressed");
-		else if (!pressed)
-			getStyleClass().remove("pressed");
-	}
-
-	@Override
-	protected double computeMinWidth(double height)
-	{
-		return 40;
-	}
-
-	@Override
-	protected double computeMinHeight(double width)
-	{
-		return 40;
-	}
-
-	@Override
-	protected double computePrefWidth(double height)
-	{
-		return 40;
-	}
-
-	@Override
-	protected double computePrefHeight(double width)
-	{
-		return 40;
-	}
-
+	
 	@Override
 	protected double computeMaxWidth(double height)
 	{
-		return 40;
+		return prefWidth(height);
 	}
 
 	@Override
 	protected double computeMaxHeight(double width)
 	{
-		return 40;
+		return prefHeight(width);
 	}
 
 }

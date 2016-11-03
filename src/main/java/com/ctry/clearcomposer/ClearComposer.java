@@ -30,7 +30,14 @@
  */
 package com.ctry.clearcomposer;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Deque;
 import java.util.EnumMap;
 import java.util.LinkedList;
@@ -40,7 +47,11 @@ import java.util.prefs.Preferences;
 import com.ctry.clearcomposer.history.AbstractEntry;
 import com.ctry.clearcomposer.history.ChordEntry;
 import com.ctry.clearcomposer.history.KeyEntry;
-import com.ctry.clearcomposer.music.*;
+import com.ctry.clearcomposer.music.Chord;
+import com.ctry.clearcomposer.music.Key;
+import com.ctry.clearcomposer.music.MusicConstants;
+import com.ctry.clearcomposer.music.MusicPlayer;
+import com.ctry.clearcomposer.music.TrackPlayer;
 import com.ctry.clearcomposer.sequencer.BassNotesTrack;
 import com.ctry.clearcomposer.sequencer.BeatTrack;
 import com.ctry.clearcomposer.sequencer.GraphicNote;
@@ -55,6 +66,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -63,13 +75,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
 public class ClearComposer extends Application
 {
-	public static final int DEFAULT_WIDTH = 960;
+	public static final int DEFAULT_WIDTH = 1560;
 	public static final int DEFAULT_HEIGHT = 720;
 
 	public static String DEFAULT_FOLDER_HOME = System.getProperty("user.home");
@@ -126,12 +139,30 @@ public class ClearComposer extends Application
 	private ToolbarButton btnPlay;
 	private ToolbarButton btnPause;
 	private ToolbarButton btnStop;
-	private BooleanProperty pauseToggle = new SimpleBooleanProperty(false);
+	private BooleanProperty pauseToggle = new SimpleBooleanProperty();
 
 	private ComboBox<Key> cmbKeys;
 	private ComboBox<String> cmbNotes;
 	private Slider tempoSlider;
-
+	private Label tempoIndicator;
+	
+	private ToolbarButton btnPermaToggle;
+	private BooleanProperty permaToggle = new SimpleBooleanProperty(perma)
+	{
+		@Override
+		protected void invalidated() {
+			perma = get();
+		}
+	};
+	private ToolbarButton btnNoteToggle;
+	private BooleanProperty noteToggle = new SimpleBooleanProperty(toggle)
+	{
+		@Override
+		protected void invalidated() {
+			toggle = get();
+		}
+	};
+	
 	private Deque<AbstractEntry> undoes = new LinkedList<>();
 	private Deque<AbstractEntry> redoes = new LinkedList<>();
 
@@ -184,7 +215,10 @@ public class ClearComposer extends Application
 		pane = new BorderPane();
 		pane.getStyleClass().add("bg");
 
-		//Toolbar buttons
+		/**********************
+		 * Toolbar buttons
+		 **********************/
+		//File
 		Toolbar bar = new Toolbar();
 		bar.addRegularButton("New", () ->
 		{
@@ -232,11 +266,13 @@ public class ClearComposer extends Application
 
 		});
 
+		//Edit
 		bar.addSeparator();
 		bar.addRegularButton("Undo", this::undo);
 		bar.addRegularButton("Redo", this::redo);
+		
+		//Running
 		bar.addSeparator();
-
 		btnPlay = bar.addButton("Play");
 		btnPause = bar.addToggleButton("Pause", pauseToggle, (pressed) ->
 		{
@@ -256,8 +292,6 @@ public class ClearComposer extends Application
 			pauseToggle.setValue(false);
 			player.stop();
 		});
-
-
 		btnPlay.setOnMousePressed(evt -> btnPlay.setButtonPressed(true));
 		btnPlay.setOnMouseClicked(evt ->
 		{
@@ -267,8 +301,8 @@ public class ClearComposer extends Application
 				player.play();
 			}
 		});
-		//btnPlay.setButtonPressed(true);
 
+		//Note config
 		bar.addSeparator();
 		cmbKeys = bar.addComboBox((observable, oldValue, newValue) ->
 		{
@@ -278,14 +312,24 @@ public class ClearComposer extends Application
 		KeyEntry.setBox(cmbKeys);
 		cmbNotes = bar.addComboBox((observable, oldValue, newValue) ->
 			setNumNotes(parseNoteInt(newValue)), "Number of Notes", 1, new String[]{"12 Notes", "16 Notes"});
-		tempoSlider = bar.addSlider("Tempo", 100, 500, constants.getTempo(), (observable, oldValue, newValue) ->
+		tempoSlider = bar.addSlider("Tempo", 10, 999, constants.getTempo(), (observable, oldValue, newValue) ->
 		{
 			constants.setTempo(newValue.doubleValue());
 		});
+		tempoIndicator = new Label();
+		tempoIndicator.textProperty().bind(tempoSlider.valueProperty().asString("%.0f BPM"));
+		tempoIndicator.setTextFill(Color.WHITE);
+		bar.addNode(tempoIndicator);
 
-
+		//Edit Mode
+		bar.addSeparator();
+		btnPermaToggle = bar.addToggleButton("Perma", permaToggle, null);
+		btnNoteToggle = bar.addToggleButton("Toggling", noteToggle, null);
+		
 		pane.setTop(bar);
 
+		
+		
 		//Music sequencer
 		createMusicSequencer();
 
@@ -370,8 +414,11 @@ public class ClearComposer extends Application
 					cSelect = Chord.vii$;
 			}
 
-			pushMove(new ChordEntry(cSelect, constants.getChord()));
-			setChord(cSelect);
+			if (cSelect != null)
+			{
+				pushMove(new ChordEntry(cSelect, constants.getChord()));
+				setChord(cSelect);
+			}
 		});
 		scene.setOnKeyReleased(t ->
 		{
@@ -570,9 +617,9 @@ public class ClearComposer extends Application
 	 */
 	private File showFileChooser(boolean open)
 	{
-		boolean running = player.getPlayState() == Status.RUNNING;
-		if (running)
-			player.pause();
+		player.stop();
+		btnPause.setButtonPressed(false);
+		btnPlay.setButtonPressed(false);
 
 		FileChooser fileChooser = new FileChooser();
 
@@ -596,8 +643,6 @@ public class ClearComposer extends Application
 		if (result != null)
 			Preferences.userRoot().put("CCDefaultPath", result.getParent());
 
-		if (running)
-			player.play();
 		return result;
 	}
 
