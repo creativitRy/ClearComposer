@@ -141,12 +141,13 @@ public class ClearComposer extends Application
 	private ComboBox<String> cmbNotes;
 	private Slider tempoSlider;
 	private Label tempoIndicator;
-	
+
 	private ToolbarButton btnPermaToggle;
 	private BooleanProperty permaToggle = new SimpleBooleanProperty(perma)
 	{
 		@Override
-		protected void invalidated() {
+		protected void invalidated()
+		{
 			perma = get();
 		}
 	};
@@ -154,11 +155,12 @@ public class ClearComposer extends Application
 	private BooleanProperty noteToggle = new SimpleBooleanProperty(toggle)
 	{
 		@Override
-		protected void invalidated() {
+		protected void invalidated()
+		{
 			toggle = get();
 		}
 	};
-	
+
 	private Deque<AbstractEntry> undoes = new LinkedList<>();
 	private Deque<AbstractEntry> redoes = new LinkedList<>();
 
@@ -267,7 +269,7 @@ public class ClearComposer extends Application
 		bar.addSeparator();
 		bar.addRegularButton("Undo", this::undo);
 		bar.addRegularButton("Redo", this::redo);
-		
+
 		//Running
 		bar.addSeparator();
 		btnPlay = bar.addButton("Play");
@@ -322,9 +324,9 @@ public class ClearComposer extends Application
 		bar.addSeparator();
 		btnPermaToggle = bar.addToggleButton("Perma", permaToggle, null);
 		btnNoteToggle = bar.addToggleButton("Toggling", noteToggle, null);
-		
+
 		pane.setTop(bar);
-		
+
 		//Music sequencer
 		createMusicSequencer();
 
@@ -446,14 +448,17 @@ public class ClearComposer extends Application
 		((Stage) pane.getScene().getWindow()).setTitle(sb.toString());
 	}
 
+
 	private boolean checkSave()
 	{
 		if (!changed)
 			return true;
 
-		Alert dlg = new Alert(Alert.AlertType.CONFIRMATION, "Would you like to save current file?", ButtonType.YES,
-				ButtonType.NO,ButtonType.CANCEL);
-		ButtonType resp =  dlg.showAndWait().orElse(ButtonType.CANCEL);
+		Alert dlg = new Alert(Alert.AlertType.WARNING, "Would you like to save the current file?", ButtonType.YES,
+			ButtonType.NO, ButtonType.CANCEL);
+		dlg.setHeaderText(null);
+		dlg.setTitle("ClearComposer");
+		ButtonType resp = dlg.showAndWait().orElse(ButtonType.CANCEL);
 		if (resp == ButtonType.CANCEL || resp == ButtonType.CLOSE)
 			return false;
 		else if (resp == ButtonType.YES)
