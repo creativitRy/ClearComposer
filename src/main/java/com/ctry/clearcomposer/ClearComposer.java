@@ -68,6 +68,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -371,7 +372,33 @@ public class ClearComposer extends Application
 
 		//Scene settings
 		Scene scene = new Scene(pane, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-		scene.setOnDragDetected(t -> scene.startFullDrag());
+		scene.setOnDragDetected(evt -> scene.startFullDrag());
+		scene.setOnDragOver(evt -> {
+			if (evt.getDragboard().hasFiles())
+				evt.acceptTransferModes(TransferMode.COPY);
+			evt.consume();
+		});
+		scene.setOnDragDropped(evt -> {
+			if (evt.getDragboard().hasFiles())
+			{
+				File open = evt.getDragboard().getFiles().get(0);
+				Platform.runLater(() -> {
+					if (!checkSave())
+						return;
+
+
+					if (open != null)
+					{
+						loadData(open);
+						openFile = open;
+						setTitle();
+					}
+				});
+			}
+
+			evt.setDropCompleted(true);
+			evt.consume();
+		});
 		scene.setOnKeyPressed(t ->
 		{
 			Chord cSelect = null;
