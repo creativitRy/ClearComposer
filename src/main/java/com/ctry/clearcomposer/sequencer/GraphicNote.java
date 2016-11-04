@@ -233,7 +233,7 @@ public class GraphicNote extends Rectangle
 	public static void finishNotesEditing()
 	{
 		if (!noteStates.isEmpty())
-			ClearComposer.cc.pushMove(new NotesEntry(new HashMap<>(noteStates), ClearComposer.isPerma()));
+			ClearComposer.cc.pushMove(new NotesEntry(new HashMap<>(noteStates)));
 		for (GraphicNote note : noteStates.keySet())
 			note.isTouched = false;
 		noteStates.clear();

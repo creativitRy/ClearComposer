@@ -40,18 +40,15 @@ import java.util.Map;
 public class NotesEntry extends AbstractEntry
 {
 	private HashMap<GraphicNote, NotePrevState> notesState;
-	private boolean isPerma;
 
 	/**
 	 * new notes entry instance
 	 *
 	 * @param noteStates all CHANGED notes with their initial states
-	 * @param isPerma    when changing notes, was isPerma on or off?
 	 */
-	public NotesEntry(HashMap<GraphicNote, NotePrevState> noteStates, boolean isPerma)
+	public NotesEntry(HashMap<GraphicNote, NotePrevState> noteStates)
 	{
 		this.notesState = noteStates;
-		this.isPerma = isPerma;
 	}
 
 	/**

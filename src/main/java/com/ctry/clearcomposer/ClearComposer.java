@@ -586,6 +586,8 @@ public class ClearComposer extends Application
 		} catch (IOException e)
 		{
 			Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while setting number of notes", ButtonType.OK);
+			dlg.setHeaderText(null);
+			dlg.setTitle("ClearComposer");
 			dlg.initOwner(pane.getScene().getWindow());
 			dlg.showAndWait();
 			e.printStackTrace();
@@ -621,6 +623,8 @@ public class ClearComposer extends Application
 		{
 			e.printStackTrace();
 			Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while loading data", ButtonType.OK);
+			dlg.setHeaderText(null);
+			dlg.setTitle("ClearComposer");
 			dlg.initOwner(pane.getScene().getWindow());
 			dlg.showAndWait();
 		}
@@ -643,6 +647,8 @@ public class ClearComposer extends Application
 		{
 			e.printStackTrace();
 			Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while saving data", ButtonType.OK);
+			dlg.setHeaderText(null);
+			dlg.setTitle("ClearComposer");
 			dlg.initOwner(pane.getScene().getWindow());
 			dlg.showAndWait();
 			//TODO: stop whatever you are doing if this occurs.
