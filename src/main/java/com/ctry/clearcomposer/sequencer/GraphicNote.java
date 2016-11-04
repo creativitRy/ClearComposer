@@ -45,7 +45,6 @@ public class GraphicNote extends Rectangle
 {
 
 	private static final Color PERMA_STROKE = Color.GRAY;
-	private static final Color TEMP_STROKE = Color.YELLOW;
 	
 	private static final int SIZE = 25;
 	private static final Color FILL_OFF = new Color(0.25, 0.25, 0.25, 1);
@@ -133,7 +132,7 @@ public class GraphicNote extends Rectangle
 		else
 			on = NotePlayState.ON_TEMP;
 
-		setStroke(isPerma ? PERMA_STROKE : TEMP_STROKE);
+		setStroke(isPerma ? PERMA_STROKE : fillOn.invert());
 		setFill(fillOn);
 	}
 
@@ -189,7 +188,7 @@ public class GraphicNote extends Rectangle
 				if (on != NotePlayState.OFF)
 				{
 					setFill(FILL_PLAY.interpolate(fillOn, frac));
-					setStroke(stroke.interpolate(on == NotePlayState.ON_PERMA ? PERMA_STROKE : TEMP_STROKE, frac));
+					setStroke(stroke.interpolate(on == NotePlayState.ON_PERMA ? PERMA_STROKE : fillOn.invert(), frac));
 				}
 				else
 				{
