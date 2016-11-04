@@ -65,7 +65,11 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.TransferMode;
@@ -135,7 +139,6 @@ public class ClearComposer extends Application
 
 	private ToolbarButton btnPlay;
 	private ToolbarButton btnPause;
-	private ToolbarButton btnStop;
 	private BooleanProperty pauseToggle = new SimpleBooleanProperty();
 
 	private ComboBox<Key> cmbKeys;
@@ -143,7 +146,6 @@ public class ClearComposer extends Application
 	private Slider tempoSlider;
 	private Label tempoIndicator;
 
-	private ToolbarButton btnPermaToggle;
 	private BooleanProperty permaToggle = new SimpleBooleanProperty(perma)
 	{
 		@Override
@@ -152,7 +154,6 @@ public class ClearComposer extends Application
 			perma = get();
 		}
 	};
-	private ToolbarButton btnNoteToggle;
 	private BooleanProperty noteToggle = new SimpleBooleanProperty(toggle)
 	{
 		@Override
@@ -221,50 +222,10 @@ public class ClearComposer extends Application
 		 **********************/
 		//File
 		Toolbar bar = new Toolbar();
-		bar.addRegularButton("New", () ->
-		{
-			if (!checkSave())
-				return;
-
-			openFile = null;
-			constants = new MusicConstants();
-			resetUI();
-			setTitle();
-			createMusicSequencer();
-		});
-		bar.addRegularButton("Open", () ->
-		{
-			if (!checkSave())
-				return;
-			File open = showFileChooser(true);
-			if (open != null)
-			{
-				loadData(open);
-				openFile = open;
-				setTitle();
-			}
-		});
-		bar.addRegularButton("Save", () ->
-		{
-			if (openFile == null)
-			{
-				File save = showFileChooser(false);
-				if (save == null)
-					return;
-				openFile = save;
-			}
-
-			saveData(openFile);
-		});
-		bar.addRegularButton("Save As", () ->
-		{
-			File save = showFileChooser(false);
-			if (save == null)
-				return;
-			openFile = save;
-			saveData(openFile);
-
-		});
+		bar.addRegularButton("New", this::newCommand);
+		bar.addRegularButton("Open", this::openCommand);
+		bar.addRegularButton("Save", this::saveCommand);
+		bar.addRegularButton("Save As", this::saveAsCommand);
 
 		//Edit
 		bar.addSeparator();
@@ -274,48 +235,23 @@ public class ClearComposer extends Application
 		//Running
 		bar.addSeparator();
 		btnPlay = bar.addButton("Play");
-		btnPause = bar.addToggleButton("Pause", pauseToggle, (pressed) ->
-		{
-			if (pressed)
-				player.play();
-			else
-			{
-				btnPlay.setButtonPressed(true); //In case user presses pause first.
-				if (player.getPlayState() == Status.RUNNING)
-					player.pause();
-			}
-		});
-		btnStop = bar.addRegularButton("Stop", () ->
-		{
-			btnPlay.setButtonPressed(false);
-			btnPause.setButtonPressed(false);
-			pauseToggle.setValue(false);
-			player.stop();
-		});
 		btnPlay.setOnMousePressed(evt -> btnPlay.setButtonPressed(true));
-		btnPlay.setOnMouseClicked(evt ->
-		{
-			if (!btnPause.isButtonPressed() && player.getPlayState() != Status.RUNNING) //Only play if we are stopped
-			{
-				btnPlay.setButtonPressed(true);
-				player.play();
-			}
-		});
+		btnPlay.setOnMouseClicked(evt -> playCommand());
+		btnPause = bar.addToggleButton("Pause", pauseToggle, this::pausedCommand);
+		bar.addRegularButton("Stop", this::stopCommand);
 
 		//Note config
 		bar.addSeparator();
-		cmbKeys = bar.addComboBox(() ->
+		cmbKeys = bar.addComboBox("Key", () ->
 		{
 			Key newValue = cmbKeys.getValue();
 			pushMove(new KeyEntry(newValue, constants.getKey()));
 			setKey(newValue);
-		}, "Key", constants.getKey().ordinal(), Key.values());
-		cmbNotes = bar.addComboBox(() ->
-			setNumNotes(parseNoteInt(cmbNotes.getValue())), "Number of Notes", 1, "12 Notes", "16 Notes");
-		tempoSlider = bar.addSlider("Tempo", 10, 999, constants.getTempo(), (observable, oldValue, newValue) ->
-		{
-			constants.setTempo(newValue.doubleValue());
-		});
+		}, constants.getKey().ordinal(), Key.values());
+		cmbNotes = bar.addComboBox("Number of Notes", () -> setNumNotes(parseNoteInt(cmbNotes.getValue())), 
+				1, "12 Notes", "16 Notes");
+		tempoSlider = bar.addSlider("Tempo", () -> constants.setTempo(tempoSlider.getValue()), 
+				10, 999, constants.getTempo());
 		tempoIndicator = new Label();
 		tempoIndicator.textProperty().bind(tempoSlider.valueProperty().asString("%.0f BPM"));
 		tempoIndicator.setTextFill(Color.WHITE);
@@ -323,8 +259,8 @@ public class ClearComposer extends Application
 
 		//Edit NotePlayState
 		bar.addSeparator();
-		btnPermaToggle = bar.addToggleButton("Perma", permaToggle, null);
-		btnNoteToggle = bar.addToggleButton("Toggling", noteToggle, null);
+		bar.addToggleButton("Perma", permaToggle, null);
+		bar.addToggleButton("Toggling", noteToggle, null);
 
 		pane.setTop(bar);
 
@@ -449,17 +385,96 @@ public class ClearComposer extends Application
 		primaryStage.setResizable(false);
 		primaryStage.setOnCloseRequest(e ->
 		{
+			e.consume();
 			if (!checkSave())
-			{
-				e.consume();
 				return;
-			}
 			MusicPlayer.turnOffNotes();
 			Platform.exit();
 		});
 		primaryStage.show();
 
 		setTitle();
+	}
+
+	private void stopCommand()
+	{
+		btnPlay.setButtonPressed(false);
+		btnPause.setButtonPressed(false);
+		pauseToggle.setValue(false);
+		player.stop();
+	}
+
+	private void playCommand()
+	{
+		if (!btnPause.isButtonPressed() && player.getPlayState() != Status.RUNNING) //Only play if we are stopped
+		{
+			btnPlay.setButtonPressed(true);
+			player.play();
+		}
+	}
+
+	private void pausedCommand()
+	{
+		if (pauseToggle.get())
+		{
+			btnPlay.setButtonPressed(true); //In case user presses pause first.
+			if (player.getPlayState() == Status.RUNNING)
+				player.pause();
+		}
+		else
+			player.play();
+	}
+
+	private boolean newCommand()
+	{
+		if (!checkSave())
+			return false;
+
+		openFile = null;
+		constants = new MusicConstants();
+		resetUI();
+		setTitle();
+		createMusicSequencer();
+		return true;
+	}
+
+	private boolean saveAsCommand()
+	{
+		File save = showFileChooser(false);
+		if (save == null)
+			return false;
+		
+		openFile = save;
+		saveData(openFile);
+		return true;
+	}
+
+	private boolean saveCommand()
+	{
+		if (openFile == null)
+		{
+			File save = showFileChooser(false);
+			if (save == null)
+				return false;
+			openFile = save;
+		}
+
+		saveData(openFile);
+		return true;
+	}
+
+	private boolean openCommand()
+	{
+		if (!checkSave())
+			return false;
+		File open = showFileChooser(true);
+		if (open != null)
+		{
+			loadData(open);
+			openFile = open;
+			setTitle();
+		}
+		return true;
 	}
 
 	private void setTitle()
@@ -489,18 +504,9 @@ public class ClearComposer extends Application
 		if (resp == ButtonType.CANCEL || resp == ButtonType.CLOSE)
 			return false;
 		else if (resp == ButtonType.YES)
-		{
-			if (openFile == null)
-			{
-				File save = showFileChooser(false);
-				if (save == null)
-					return false;
-				openFile = save;
-			}
-
-			saveData(openFile);
-		}
-		return true;
+			return saveCommand();
+		else //Responded No
+			return true;
 	}
 
 	private void createMusicSequencer()
@@ -610,7 +616,8 @@ public class ClearComposer extends Application
 			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 			ObjectInputStream ois = new ObjectInputStream(bais);
 			player.loadTracks(ois);
-		} catch (IOException e)
+		} 
+		catch (IOException e)
 		{
 			Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while setting number of notes", ButtonType.OK);
 			dlg.setHeaderText(null);

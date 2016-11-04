@@ -24,14 +24,9 @@
 
 package com.ctry.clearcomposer;
 
-import java.awt.*;
 import java.util.HashMap;
-import java.util.function.Consumer;
 
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -40,7 +35,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 
 public class Toolbar extends HBox
@@ -63,7 +57,7 @@ public class Toolbar extends HBox
 	 * @param onAction called whenever user clicks on button. Passes in button's previous state
 	 * @return the created button.
 	 */
-	public ToolbarButton addToggleButton(String action, BooleanProperty permState, Consumer<Boolean> onAction)
+	public ToolbarButton addToggleButton(String action, BooleanProperty permState, Runnable onAction)
 	{
 		ToolbarButton button = addButton(action);
 		button.setButtonPressed(permState.get());
@@ -74,7 +68,7 @@ public class Toolbar extends HBox
 			button.setButtonPressed(!pressed);
 			permState.set(!pressed);
 			if (onAction != null)
-				onAction.accept(pressed);
+				onAction.run();
 		});
 		return button;
 	}
@@ -112,7 +106,7 @@ public class Toolbar extends HBox
 		return button;
 	}
 
-	public <T> ComboBox<T> addComboBox(Runnable onChange, String tooltip, int selectedIndex, T... options)
+	public <T> ComboBox<T> addComboBox(String tooltip, Runnable onChange, int selectedIndex, T... options)
 	{
 		class Val {
 			T val;
@@ -143,10 +137,10 @@ public class Toolbar extends HBox
 		getChildren().add(n);
 	}
 	
-	public Slider addSlider(String action, double min, double max, double value, ChangeListener<Number> onChange)
+	public Slider addSlider(String action, Runnable onChange, double min, double max, double value)
 	{
 		Slider slider = new Slider(min, max, value);
-		slider.valueProperty().addListener(onChange);
+		slider.valueProperty().addListener(val -> onChange.run());
 		getChildren().add(slider);
 		Tooltip.install(slider, new Tooltip(action));
 		return slider;
