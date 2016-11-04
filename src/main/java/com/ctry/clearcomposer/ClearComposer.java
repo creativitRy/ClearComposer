@@ -65,9 +65,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
@@ -111,6 +109,8 @@ public class ClearComposer extends Application
 	 * file opened currently or null
 	 */
 	private static File openFile = null;
+	private static boolean changed = false;
+
 
 	/**
 	 * the buttons to change chords
@@ -220,36 +220,36 @@ public class ClearComposer extends Application
 		Toolbar bar = new Toolbar();
 		bar.addRegularButton("New", () ->
 		{
+			if (!checkSave())
+				return;
+
 			openFile = null;
 			constants = new MusicConstants();
 			resetUI();
-			((Stage) pane.getScene().getWindow()).setTitle("ClearComposer - Untitled");
+			setTitle();
 			createMusicSequencer();
 		});
 		bar.addRegularButton("Open", () ->
 		{
+			if (!checkSave())
+				return;
 			File open = showFileChooser(true);
-			//TODO: ask if the user wants to save
 			if (open != null)
 			{
 				loadData(open);
 				openFile = open;
-				((Stage) pane.getScene().getWindow()).setTitle("ClearComposer - " + openFile.getAbsolutePath());
+				setTitle();
 			}
 		});
 		bar.addRegularButton("Save", () ->
 		{
-			File save;
 			if (openFile == null)
 			{
-				save = showFileChooser(false);
+				File save = showFileChooser(false);
 				if (save == null)
 					return;
 				openFile = save;
-				((Stage) pane.getScene().getWindow()).setTitle("ClearComposer - " + openFile.getAbsolutePath());
 			}
-			else
-				save = openFile;
 
 			saveData(openFile);
 		});
@@ -259,7 +259,6 @@ public class ClearComposer extends Application
 			if (save == null)
 				return;
 			openFile = save;
-			((Stage) pane.getScene().getWindow()).setTitle("ClearComposer - " + openFile.getAbsolutePath());
 			saveData(openFile);
 
 		});
@@ -419,13 +418,57 @@ public class ClearComposer extends Application
 		primaryStage.getIcons().add(new Image(ClearComposer.class.getResourceAsStream("Logo.png")));
 		primaryStage.setScene(scene);
 		primaryStage.setResizable(false);
-		primaryStage.setTitle("ClearComposer - Untitled");
 		primaryStage.setOnCloseRequest(e ->
 		{
+			if (!checkSave())
+			{
+				e.consume();
+				return;
+			}
 			MusicPlayer.turnOffNotes();
 			Platform.exit();
 		});
 		primaryStage.show();
+
+		setTitle();
+	}
+
+	private void setTitle()
+	{
+		StringBuilder sb = new StringBuilder(100);
+		sb.append("ClearComposer - ");
+		if (openFile == null)
+			sb.append("Untitled");
+		else
+			sb.append(openFile.getAbsolutePath());
+		if (changed)
+			sb.append('*');
+		((Stage) pane.getScene().getWindow()).setTitle(sb.toString());
+	}
+
+	private boolean checkSave()
+	{
+		if (!changed)
+			return true;
+
+		Alert dlg = new Alert(Alert.AlertType.CONFIRMATION, "Would you like to save current file?", ButtonType.YES,
+				ButtonType.NO,ButtonType.CANCEL);
+		ButtonType resp =  dlg.showAndWait().orElse(ButtonType.CANCEL);
+		if (resp == ButtonType.CANCEL || resp == ButtonType.CLOSE)
+			return false;
+		else if (resp == ButtonType.YES)
+		{
+			if (openFile == null)
+			{
+				File save = showFileChooser(false);
+				if (save == null)
+					return false;
+				openFile = save;
+			}
+
+			saveData(openFile);
+		}
+		return true;
 	}
 
 	private void createMusicSequencer()
@@ -439,9 +482,9 @@ public class ClearComposer extends Application
 			player.stop();
 
 		//Reset undo/redoes
-		//TODO: if user sets number of notes, all undoes/redoes will be lost.
 		undoes.clear();
 		redoes.clear();
+		changed = false;
 
 		player = new TrackPlayer();
 		VBox tracksDisplay = new VBox();
@@ -463,6 +506,8 @@ public class ClearComposer extends Application
 
 	public void pushMove(AbstractEntry move)
 	{
+		changed = true;
+		setTitle();
 		redoes.clear();
 		if (undoes.size() >= MAX_UNDOS)
 			undoes.removeLast();
@@ -473,6 +518,7 @@ public class ClearComposer extends Application
 	{
 		if (undoes.isEmpty())
 			return;
+		changed = true;
 		AbstractEntry move = undoes.pop();
 		redoes.push(move);
 		move.undo();
@@ -482,6 +528,7 @@ public class ClearComposer extends Application
 	{
 		if (redoes.isEmpty())
 			return;
+		changed = true;
 		AbstractEntry move = redoes.pop();
 		undoes.push(move);
 		move.redo();
@@ -518,6 +565,7 @@ public class ClearComposer extends Application
 	 */
 	public void setNumNotes(int numNotes)
 	{
+		//TODO: if user sets number of notes, all undoes/redoes will be lost.
 		try
 		{
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -532,7 +580,9 @@ public class ClearComposer extends Application
 			player.loadTracks(ois);
 		} catch (IOException e)
 		{
-			//TODO: alert user of error
+			Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while setting number of notes", ButtonType.OK);
+			dlg.initOwner(pane.getScene().getWindow());
+			dlg.showAndWait();
 			e.printStackTrace();
 		}
 	}
@@ -561,10 +611,13 @@ public class ClearComposer extends Application
 			resetUI();
 			createMusicSequencer();
 			player.loadTracks(ois);
+			changed = false;
 		} catch (ClassNotFoundException | IOException e)
 		{
 			e.printStackTrace();
-			//TODO: show error while loading.
+			Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while loading data", ButtonType.OK);
+			dlg.initOwner(pane.getScene().getWindow());
+			dlg.showAndWait();
 		}
 	}
 
@@ -579,10 +632,15 @@ public class ClearComposer extends Application
 		{
 			oos.writeObject(constants);
 			player.saveTracks(oos);
+			changed = false;
+			setTitle();
 		} catch (IOException e)
 		{
 			e.printStackTrace();
-			//TODO: show error while saving.
+			Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while saving data", ButtonType.OK);
+			dlg.initOwner(pane.getScene().getWindow());
+			dlg.showAndWait();
+			//TODO: stop whatever you are doing if this occurs.
 		}
 	}
 
