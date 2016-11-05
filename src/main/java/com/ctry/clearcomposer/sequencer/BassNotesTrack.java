@@ -52,7 +52,7 @@ public class BassNotesTrack extends GraphicTrack
 		super(ClearComposer.constants.getChord().getColor());
 
 		Text text = new Text(formatTrackName());
-		text.getStyleClass().add("text");
+		text.getStyleClass().add("chordNames");
 		getTrack().getChildren().add(0, text);
 	}
 

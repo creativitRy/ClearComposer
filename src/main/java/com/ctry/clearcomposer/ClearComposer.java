@@ -38,10 +38,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Deque;
-import java.util.EnumMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.prefs.Preferences;
 
 import com.ctry.clearcomposer.history.AbstractEntry;
@@ -57,6 +54,7 @@ import com.ctry.clearcomposer.sequencer.BeatTrack;
 import com.ctry.clearcomposer.sequencer.GraphicNote;
 import com.ctry.clearcomposer.sequencer.NotesTrack;
 
+import com.sun.javafx.tk.Toolkit;
 import javafx.animation.Animation.Status;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -65,13 +63,11 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -120,12 +116,13 @@ public class ClearComposer extends Application
 	/**
 	 * the buttons to change chords
 	 */
-	private StackPane chordButtons;
+	private StackPane chordPane;
 
 	/**
 	 * buttons of chords
 	 */
-	private EnumMap<Chord, CCButton> chords;
+	private EnumMap<Chord, CCButton> chordButtons;
+	private EnumMap<Chord, RadioMenuItem> chordMenus = new EnumMap<>(Chord.class);
 
 	/**
 	 * plays music and keeps track of note/beat tracks
@@ -136,6 +133,7 @@ public class ClearComposer extends Application
 	 * Main pane
 	 */
 	private BorderPane pane;
+	private VBox top;
 
 	private ToolbarButton btnPlay;
 	private ToolbarButton btnPause;
@@ -217,6 +215,11 @@ public class ClearComposer extends Application
 		pane = new BorderPane();
 		pane.getStyleClass().add("bg");
 
+		top = new VBox();
+		pane.setTop(top);
+
+		MenuBar menuBar = initMenuBar();
+
 		/**********************
 		 * Toolbar buttons
 		 **********************/
@@ -262,7 +265,7 @@ public class ClearComposer extends Application
 		bar.addToggleButton("Perma", permaToggle, null);
 		bar.addToggleButton("Toggling", noteToggle, null);
 
-		pane.setTop(bar);
+		top.getChildren().addAll(menuBar, bar);
 
 		//Music sequencer
 		createMusicSequencer();
@@ -275,11 +278,11 @@ public class ClearComposer extends Application
 		chordRows.getChildren().addAll(primaryChords, secondaryChords);
 		chordRows.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
-		chordButtons = new StackPane();
-		chordButtons.setPadding(new Insets(10));
-		chordButtons.getStyleClass().add("panel");
-		chordButtons.getChildren().add(chordRows);
-		chords = new EnumMap<>(Chord.class);
+		chordPane = new StackPane();
+		chordPane.setPadding(new Insets(10));
+		chordPane.getStyleClass().add("panel");
+		chordPane.getChildren().add(chordRows);
+		chordButtons = new EnumMap<>(Chord.class);
 		for (Chord c : Chord.values())
 		{
 			CCButton button = new CCButton(c.toString(), c.getColor());
@@ -296,7 +299,7 @@ public class ClearComposer extends Application
 			if (c == constants.getChord())
 				button.setButtonPressed(true);
 
-			chords.put(c, button);
+			chordButtons.put(c, button);
 			if (c.isSecondary())
 				secondaryChords.getChildren().add(button);
 			else
@@ -304,7 +307,7 @@ public class ClearComposer extends Application
 		}
 
 		setChord(constants.getChord());
-		pane.setBottom(chordButtons);
+		pane.setBottom(chordPane);
 
 		//Scene settings
 		Scene scene = new Scene(pane, DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -337,44 +340,44 @@ public class ClearComposer extends Application
 		});
 		scene.setOnKeyPressed(t ->
 		{
-			Chord cSelect = null;
-			//secondary
-			if (t.isShiftDown())
-			{
-				if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
-					cSelect = Chord.V_ii;
-				else if (t.getCode() == KeyCode.DIGIT3 || t.getCode() == KeyCode.NUMPAD3)
-					cSelect = Chord.V_iii;
-				else if (t.getCode() == KeyCode.DIGIT4 || t.getCode() == KeyCode.NUMPAD4)
-					cSelect = Chord.V_IV;
-				else if (t.getCode() == KeyCode.DIGIT5 || t.getCode() == KeyCode.NUMPAD5)
-					cSelect = Chord.V_V;
-				else if (t.getCode() == KeyCode.DIGIT6 || t.getCode() == KeyCode.NUMPAD6)
-					cSelect = Chord.V_vi;
-			}
-			else
-			{
-				if (t.getCode() == KeyCode.DIGIT1 || t.getCode() == KeyCode.NUMPAD1)
-					cSelect = Chord.I;
-				else if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
-					cSelect = Chord.ii;
-				else if (t.getCode() == KeyCode.DIGIT3 || t.getCode() == KeyCode.NUMPAD3)
-					cSelect = Chord.iii;
-				else if (t.getCode() == KeyCode.DIGIT4 || t.getCode() == KeyCode.NUMPAD4)
-					cSelect = Chord.IV;
-				else if (t.getCode() == KeyCode.DIGIT5 || t.getCode() == KeyCode.NUMPAD5)
-					cSelect = Chord.V;
-				else if (t.getCode() == KeyCode.DIGIT6 || t.getCode() == KeyCode.NUMPAD6)
-					cSelect = Chord.vi;
-				else if (t.getCode() == KeyCode.DIGIT7 || t.getCode() == KeyCode.NUMPAD7)
-					cSelect = Chord.vii$;
-			}
+//			Chord cSelect = null;
+//			//secondary
+//			if (t.isShiftDown())
+//			{
+//				if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
+//					cSelect = Chord.V_ii;
+//				else if (t.getCode() == KeyCode.DIGIT3 || t.getCode() == KeyCode.NUMPAD3)
+//					cSelect = Chord.V_iii;
+//				else if (t.getCode() == KeyCode.DIGIT4 || t.getCode() == KeyCode.NUMPAD4)
+//					cSelect = Chord.V_IV;
+//				else if (t.getCode() == KeyCode.DIGIT5 || t.getCode() == KeyCode.NUMPAD5)
+//					cSelect = Chord.V_V;
+//				else if (t.getCode() == KeyCode.DIGIT6 || t.getCode() == KeyCode.NUMPAD6)
+//					cSelect = Chord.V_vi;
+//			}
+//			else
+//			{
+//				if (t.getCode() == KeyCode.DIGIT1 || t.getCode() == KeyCode.NUMPAD1)
+//					cSelect = Chord.I;
+//				else if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
+//					cSelect = Chord.ii;
+//				else if (t.getCode() == KeyCode.DIGIT3 || t.getCode() == KeyCode.NUMPAD3)
+//					cSelect = Chord.iii;
+//				else if (t.getCode() == KeyCode.DIGIT4 || t.getCode() == KeyCode.NUMPAD4)
+//					cSelect = Chord.IV;
+//				else if (t.getCode() == KeyCode.DIGIT5 || t.getCode() == KeyCode.NUMPAD5)
+//					cSelect = Chord.V;
+//				else if (t.getCode() == KeyCode.DIGIT6 || t.getCode() == KeyCode.NUMPAD6)
+//					cSelect = Chord.vi;
+//				else if (t.getCode() == KeyCode.DIGIT7 || t.getCode() == KeyCode.NUMPAD7)
+//					cSelect = Chord.vii$;
+//			}
 
-			if (cSelect != null)
-			{
-				pushMove(new ChordEntry(cSelect, constants.getChord()));
-				setChord(cSelect);
-			}
+//			if (cSelect != null)
+//			{
+//				pushMove(new ChordEntry(cSelect, constants.getChord()));
+//				setChord(cSelect);
+//			}
 		});
 		scene.setOnMouseReleased(t -> GraphicNote.finishNotesEditing());
 		scene.getStylesheets().add(ClearComposer.class.getResource("clearcomposer.css").toExternalForm());
@@ -386,14 +389,18 @@ public class ClearComposer extends Application
 		primaryStage.setOnCloseRequest(e ->
 		{
 			e.consume();
-			if (!checkSave())
-				return;
-			MusicPlayer.turnOffNotes();
-			Platform.exit();
+			exitCommand();
 		});
 		primaryStage.show();
 
 		setTitle();
+	}
+
+	private void exitCommand() {
+		if (!checkSave())
+			return;
+		MusicPlayer.turnOffNotes();
+		Platform.exit();
 	}
 
 	private void stopCommand()
@@ -475,6 +482,100 @@ public class ClearComposer extends Application
 			setTitle();
 		}
 		return true;
+	}
+
+
+	private MenuItem createMenuItem(String name, String keyAccelerator, Runnable onAction)
+	{
+		MenuItem mnuItem = new MenuItem(name);
+		mnuItem.setMnemonicParsing(true);
+		if (keyAccelerator != null)
+			mnuItem.setAccelerator(KeyCombination.keyCombination(keyAccelerator));
+		mnuItem.setOnAction(evt -> onAction.run());
+		return mnuItem;
+	}
+
+	/**
+	 * Initializes menu items and menu-bar
+	 */
+	private MenuBar initMenuBar()
+	{
+		//Shortcut means Ctrl in Windows, Meta in Mac
+		MenuBar bar = new MenuBar();
+
+		//File
+		Menu mnuFile = new Menu("_File");
+		mnuFile.setMnemonicParsing(true);
+		mnuFile.getItems().addAll(
+				createMenuItem("_New", "Shortcut+N", this::newCommand),
+				createMenuItem("_Open", "Shortcut+O", this::openCommand),
+				createMenuItem("_Save", "Shortcut+S", this::saveCommand),
+				createMenuItem("Save _as", "Shortcut+Shift+S", this::saveAsCommand),
+				new SeparatorMenuItem(),
+				createMenuItem("E_xit", "Alt+X", this::exitCommand)
+		);
+
+		//Edit
+		Menu mnuEdit = new Menu("_Edit");
+		Menu mnuEditChords = new Menu("_Chords");
+		mnuEdit.setMnemonicParsing(true);
+		mnuEdit.getItems().addAll(
+				createMenuItem("_Undo", "Shortcut+Z", this::undo),
+				createMenuItem("_Redo", "Shortcut+Y", this::redo),
+				new SeparatorMenuItem(),
+				mnuEditChords
+		);
+
+		ArrayList<Chord> primaryChords = new ArrayList<>();
+		ArrayList<Chord> secondaryChords = new ArrayList<>();
+		for (Chord c : Chord.values())
+		{
+			if (c.isSecondary())
+				secondaryChords.add(c);
+			else
+				primaryChords.add(c);
+		}
+
+		ToggleGroup chordGroup = new ToggleGroup();
+		for (Chord c : primaryChords)
+		{
+			RadioMenuItem chordMenu = new RadioMenuItem("Chord " + c.toString());
+			chordMenu.setOnAction(evt ->
+			{
+				if (c != constants.getChord())
+				{
+					pushMove(new ChordEntry(c, constants.getChord()));
+					setChord(c);
+				}
+			});
+			chordMenu.setAccelerator(new NumberKeyCombination(c.getChordNumber()));
+			chordMenus.put(c, chordMenu);
+			chordGroup.getToggles().add(chordMenu);
+			mnuEditChords.getItems().add(chordMenu);
+		}
+		mnuEditChords.getItems().add(new SeparatorMenuItem());
+		for (Chord c : secondaryChords)
+		{
+			RadioMenuItem chordMenu = new RadioMenuItem("Chord " + c.toString());
+			chordMenu.setOnAction(evt ->
+			{
+				if (c != constants.getChord())
+				{
+					pushMove(new ChordEntry(c, constants.getChord()));
+					setChord(c);
+				}
+			});
+			chordMenu.setAccelerator(new NumberKeyCombination(c.getChordNumber(), KeyCombination.SHIFT_DOWN));
+			chordMenus.put(c, chordMenu);
+			chordGroup.getToggles().add(chordMenu);
+			mnuEditChords.getItems().add(chordMenu);
+		}
+
+		//Playing
+		//TODO
+
+		bar.getMenus().addAll(mnuFile, mnuEdit);
+		return bar;
 	}
 
 	private void setTitle()
@@ -581,7 +682,12 @@ public class ClearComposer extends Application
 	public void setChord(Chord ch)
 	{
 		constants.setChord(ch);
-		chords.forEach((c, btn) -> btn.setButtonPressed(c == ch));
+		chordButtons.forEach((c, btn) -> btn.setButtonPressed(c == ch));
+		chordMenus.entrySet()
+				.parallelStream()
+				.filter(ent -> ent.getKey() == ch)
+				.findFirst()
+				.ifPresent(ent -> ent.getValue().setSelected(true));
 		updateTracks();
 	}
 

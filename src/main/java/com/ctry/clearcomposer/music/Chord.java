@@ -48,31 +48,42 @@ import javafx.scene.paint.Color;
 
 public enum Chord
 {
-	I(0, DO, RE, MI, SOL, LA),
-	ii(0, RE, MI, FA, SOL, LA),
-	iii(1, RE, MI, SOL, LA, TI),
-	IV(2, DO, RE, FA, SOL, LA),
-	V(2, RE, FA, SOL, LA, TI),
-	vi(3, DO, MI, SOL, LA, TI),
-	vii$(0, TI_LOWER, RE, FA, SOL, LA),
-	V_ii(3, DI, MI, SOL, LA, TI),
-	V_iii(4, DI, RI, FI, LA, TI),
-	V_IV(0, DO, RE, MI, SOL, TE),
-	V_V(1, DO, RE, MI, FI, LA),
-	V_vi(1, RE, MI, FI, SI, TI),
+	I(0, 1, DO, RE, MI, SOL, LA),
+	ii(0, 2, RE, MI, FA, SOL, LA),
+	iii(1, 3, RE, MI, SOL, LA, TI),
+	IV(2, 4, DO, RE, FA, SOL, LA),
+	V(2, 5, RE, FA, SOL, LA, TI),
+	vi(3, 6, DO, MI, SOL, LA, TI),
+	vii$(0, 7, TI_LOWER, RE, FA, SOL, LA),
+	V_ii(3, 2, DI, MI, SOL, LA, TI),
+	V_iii(4, 3, DI, RI, FI, LA, TI),
+	V_IV(0, 4, DO, RE, MI, SOL, TE),
+	V_V(1, 5, DO, RE, MI, FI, LA),
+	V_vi(1, 6, RE, MI, FI, SI, TI),
 	;
 
 	private RelativeNote[] notes;
 	private RelativeNote bass;
+	private int num;
 
-	Chord(int bassIndex, RelativeNote... n)
+	Chord(int bassIndex, int num, RelativeNote... n)
 	{
 		notes = n;
+		this.num = num;
 		bass = notes[bassIndex];
 	}
 
 	public boolean isSecondary() {
 		return name().contains("_");
+	}
+
+	/**
+	 * The chord number used to identify chord
+	 * @return either the roman numeral or the __ of V number.
+	 */
+	public int getChordNumber()
+	{
+		return num;
 	}
 
 	/**
