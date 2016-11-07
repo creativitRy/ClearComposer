@@ -116,6 +116,9 @@ public class ChordProgressionHelper
 		add(Chord.IV, Chord.V_V, 0.3);
 		add(Chord.V, Chord.V_vi, 0.5);
 
+		//Other retrogression
+		add(Chord.V, Chord.IV, .25);
+
 		//I can go to any chord
 		for (int i = 1; i < Chord.values().length; i++)
 		{

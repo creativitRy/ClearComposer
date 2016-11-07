@@ -35,6 +35,11 @@ import java.io.Serializable;
 public class MusicConstants implements Serializable
 {
 	/**
+	 * serial ID that will stay constant.
+	 */
+	private static final long serialVersionUID = 147051791788027983L;
+
+	/**
 	 * Lowest midi pitch that is A where 60 is C4
 	 * Between 0 and 127
 	 */
