@@ -36,21 +36,31 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.*;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.EnumMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 import com.ctry.clearcomposer.history.AbstractEntry;
 import com.ctry.clearcomposer.history.ChordEntry;
 import com.ctry.clearcomposer.history.KeyEntry;
-import com.ctry.clearcomposer.music.*;
+import com.ctry.clearcomposer.music.Chord;
+import com.ctry.clearcomposer.music.ChordProgressionHelper;
+import com.ctry.clearcomposer.music.Key;
+import com.ctry.clearcomposer.music.MusicConstants;
+import com.ctry.clearcomposer.music.MusicPlayer;
+import com.ctry.clearcomposer.music.TrackPlayer;
 import com.ctry.clearcomposer.sequencer.BassNotesTrack;
 import com.ctry.clearcomposer.sequencer.BeatTrack;
 import com.ctry.clearcomposer.sequencer.GraphicNote;
 import com.ctry.clearcomposer.sequencer.NotesTrack;
 
-import com.sun.javafx.tk.Toolkit;
 import javafx.animation.Animation.Status;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -59,10 +69,18 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.Slider;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCharacterCombination;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
@@ -337,47 +355,6 @@ public class ClearComposer extends Application
 			evt.setDropCompleted(true);
 			evt.consume();
 		});
-		scene.setOnKeyPressed(t ->
-		{
-			//			Chord cSelect = null;
-			//			//secondary
-			//			if (t.isShiftDown())
-			//			{
-			//				if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
-			//					cSelect = Chord.V_ii;
-			//				else if (t.getCode() == KeyCode.DIGIT3 || t.getCode() == KeyCode.NUMPAD3)
-			//					cSelect = Chord.V_iii;
-			//				else if (t.getCode() == KeyCode.DIGIT4 || t.getCode() == KeyCode.NUMPAD4)
-			//					cSelect = Chord.V_IV;
-			//				else if (t.getCode() == KeyCode.DIGIT5 || t.getCode() == KeyCode.NUMPAD5)
-			//					cSelect = Chord.V_V;
-			//				else if (t.getCode() == KeyCode.DIGIT6 || t.getCode() == KeyCode.NUMPAD6)
-			//					cSelect = Chord.V_vi;
-			//			}
-			//			else
-			//			{
-			//				if (t.getCode() == KeyCode.DIGIT1 || t.getCode() == KeyCode.NUMPAD1)
-			//					cSelect = Chord.I;
-			//				else if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
-			//					cSelect = Chord.ii;
-			//				else if (t.getCode() == KeyCode.DIGIT3 || t.getCode() == KeyCode.NUMPAD3)
-			//					cSelect = Chord.iii;
-			//				else if (t.getCode() == KeyCode.DIGIT4 || t.getCode() == KeyCode.NUMPAD4)
-			//					cSelect = Chord.IV;
-			//				else if (t.getCode() == KeyCode.DIGIT5 || t.getCode() == KeyCode.NUMPAD5)
-			//					cSelect = Chord.V;
-			//				else if (t.getCode() == KeyCode.DIGIT6 || t.getCode() == KeyCode.NUMPAD6)
-			//					cSelect = Chord.vi;
-			//				else if (t.getCode() == KeyCode.DIGIT7 || t.getCode() == KeyCode.NUMPAD7)
-			//					cSelect = Chord.vii$;
-			//			}
-
-			//			if (cSelect != null)
-			//			{
-			//				pushMove(new ChordEntry(cSelect, constants.getChord()));
-			//				setChord(cSelect);
-			//			}
-		});
 		scene.setOnMouseReleased(t -> GraphicNote.finishNotesEditing());
 		scene.getStylesheets().add(ClearComposer.class.getResource("clearcomposer.css").toExternalForm());
 
@@ -506,19 +483,58 @@ public class ClearComposer extends Application
 		//File
 		Menu mnuFile = new Menu("_File");
 		mnuFile.setMnemonicParsing(true);
+		Menu mnuFileOpenTemplates = new Menu("Open _Templates");
+		mnuFileOpenTemplates.setMnemonicParsing(true);
 		mnuFile.getItems().addAll(
 			createMenuItem("_New", "Shortcut+N", this::newCommand),
 			createMenuItem("_Open", "Shortcut+O", this::openCommand),
+			mnuFileOpenTemplates,
+			new SeparatorMenuItem(),
 			createMenuItem("_Save", "Shortcut+S", this::saveCommand),
 			createMenuItem("Save _as", "Shortcut+Shift+S", this::saveAsCommand),
 			new SeparatorMenuItem(),
 			createMenuItem("E_xit", "Alt+X", this::exitCommand)
 		);
-
+		
+		int tmplIndex = 1;
+		while (true)
+		{
+			URL template = ClearComposer.class.getResource("Rhythm" + tmplIndex + ".ccp");
+			if (template == null)
+				break;
+			
+			MenuItem mnuTemplate = createMenuItem("Rhythm Template " + tmplIndex, null, () -> {
+				try
+				{
+					if (!checkSave())
+						return;
+					loadData(template.openStream());
+					openFile = null;
+					changed = true;
+					setTitle();
+				}
+				catch (IOException e)
+				{
+					Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while loading data", ButtonType.OK);
+					dlg.setHeaderText(null);
+					dlg.setTitle("ClearComposer");
+					dlg.initOwner(pane.getScene().getWindow());
+					dlg.showAndWait();
+					e.printStackTrace();
+				}
+			});
+			mnuFileOpenTemplates.getItems().add(mnuTemplate);
+			
+			tmplIndex++;
+		}
+		if (mnuFileOpenTemplates.getItems().isEmpty())
+			mnuFileOpenTemplates.setDisable(true);
+		
 		//Edit
 		Menu mnuEdit = new Menu("_Edit");
-		Menu mnuEditChords = new Menu("_Chords");
 		mnuEdit.setMnemonicParsing(true);
+		Menu mnuEditChords = new Menu("_Chords");
+		mnuEditChords.setMnemonicParsing(true);
 		mnuEdit.getItems().addAll(
 			createMenuItem("_Undo", "Shortcut+Z", this::undo),
 			createMenuItem("_Redo", "Shortcut+Y", this::redo),
@@ -750,6 +766,31 @@ public class ClearComposer extends Application
 		((BassNotesTrack) player.getTracks().get(0)).updateTrack();
 	}
 
+	/**
+	 * Loads all track data from an byte stream
+	 *
+	 * @param f file to load from.
+	 */
+	public void loadData(InputStream is)
+	{
+		try (ObjectInputStream ois = new ObjectInputStream(is))
+		{
+			constants = (MusicConstants) ois.readObject();
+			resetUI();
+			createMusicSequencer();
+			player.loadTracks(ois);
+			changed = false;
+		} catch (ClassNotFoundException | IOException e)
+		{
+			e.printStackTrace();
+			Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while loading data", ButtonType.OK);
+			dlg.setHeaderText(null);
+			dlg.setTitle("ClearComposer");
+			dlg.initOwner(pane.getScene().getWindow());
+			dlg.showAndWait();
+		}
+	}
+	
 	/**
 	 * Loads all track data from a data file.
 	 *
