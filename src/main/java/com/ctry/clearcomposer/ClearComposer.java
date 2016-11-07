@@ -149,15 +149,26 @@ public class ClearComposer extends Application
 	private BorderPane pane;
 	private VBox top;
 
+	//Buttons
 	private ToolbarButton btnPlay;
 	private ToolbarButton btnPause;
-	private BooleanProperty pauseToggle = new SimpleBooleanProperty();
-
+	
+	//Menus
+	private MenuItem mnuEditUndo;
+	private MenuItem mnuEditRedo;
+	
 	private ComboBox<Key> cmbKeys;
 	private ComboBox<String> cmbNotes;
 	private Slider tempoSlider;
 	private Label tempoIndicator;
 
+	//Disable states
+	private BooleanProperty saveDisabled = new SimpleBooleanProperty(false);
+	private BooleanProperty undoDisabled = new SimpleBooleanProperty(true);
+	private BooleanProperty redoDisabled = new SimpleBooleanProperty(true);
+	
+	//Toggling states
+	private BooleanProperty pauseToggle = new SimpleBooleanProperty();
 	private BooleanProperty permaToggle = new SimpleBooleanProperty(perma)
 	{
 		@Override
@@ -241,13 +252,13 @@ public class ClearComposer extends Application
 		Toolbar bar = new Toolbar();
 		bar.addRegularButton("New", this::newCommand);
 		bar.addRegularButton("Open", this::openCommand);
-		bar.addRegularButton("Save", this::saveCommand);
+		bar.addRegularButton("Save", this::saveCommand).disableProperty().bind(saveDisabled);
 		bar.addRegularButton("Save As", this::saveAsCommand);
 
 		//Edit
 		bar.addSeparator();
-		bar.addRegularButton("Undo", this::undo);
-		bar.addRegularButton("Redo", this::redo);
+		bar.addRegularButton("Undo", this::undoCommand).disableProperty().bind(undoDisabled);
+		bar.addRegularButton("Redo", this::redoCommand).disableProperty().bind(redoDisabled);
 
 		//Running
 		bar.addSeparator();
@@ -371,7 +382,7 @@ public class ClearComposer extends Application
 
 		setTitle();
 	}
-
+	
 	private void exitCommand()
 	{
 		if (!checkSave())
@@ -435,6 +446,9 @@ public class ClearComposer extends Application
 
 	private boolean saveCommand()
 	{
+		if (!changed)
+			return true;
+		
 		if (openFile == null)
 		{
 			File save = showFileChooser(false);
@@ -461,14 +475,21 @@ public class ClearComposer extends Application
 		return true;
 	}
 
-
+	
 	private MenuItem createMenuItem(String name, String keyAccelerator, Runnable onAction)
+	{
+		return createMenuItem(name, keyAccelerator, onAction, null);
+	}
+
+	private MenuItem createMenuItem(String name, String keyAccelerator, Runnable onAction, BooleanProperty disabledProperty)
 	{
 		MenuItem mnuItem = new MenuItem(name);
 		mnuItem.setMnemonicParsing(true);
 		if (keyAccelerator != null)
 			mnuItem.setAccelerator(KeyCombination.keyCombination(keyAccelerator));
 		mnuItem.setOnAction(evt -> onAction.run());
+		if (disabledProperty != null)
+			mnuItem.disableProperty().bind(disabledProperty);
 		return mnuItem;
 	}
 
@@ -490,7 +511,7 @@ public class ClearComposer extends Application
 			createMenuItem("_Open", "Shortcut+O", this::openCommand),
 			mnuFileOpenTemplates,
 			new SeparatorMenuItem(),
-			createMenuItem("_Save", "Shortcut+S", this::saveCommand),
+			createMenuItem("_Save", "Shortcut+S", this::saveCommand, saveDisabled),
 			createMenuItem("Save _as", "Shortcut+Shift+S", this::saveAsCommand),
 			new SeparatorMenuItem(),
 			createMenuItem("E_xit", "Alt+X", this::exitCommand)
@@ -535,9 +556,12 @@ public class ClearComposer extends Application
 		mnuEdit.setMnemonicParsing(true);
 		Menu mnuEditChords = new Menu("_Chords");
 		mnuEditChords.setMnemonicParsing(true);
+		mnuEditUndo = createMenuItem("_Undo", "Shortcut+Z", this::undoCommand, undoDisabled);
+		mnuEditRedo = createMenuItem("_Redo", "Shortcut+Y", this::redoCommand, redoDisabled);
+		
 		mnuEdit.getItems().addAll(
-			createMenuItem("_Undo", "Shortcut+Z", this::undo),
-			createMenuItem("_Redo", "Shortcut+Y", this::redo),
+			mnuEditUndo,
+			mnuEditRedo,
 			new SeparatorMenuItem(),
 			mnuEditChords
 		);
@@ -604,6 +628,7 @@ public class ClearComposer extends Application
 			sb.append(openFile.getAbsolutePath());
 		if (changed)
 			sb.append('*');
+		saveDisabled.set(!changed);
 		((Stage) pane.getScene().getWindow()).setTitle(sb.toString());
 	}
 
@@ -667,28 +692,42 @@ public class ClearComposer extends Application
 		if (undoes.size() >= MAX_UNDOS)
 			undoes.removeLast();
 		undoes.push(move);
+		updateMoveStack();
 	}
 
-	public void undo()
+	private void undoCommand()
 	{
 		if (undoes.isEmpty())
 			return;
 		changed = true;
 		AbstractEntry move = undoes.pop();
 		redoes.push(move);
+		updateMoveStack();
+		
 		move.undo();
 	}
 
-	public void redo()
+	private void redoCommand()
 	{
 		if (redoes.isEmpty())
 			return;
 		changed = true;
 		AbstractEntry move = redoes.pop();
 		undoes.push(move);
+		updateMoveStack();
+		
 		move.redo();
 	}
 
+	private void updateMoveStack()
+	{
+		undoDisabled.set(undoes.isEmpty());
+		redoDisabled.set(redoes.isEmpty());
+		
+		mnuEditUndo.setText(undoes.isEmpty() ? "_Undo" : "_Undo " + undoes.peek());
+		mnuEditRedo.setText(redoes.isEmpty() ? "_Redo" : "_Redo " + redoes.peek());
+	}
+	
 	/**
 	 * This sets the chord to MusicConstants and
 	 * updates the ui for the chord

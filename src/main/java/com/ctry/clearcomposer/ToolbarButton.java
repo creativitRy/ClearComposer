@@ -87,6 +87,10 @@ public class ToolbarButton extends StackPane
 			getChildren().add(text);
 		}
 
+		disabledProperty().addListener((val, before, after) -> {
+			//TODO: change image to show disabled.
+		});
+		
 		roundedEdges(this);
 		Tooltip.install(this, new Tooltip(name));
 		getStyleClass().add("tblButton");
