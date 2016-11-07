@@ -59,6 +59,7 @@ import com.ctry.clearcomposer.music.TrackPlayer;
 import com.ctry.clearcomposer.sequencer.BassNotesTrack;
 import com.ctry.clearcomposer.sequencer.BeatTrack;
 import com.ctry.clearcomposer.sequencer.GraphicNote;
+import com.ctry.clearcomposer.sequencer.GraphicTrack;
 import com.ctry.clearcomposer.sequencer.NotesTrack;
 
 import javafx.animation.Animation.Status;
@@ -244,56 +245,11 @@ public class ClearComposer extends Application
 		pane.setTop(top);
 
 		MenuBar menuBar = initMenuBar();
-
-		/**********************
-		 * Toolbar buttons
-		 **********************/
-		//File
-		Toolbar bar = new Toolbar();
-		bar.addRegularButton("New", this::newCommand);
-		bar.addRegularButton("Open", this::openCommand);
-		bar.addRegularButton("Save", this::saveCommand).disableProperty().bind(saveDisabled);
-		bar.addRegularButton("Save As", this::saveAsCommand);
-
-		//Edit
-		bar.addSeparator();
-		bar.addRegularButton("Undo", this::undoCommand).disableProperty().bind(undoDisabled);
-		bar.addRegularButton("Redo", this::redoCommand).disableProperty().bind(redoDisabled);
-
-		//Running
-		bar.addSeparator();
-		btnPlay = bar.addButton("Play");
-		btnPlay.setOnMousePressed(evt -> btnPlay.setButtonPressed(true));
-		btnPlay.setOnMouseClicked(evt -> playCommand());
-		btnPause = bar.addToggleButton("Pause", pauseToggle, this::pausedCommand);
-		bar.addRegularButton("Stop", this::stopCommand);
-
-		//Note config
-		bar.addSeparator();
-		cmbKeys = bar.addComboBox("Key", () ->
-		{
-			Key newValue = cmbKeys.getValue();
-			pushMove(new KeyEntry(newValue, constants.getKey()));
-			setKey(newValue);
-		}, constants.getKey().ordinal(), Key.values());
-		cmbNotes = bar.addComboBox("Number of Notes", () -> setNumNotes(parseNoteInt(cmbNotes.getValue())),
-			1, "12 Notes", "16 Notes");
-		tempoSlider = bar.addSlider("Tempo", () -> constants.setTempo(tempoSlider.getValue()),
-			MusicConstants.DEFAULT_TEMPO_MIN, MusicConstants.DEFAULT_TEMPO_MAX, constants.getTempo());
-		tempoIndicator = new Label();
-		tempoIndicator.textProperty().bind(tempoSlider.valueProperty().asString("%.0f BPM"));
-		tempoIndicator.setTextFill(Color.WHITE);
-		bar.addNode(tempoIndicator);
-
-		//Edit NotePlayState
-		bar.addSeparator();
-		bar.addToggleButton("Perma", permaToggle, null);
-		bar.addToggleButton("Toggling", noteToggle, null);
-
+		Toolbar bar = initToolbar();
 		top.getChildren().addAll(menuBar, bar);
 
 		//Music sequencer
-		createMusicSequencer();
+		initMusicSequencer();
 
 		//Chord buttons
 		HBox primaryChords = new HBox(10);
@@ -382,105 +338,33 @@ public class ClearComposer extends Application
 
 		setTitle();
 	}
-	
-	private void exitCommand()
-	{
-		if (!checkSave())
-			return;
-		MusicPlayer.turnOffNotes();
-		Platform.exit();
-	}
 
-	private void stopCommand()
-	{
-		btnPlay.setButtonPressed(false);
-		btnPause.setButtonPressed(false);
-		pauseToggle.setValue(false);
-		player.stop();
-	}
-
-	private void playCommand()
-	{
-		if (!btnPause.isButtonPressed() && player.getPlayState() != Status.RUNNING) //Only play if we are stopped
-		{
-			btnPlay.setButtonPressed(true);
-			player.play();
-		}
-	}
-
-	private void pausedCommand()
-	{
-		if (pauseToggle.get())
-		{
-			btnPlay.setButtonPressed(true); //In case user presses pause first.
-			if (player.getPlayState() == Status.RUNNING)
-				player.pause();
-		}
-		else
-			player.play();
-	}
-
-	private boolean newCommand()
-	{
-		if (!checkSave())
-			return false;
-
-		openFile = null;
-		constants = new MusicConstants();
-		resetUI();
-		setTitle();
-		createMusicSequencer();
-		return true;
-	}
-
-	private boolean saveAsCommand()
-	{
-		File save = showFileChooser(false);
-		if (save == null)
-			return false;
-
-		openFile = save;
-		saveData(openFile);
-		return true;
-	}
-
-	private boolean saveCommand()
-	{
-		if (!changed)
-			return true;
-		
-		if (openFile == null)
-		{
-			File save = showFileChooser(false);
-			if (save == null)
-				return false;
-			openFile = save;
-		}
-
-		saveData(openFile);
-		return true;
-	}
-
-	private boolean openCommand()
-	{
-		if (!checkSave())
-			return false;
-		File open = showFileChooser(true);
-		if (open != null)
-		{
-			loadData(open);
-			openFile = open;
-			setTitle();
-		}
-		return true;
-	}
-
-	
+	//*********************
+	//* UI HELPER METHODS
+	//* 
+	//* All the following methods are helper methods
+	//* that initialize certain aspects of the GUI.
+	//*********************
+	/**
+	 * Helper method to create a menu item. (Convenience method)
+	 * @param name name of the menu button
+	 * @param keyAccelerator shortcut key used to run menu item
+	 * @param onAction the handler when menu item is selected
+	 * @return the created menu-item
+	 */
 	private MenuItem createMenuItem(String name, String keyAccelerator, Runnable onAction)
 	{
 		return createMenuItem(name, keyAccelerator, onAction, null);
 	}
 
+	/**
+	 * Helper method to create a menu item.
+	 * @param name name of the menu button
+	 * @param keyAccelerator shortcut key used to run menu item
+	 * @param onAction the handler when menu item is selected
+	 * @param disabledProperty a property describing when this menu-item is disabled
+	 * @return the created menu-item
+	 */
 	private MenuItem createMenuItem(String name, String keyAccelerator, Runnable onAction, BooleanProperty disabledProperty)
 	{
 		MenuItem mnuItem = new MenuItem(name);
@@ -500,7 +384,7 @@ public class ClearComposer extends Application
 	{
 		//Shortcut means Ctrl in Windows, Meta in Mac
 		MenuBar bar = new MenuBar();
-
+	
 		//File
 		Menu mnuFile = new Menu("_File");
 		mnuFile.setMnemonicParsing(true);
@@ -565,7 +449,7 @@ public class ClearComposer extends Application
 			new SeparatorMenuItem(),
 			mnuEditChords
 		);
-
+	
 		ArrayList<Chord> primaryChords = new ArrayList<>();
 		ArrayList<Chord> secondaryChords = new ArrayList<>();
 		for (Chord c : Chord.values())
@@ -575,7 +459,7 @@ public class ClearComposer extends Application
 			else
 				primaryChords.add(c);
 		}
-
+	
 		ToggleGroup chordGroup = new ToggleGroup();
 		for (Chord c : primaryChords)
 		{
@@ -610,14 +494,110 @@ public class ClearComposer extends Application
 			chordGroup.getToggles().add(chordMenu);
 			mnuEditChords.getItems().add(chordMenu);
 		}
-
-		//Playing
+	
+		//Playing Menu
 		//TODO
-
+	
 		bar.getMenus().addAll(mnuFile, mnuEdit);
 		return bar;
 	}
 
+	/**
+	 * Initializes the music sequencer to the current
+	 * <code>MusicConstants</code> parameters.
+	 */
+	private void initMusicSequencer()
+	{
+		//Stop everything
+		if (btnPause != null)
+			btnPause.setButtonPressed(false);
+		if (btnPlay != null)
+			btnPlay.setButtonPressed(false);
+		if (player != null)
+			player.stop();
+	
+		//Reset undo/redoes
+		undoes.clear();
+		redoes.clear();
+		changed = false;
+	
+		//Update the stuff likewise
+		setTitle();
+		updateMoveStack();
+		
+		player = new TrackPlayer();
+		VBox tracksDisplay = new VBox();
+		tracksDisplay.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+		tracksDisplay.setAlignment(Pos.CENTER);
+		tracksDisplay.getStyleClass().add("bg");
+		tracksDisplay.setPadding(new Insets(0, 100, 0, 0));
+		for (int i = MusicConstants.TRACK_AMOUNT - 1; i >= 0; i--)
+		{
+			player.getTracks().add(0, new NotesTrack(i / 5, i % 5));
+			tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
+		}
+		player.getTracks().add(0, new BeatTrack());
+		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
+		player.getTracks().add(0, new BassNotesTrack());
+		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
+		pane.setCenter(tracksDisplay);
+	}
+
+	/**
+	 * Initializes the tool-bar buttons
+	 * @return the toolbar that is initialized
+	 */
+	private Toolbar initToolbar()
+	{
+		Toolbar bar = new Toolbar();
+		
+		//File
+		bar.addRegularButton("New", this::newCommand);
+		bar.addRegularButton("Open", this::openCommand);
+		bar.addRegularButton("Save", this::saveCommand).disableProperty().bind(saveDisabled);
+		bar.addRegularButton("Save As", this::saveAsCommand);
+	
+		//Edit
+		bar.addSeparator();
+		bar.addRegularButton("Undo", this::undoCommand).disableProperty().bind(undoDisabled);
+		bar.addRegularButton("Redo", this::redoCommand).disableProperty().bind(redoDisabled);
+	
+		//Running
+		bar.addSeparator();
+		btnPlay = bar.addButton("Play");
+		btnPlay.setOnMousePressed(evt -> btnPlay.setButtonPressed(true));
+		btnPlay.setOnMouseClicked(evt -> playCommand());
+		btnPause = bar.addToggleButton("Pause", pauseToggle, this::pausedCommand);
+		bar.addRegularButton("Stop", this::stopCommand);
+	
+		//Note config
+		bar.addSeparator();
+		cmbKeys = bar.addComboBox("Key", () ->
+		{
+			Key newValue = cmbKeys.getValue();
+			pushMove(new KeyEntry(newValue, constants.getKey()));
+			setKey(newValue);
+		}, constants.getKey().ordinal(), Key.values());
+		cmbNotes = bar.addComboBox("Number of Notes", () -> setNumNotes(parseNoteInt(cmbNotes.getValue())),
+			1, "12 Notes", "16 Notes");
+		tempoSlider = bar.addSlider("Tempo", () -> constants.setTempo(tempoSlider.getValue()),
+			MusicConstants.DEFAULT_TEMPO_MIN, MusicConstants.DEFAULT_TEMPO_MAX, constants.getTempo());
+		tempoIndicator = new Label();
+		tempoIndicator.textProperty().bind(tempoSlider.valueProperty().asString("%.0f BPM"));
+		tempoIndicator.setTextFill(Color.WHITE);
+		bar.addNode(tempoIndicator);
+	
+		//Edit NotePlayState
+		bar.addSeparator();
+		bar.addToggleButton("Perma", permaToggle, null);
+		bar.addToggleButton("Toggling", noteToggle, null);
+		return bar;
+	}
+
+	/**
+	 * Sets the window title to the opened file
+	 * and whether or not it is modified.
+	 */
 	private void setTitle()
 	{
 		StringBuilder sb = new StringBuilder(100);
@@ -629,9 +609,138 @@ public class ClearComposer extends Application
 		if (changed)
 			sb.append('*');
 		saveDisabled.set(!changed);
-		((Stage) pane.getScene().getWindow()).setTitle(sb.toString());
+		
+		if (pane.getScene() != null && pane.getScene().getWindow() != null)
+			((Stage) pane.getScene().getWindow()).setTitle(sb.toString());
 	}
 
+	private void updateTracks()
+	{
+		// iterate over all note tracks
+		for (GraphicTrack track : player.getTracks())
+			track.updateTrack();
+	}
+
+	//*********************
+	//* COMMAND METHODS
+	//* 
+	//* These are the handler procedure called
+	//* when a command is selected in the GUI.
+	//*********************	
+	private void exitCommand()
+	{
+		if (!checkSave())
+			return;
+		MusicPlayer.turnOffNotes();
+		Platform.exit();
+	}
+
+	private boolean newCommand()
+	{
+		if (!checkSave())
+			return false;
+	
+		openFile = null;
+		constants = new MusicConstants();
+		resetUI();
+		initMusicSequencer();
+		return true;
+	}
+
+	private boolean openCommand()
+	{
+		if (!checkSave())
+			return false;
+		File open = showFileChooser(true);
+		if (open != null)
+		{
+			loadData(open);
+			openFile = open;
+			setTitle();
+		}
+		return true;
+	}
+
+	private void playCommand()
+	{
+		if (!btnPause.isButtonPressed() && player.getPlayState() != Status.RUNNING) //Only play if we are stopped
+		{
+			btnPlay.setButtonPressed(true);
+			player.play();
+		}
+	}
+
+	private void pausedCommand()
+	{
+		if (pauseToggle.get())
+		{
+			btnPlay.setButtonPressed(true); //In case user presses pause first.
+			if (player.getPlayState() == Status.RUNNING)
+				player.pause();
+		}
+		else
+			player.play();
+	}
+
+	private void redoCommand()
+	{
+		if (redoes.isEmpty())
+			return;
+		changed = true;
+		AbstractEntry move = redoes.pop();
+		undoes.push(move);
+		updateMoveStack();
+		
+		move.redo();
+	}
+
+	private boolean saveAsCommand()
+	{
+		File save = showFileChooser(false);
+		if (save == null)
+			return false;
+
+		openFile = save;
+		saveData(openFile);
+		return true;
+	}
+
+	private boolean saveCommand()
+	{
+		if (!changed)
+			return true;
+		
+		if (openFile == null)
+		{
+			File save = showFileChooser(false);
+			if (save == null)
+				return false;
+			openFile = save;
+		}
+
+		saveData(openFile);
+		return true;
+	}
+
+	private void stopCommand()
+	{
+		btnPlay.setButtonPressed(false);
+		btnPause.setButtonPressed(false);
+		pauseToggle.setValue(false);
+		player.stop();
+	}
+
+	private void undoCommand()
+	{
+		if (undoes.isEmpty())
+			return;
+		changed = true;
+		AbstractEntry move = undoes.pop();
+		redoes.push(move);
+		updateMoveStack();
+		
+		move.undo();
+	}
 
 	private boolean checkSave()
 	{
@@ -651,39 +760,6 @@ public class ClearComposer extends Application
 			return true;
 	}
 
-	private void createMusicSequencer()
-	{
-		//Stop everything
-		if (btnPause != null)
-			btnPause.setButtonPressed(false);
-		if (btnPlay != null)
-			btnPlay.setButtonPressed(false);
-		if (player != null)
-			player.stop();
-
-		//Reset undo/redoes
-		undoes.clear();
-		redoes.clear();
-		changed = false;
-
-		player = new TrackPlayer();
-		VBox tracksDisplay = new VBox();
-		tracksDisplay.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-		tracksDisplay.setAlignment(Pos.CENTER);
-		tracksDisplay.getStyleClass().add("bg");
-		tracksDisplay.setPadding(new Insets(0, 100, 0, 0));
-		for (int i = MusicConstants.TRACK_AMOUNT - 1; i >= 0; i--)
-		{
-			player.getTracks().add(0, new NotesTrack(i / 5, i % 5));
-			tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
-		}
-		player.getTracks().add(0, new BeatTrack());
-		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
-		player.getTracks().add(0, new BassNotesTrack());
-		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
-		pane.setCenter(tracksDisplay);
-	}
-
 	public void pushMove(AbstractEntry move)
 	{
 		changed = true;
@@ -693,30 +769,6 @@ public class ClearComposer extends Application
 			undoes.removeLast();
 		undoes.push(move);
 		updateMoveStack();
-	}
-
-	private void undoCommand()
-	{
-		if (undoes.isEmpty())
-			return;
-		changed = true;
-		AbstractEntry move = undoes.pop();
-		redoes.push(move);
-		updateMoveStack();
-		
-		move.undo();
-	}
-
-	private void redoCommand()
-	{
-		if (redoes.isEmpty())
-			return;
-		changed = true;
-		AbstractEntry move = redoes.pop();
-		undoes.push(move);
-		updateMoveStack();
-		
-		move.redo();
 	}
 
 	private void updateMoveStack()
@@ -779,7 +831,10 @@ public class ClearComposer extends Application
 			oos.flush();
 
 			constants.setNoteAmount(numNotes);
-			createMusicSequencer();
+			initMusicSequencer();
+			changed = true;
+			setTitle();
+			
 			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 			ObjectInputStream ois = new ObjectInputStream(bais);
 			player.loadTracks(ois);
@@ -794,17 +849,6 @@ public class ClearComposer extends Application
 		}
 	}
 
-	private void updateTracks()
-	{
-		// iterate over all note tracks
-		for (int i = 2; i < player.getTracks().size(); i++)
-		{
-			((NotesTrack) player.getTracks().get(i)).updateTrack();
-		}
-
-		((BassNotesTrack) player.getTracks().get(0)).updateTrack();
-	}
-
 	/**
 	 * Loads all track data from an byte stream
 	 *
@@ -816,9 +860,10 @@ public class ClearComposer extends Application
 		{
 			constants = (MusicConstants) ois.readObject();
 			resetUI();
-			createMusicSequencer();
+			initMusicSequencer();
 			player.loadTracks(ois);
 			changed = false;
+			setTitle();
 		} catch (ClassNotFoundException | IOException e)
 		{
 			e.printStackTrace();
@@ -841,9 +886,10 @@ public class ClearComposer extends Application
 		{
 			constants = (MusicConstants) ois.readObject();
 			resetUI();
-			createMusicSequencer();
+			initMusicSequencer();
 			player.loadTracks(ois);
 			changed = false;
+			setTitle();
 		} catch (ClassNotFoundException | IOException e)
 		{
 			e.printStackTrace();

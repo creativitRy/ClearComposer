@@ -75,6 +75,7 @@ public class NotesTrack extends GraphicTrack
 	/**
 	 * changes color and track name
 	 */
+	@Override
 	public void updateTrack()
 	{
 		((Text) getTrack().getChildren().get(0)).setText(formatTrackName());

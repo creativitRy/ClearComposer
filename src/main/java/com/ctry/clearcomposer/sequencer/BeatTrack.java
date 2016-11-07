@@ -89,4 +89,10 @@ public class BeatTrack extends GraphicTrack
 	public void loadTrackData(DataInput in) throws IOException {
 		//Does nothing
 	}
+
+	@Override
+	public void updateTrack()
+	{
+		//Does nothing
+	}
 }

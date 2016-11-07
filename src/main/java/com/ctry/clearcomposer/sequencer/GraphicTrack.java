@@ -30,14 +30,15 @@
  */
 package com.ctry.clearcomposer.sequencer;
 
-import com.ctry.clearcomposer.ClearComposer;
-import javafx.scene.Node;
-import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+
+import com.ctry.clearcomposer.ClearComposer;
+
+import javafx.scene.Node;
+import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 
 public abstract class GraphicTrack
 {
@@ -80,6 +81,11 @@ public abstract class GraphicTrack
 	 */
 	public abstract int playNote(int index);
 
+	/**
+	 * Updates this track status
+	 */
+	public abstract void updateTrack();
+	
 	/**
 	 * Getter for property 'track'.
 	 * @return Value for property 'track'.
