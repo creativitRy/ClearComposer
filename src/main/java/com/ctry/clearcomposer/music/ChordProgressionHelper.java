@@ -66,6 +66,7 @@ public class ChordProgressionHelper
 
 		//iii chord
 		add(Chord.IV, Chord.iii, 0.5);
+		add(Chord.iii, Chord.IV, 0.75);
 		add(Chord.ii, Chord.iii, 0.25);
 
 		//jazz circle of fifth

@@ -250,7 +250,7 @@ public class ClearComposer extends Application
 		cmbNotes = bar.addComboBox("Number of Notes", () -> setNumNotes(parseNoteInt(cmbNotes.getValue())),
 			1, "12 Notes", "16 Notes");
 		tempoSlider = bar.addSlider("Tempo", () -> constants.setTempo(tempoSlider.getValue()),
-			10, 999, constants.getTempo());
+			MusicConstants.DEFAULT_TEMPO_MIN, MusicConstants.DEFAULT_TEMPO_MAX, constants.getTempo());
 		tempoIndicator = new Label();
 		tempoIndicator.textProperty().bind(tempoSlider.valueProperty().asString("%.0f BPM"));
 		tempoIndicator.setTextFill(Color.WHITE);

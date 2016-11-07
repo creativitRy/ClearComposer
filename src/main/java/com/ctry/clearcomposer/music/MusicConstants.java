@@ -49,8 +49,12 @@ public class MusicConstants implements Serializable
 	public static final int TRACK_AMOUNT = 11;
 
 	public static final Key DEFAULT_KEY = Key.C;
-	public static final double DEFAULT_TEMPO = 400; //BPM
 	public static final Chord DEFAULT_CHORD = Chord.I;
+
+	public static final double DEFAULT_TEMPO = 400;
+	public static final double DEFAULT_TEMPO_MIN = 40;
+	public static final double DEFAULT_TEMPO_MAX = 999;
+
 	/**
 	 * Either 12 for 3/4 or 16 for 4/4
 	 */
