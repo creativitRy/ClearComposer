@@ -9,9 +9,3 @@ The program was first designed for the [Congressional App Challenge] (http://www
 
 ### Credits
 Gahwon Lee and Henry Wang for programming the application.
-
-### Todo
-* Button to clear all notes
-* 2 Checkboxes to toggle the booleans toggle and perma in ClearComposer
-* Chord suggestions - based on past chords, suggest the best chord to transition to
-http://learnhowtowritesongs.com/interactive-chord-progression-generator/
