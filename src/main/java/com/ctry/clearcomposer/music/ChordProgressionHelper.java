@@ -80,7 +80,6 @@ public class ChordProgressionHelper
 
 		//deceptive
 		add(Chord.V, Chord.vi, 0.6);
-		add(Chord.V, Chord.V_vi, 0.5);
 		add(Chord.vii$, Chord.vi, 0.6);
 		add(Chord.V_iii, Chord.I, 0.5);
 		add(Chord.V_iii, Chord.V_IV, 0.25);
@@ -101,6 +100,21 @@ public class ChordProgressionHelper
 		add(Chord.IV, Chord.V_IV, 0.25);
 		add(Chord.V, Chord.V_V, 0.25);
 		add(Chord.vi, Chord.V_vi, 0.25);
+
+		//minor to major and vice versa
+		add(Chord.vi, Chord.V_ii, 0.25);
+		add(Chord.ii, Chord.V_V, 0.25);
+		add(Chord.iii, Chord.V_vi, 0.25);
+		add(Chord.V_ii, Chord.vi, 0.1);
+		add(Chord.V_V, Chord.ii, 0.1);
+		add(Chord.V_vi, Chord.iii, 0.1);
+
+		//chormatic inversion up thingy
+		add(Chord.I, Chord.V_ii, 0.3);
+		add(Chord.ii, Chord.V_iii, 0.3);
+		add(Chord.iii, Chord.V_IV, 0.3);
+		add(Chord.IV, Chord.V_V, 0.3);
+		add(Chord.V, Chord.V_vi, 0.5);
 
 		//I can go to any chord
 		for (int i = 1; i < Chord.values().length; i++)
