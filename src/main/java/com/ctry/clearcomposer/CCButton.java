@@ -32,11 +32,12 @@
 
 package com.ctry.clearcomposer;
 
+import javafx.beans.NamedArg;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 
 public class CCButton extends StackPane
@@ -55,9 +56,9 @@ public class CCButton extends StackPane
 	private Label buttonText;
 	private boolean pressed;
 
+
 	public CCButton(String text, Color textFill)
 	{
-
 		buttonHighlight = new Pane();
 		buttonHighlight.getStyleClass().add("highlight");
 		roundedEdges(buttonHighlight);
@@ -82,5 +83,11 @@ public class CCButton extends StackPane
 			getStyleClass().add("pressed");
 		else if (!pressed)
 			getStyleClass().remove("pressed");
+	}
+
+	public void setBorder(Color color, double width)
+	{
+		buttonHighlight.setBorder(new Border(
+			new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(width))));
 	}
 }

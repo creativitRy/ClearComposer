@@ -247,10 +247,10 @@ public class ClearComposer extends Application
 			pushMove(new KeyEntry(newValue, constants.getKey()));
 			setKey(newValue);
 		}, constants.getKey().ordinal(), Key.values());
-		cmbNotes = bar.addComboBox("Number of Notes", () -> setNumNotes(parseNoteInt(cmbNotes.getValue())), 
-				1, "12 Notes", "16 Notes");
-		tempoSlider = bar.addSlider("Tempo", () -> constants.setTempo(tempoSlider.getValue()), 
-				10, 999, constants.getTempo());
+		cmbNotes = bar.addComboBox("Number of Notes", () -> setNumNotes(parseNoteInt(cmbNotes.getValue())),
+			1, "12 Notes", "16 Notes");
+		tempoSlider = bar.addSlider("Tempo", () -> constants.setTempo(tempoSlider.getValue()),
+			10, 999, constants.getTempo());
 		tempoIndicator = new Label();
 		tempoIndicator.textProperty().bind(tempoSlider.valueProperty().asString("%.0f BPM"));
 		tempoIndicator.setTextFill(Color.WHITE);
@@ -308,16 +308,19 @@ public class ClearComposer extends Application
 		//Scene settings
 		Scene scene = new Scene(pane, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		scene.setOnDragDetected(evt -> scene.startFullDrag());
-		scene.setOnDragOver(evt -> {
+		scene.setOnDragOver(evt ->
+		{
 			if (evt.getDragboard().hasFiles())
 				evt.acceptTransferModes(TransferMode.COPY);
 			evt.consume();
 		});
-		scene.setOnDragDropped(evt -> {
+		scene.setOnDragDropped(evt ->
+		{
 			if (evt.getDragboard().hasFiles())
 			{
 				File open = evt.getDragboard().getFiles().get(0);
-				Platform.runLater(() -> {
+				Platform.runLater(() ->
+				{
 					if (!checkSave())
 						return;
 
@@ -336,44 +339,44 @@ public class ClearComposer extends Application
 		});
 		scene.setOnKeyPressed(t ->
 		{
-//			Chord cSelect = null;
-//			//secondary
-//			if (t.isShiftDown())
-//			{
-//				if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
-//					cSelect = Chord.V_ii;
-//				else if (t.getCode() == KeyCode.DIGIT3 || t.getCode() == KeyCode.NUMPAD3)
-//					cSelect = Chord.V_iii;
-//				else if (t.getCode() == KeyCode.DIGIT4 || t.getCode() == KeyCode.NUMPAD4)
-//					cSelect = Chord.V_IV;
-//				else if (t.getCode() == KeyCode.DIGIT5 || t.getCode() == KeyCode.NUMPAD5)
-//					cSelect = Chord.V_V;
-//				else if (t.getCode() == KeyCode.DIGIT6 || t.getCode() == KeyCode.NUMPAD6)
-//					cSelect = Chord.V_vi;
-//			}
-//			else
-//			{
-//				if (t.getCode() == KeyCode.DIGIT1 || t.getCode() == KeyCode.NUMPAD1)
-//					cSelect = Chord.I;
-//				else if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
-//					cSelect = Chord.ii;
-//				else if (t.getCode() == KeyCode.DIGIT3 || t.getCode() == KeyCode.NUMPAD3)
-//					cSelect = Chord.iii;
-//				else if (t.getCode() == KeyCode.DIGIT4 || t.getCode() == KeyCode.NUMPAD4)
-//					cSelect = Chord.IV;
-//				else if (t.getCode() == KeyCode.DIGIT5 || t.getCode() == KeyCode.NUMPAD5)
-//					cSelect = Chord.V;
-//				else if (t.getCode() == KeyCode.DIGIT6 || t.getCode() == KeyCode.NUMPAD6)
-//					cSelect = Chord.vi;
-//				else if (t.getCode() == KeyCode.DIGIT7 || t.getCode() == KeyCode.NUMPAD7)
-//					cSelect = Chord.vii$;
-//			}
+			//			Chord cSelect = null;
+			//			//secondary
+			//			if (t.isShiftDown())
+			//			{
+			//				if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
+			//					cSelect = Chord.V_ii;
+			//				else if (t.getCode() == KeyCode.DIGIT3 || t.getCode() == KeyCode.NUMPAD3)
+			//					cSelect = Chord.V_iii;
+			//				else if (t.getCode() == KeyCode.DIGIT4 || t.getCode() == KeyCode.NUMPAD4)
+			//					cSelect = Chord.V_IV;
+			//				else if (t.getCode() == KeyCode.DIGIT5 || t.getCode() == KeyCode.NUMPAD5)
+			//					cSelect = Chord.V_V;
+			//				else if (t.getCode() == KeyCode.DIGIT6 || t.getCode() == KeyCode.NUMPAD6)
+			//					cSelect = Chord.V_vi;
+			//			}
+			//			else
+			//			{
+			//				if (t.getCode() == KeyCode.DIGIT1 || t.getCode() == KeyCode.NUMPAD1)
+			//					cSelect = Chord.I;
+			//				else if (t.getCode() == KeyCode.DIGIT2 || t.getCode() == KeyCode.NUMPAD2)
+			//					cSelect = Chord.ii;
+			//				else if (t.getCode() == KeyCode.DIGIT3 || t.getCode() == KeyCode.NUMPAD3)
+			//					cSelect = Chord.iii;
+			//				else if (t.getCode() == KeyCode.DIGIT4 || t.getCode() == KeyCode.NUMPAD4)
+			//					cSelect = Chord.IV;
+			//				else if (t.getCode() == KeyCode.DIGIT5 || t.getCode() == KeyCode.NUMPAD5)
+			//					cSelect = Chord.V;
+			//				else if (t.getCode() == KeyCode.DIGIT6 || t.getCode() == KeyCode.NUMPAD6)
+			//					cSelect = Chord.vi;
+			//				else if (t.getCode() == KeyCode.DIGIT7 || t.getCode() == KeyCode.NUMPAD7)
+			//					cSelect = Chord.vii$;
+			//			}
 
-//			if (cSelect != null)
-//			{
-//				pushMove(new ChordEntry(cSelect, constants.getChord()));
-//				setChord(cSelect);
-//			}
+			//			if (cSelect != null)
+			//			{
+			//				pushMove(new ChordEntry(cSelect, constants.getChord()));
+			//				setChord(cSelect);
+			//			}
 		});
 		scene.setOnMouseReleased(t -> GraphicNote.finishNotesEditing());
 		scene.getStylesheets().add(ClearComposer.class.getResource("clearcomposer.css").toExternalForm());
@@ -392,7 +395,8 @@ public class ClearComposer extends Application
 		setTitle();
 	}
 
-	private void exitCommand() {
+	private void exitCommand()
+	{
 		if (!checkSave())
 			return;
 		MusicPlayer.turnOffNotes();
@@ -446,7 +450,7 @@ public class ClearComposer extends Application
 		File save = showFileChooser(false);
 		if (save == null)
 			return false;
-		
+
 		openFile = save;
 		saveData(openFile);
 		return true;
@@ -503,12 +507,12 @@ public class ClearComposer extends Application
 		Menu mnuFile = new Menu("_File");
 		mnuFile.setMnemonicParsing(true);
 		mnuFile.getItems().addAll(
-				createMenuItem("_New", "Shortcut+N", this::newCommand),
-				createMenuItem("_Open", "Shortcut+O", this::openCommand),
-				createMenuItem("_Save", "Shortcut+S", this::saveCommand),
-				createMenuItem("Save _as", "Shortcut+Shift+S", this::saveAsCommand),
-				new SeparatorMenuItem(),
-				createMenuItem("E_xit", "Alt+X", this::exitCommand)
+			createMenuItem("_New", "Shortcut+N", this::newCommand),
+			createMenuItem("_Open", "Shortcut+O", this::openCommand),
+			createMenuItem("_Save", "Shortcut+S", this::saveCommand),
+			createMenuItem("Save _as", "Shortcut+Shift+S", this::saveAsCommand),
+			new SeparatorMenuItem(),
+			createMenuItem("E_xit", "Alt+X", this::exitCommand)
 		);
 
 		//Edit
@@ -516,10 +520,10 @@ public class ClearComposer extends Application
 		Menu mnuEditChords = new Menu("_Chords");
 		mnuEdit.setMnemonicParsing(true);
 		mnuEdit.getItems().addAll(
-				createMenuItem("_Undo", "Shortcut+Z", this::undo),
-				createMenuItem("_Redo", "Shortcut+Y", this::redo),
-				new SeparatorMenuItem(),
-				mnuEditChords
+			createMenuItem("_Undo", "Shortcut+Z", this::undo),
+			createMenuItem("_Redo", "Shortcut+Y", this::redo),
+			new SeparatorMenuItem(),
+			mnuEditChords
 		);
 
 		ArrayList<Chord> primaryChords = new ArrayList<>();
@@ -678,12 +682,18 @@ public class ClearComposer extends Application
 	public void setChord(Chord ch)
 	{
 		constants.setChord(ch);
-		chordButtons.forEach((c, btn) -> btn.setButtonPressed(c == ch));
+		chordButtons.forEach((c, btn) ->
+		{
+			btn.setButtonPressed(c == ch);
+			btn.setBorder(new Color(0, 0, 0, 0), 3);
+		});
+		ChordProgressionHelper.getPossibleChordProgressions(ch).forEach((c, strength) ->
+			chordButtons.get(c).setBorder(new Color(1, 0.843, 0, strength / 3 + 0.5), strength * 2 + 2));
 		chordMenus.entrySet()
-				.parallelStream()
-				.filter(ent -> ent.getKey() == ch)
-				.findFirst()
-				.ifPresent(ent -> ent.getValue().setSelected(true));
+			.parallelStream()
+			.filter(ent -> ent.getKey() == ch)
+			.findFirst()
+			.ifPresent(ent -> ent.getValue().setSelected(true));
 		updateTracks();
 	}
 
@@ -718,8 +728,7 @@ public class ClearComposer extends Application
 			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 			ObjectInputStream ois = new ObjectInputStream(bais);
 			player.loadTracks(ois);
-		} 
-		catch (IOException e)
+		} catch (IOException e)
 		{
 			Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while setting number of notes", ButtonType.OK);
 			dlg.setHeaderText(null);

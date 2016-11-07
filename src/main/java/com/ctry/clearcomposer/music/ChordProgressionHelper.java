@@ -58,8 +58,11 @@ public class ChordProgressionHelper
 		add(Chord.vi, Chord.V, 0.75);
 		add(Chord.IV, Chord.V, 0.75);
 
+		//vi to IV
+		add(Chord.vi, Chord.IV, 0.6);
+
 		//predominant extension
-		add(Chord.IV, Chord.ii, 0.70);
+		add(Chord.IV, Chord.ii, 0.7);
 
 		//iii chord
 		add(Chord.IV, Chord.iii, 0.5);
@@ -76,10 +79,12 @@ public class ChordProgressionHelper
 
 		//deceptive
 		add(Chord.V, Chord.vi, 0.6);
+		add(Chord.V, Chord.V_vi, 0.5);
 		add(Chord.vii$, Chord.vi, 0.6);
 		add(Chord.V_iii, Chord.I, 0.5);
 		add(Chord.V_iii, Chord.V_IV, 0.25);
 		add(Chord.V_IV, Chord.ii, 0.5);
+		add(Chord.V_IV, Chord.V_ii, 0.4);
 		add(Chord.V_IV, Chord.V_V, 0.25);
 		add(Chord.V_V, Chord.iii, 0.5);
 		add(Chord.V_V, Chord.V_vi, 0.25);
@@ -90,11 +95,16 @@ public class ChordProgressionHelper
 		{
 			add(chord, circleOfFifthRev(chord), 0.25);
 		}
+		add(Chord.ii, Chord.V_ii, 0.25);
+		add(Chord.iii, Chord.V_iii, 0.25);
+		add(Chord.IV, Chord.V_IV, 0.25);
+		add(Chord.V, Chord.V_V, 0.25);
+		add(Chord.vi, Chord.V_vi, 0.25);
 
 		//I can go to any chord
-		for (Chord chord : Chord.values())
+		for (int i = 1; i < Chord.values().length; i++)
 		{
-			add(Chord.I, chord, 1);
+			add(Chord.I, Chord.values()[i], 1);
 		}
 	}
 
