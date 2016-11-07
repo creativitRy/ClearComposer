@@ -59,35 +59,42 @@ public enum Chord
 	V_iii(4, 3, DI, RI, FI, LA, TI),
 	V_IV(0, 4, DO, RE, MI, SOL, TE),
 	V_V(1, 5, DO, RE, MI, FI, LA),
-	V_vi(1, 6, RE, MI, FI, SI, TI),
-	;
+	V_vi(1, 6, RE, MI, FI, SI, TI),;
 
 	private RelativeNote[] notes;
 	private RelativeNote bass;
-	private int num;
+	private int chordNum;
 
-	Chord(int bassIndex, int num, RelativeNote... n)
+	Chord(int bassIndex, int chordNum, RelativeNote... n)
 	{
 		notes = n;
-		this.num = num;
+		this.chordNum = chordNum;
 		bass = notes[bassIndex];
 	}
 
-	public boolean isSecondary() {
+	public static Chord[] getPrimaryChords()
+	{
+		return new Chord[]{I, ii, iii, IV, V, vi, vii$};
+	}
+
+	public boolean isSecondary()
+	{
 		return name().contains("_");
 	}
 
 	/**
 	 * The chord number used to identify chord
+	 *
 	 * @return either the roman numeral or the __ of V number.
 	 */
 	public int getChordNumber()
 	{
-		return num;
+		return chordNum;
 	}
 
 	/**
 	 * all five notes that best fit the chord
+	 *
 	 * @return notes
 	 */
 	public RelativeNote[] getNotes()
@@ -97,6 +104,7 @@ public enum Chord
 
 	/**
 	 * one of the notes of the chord
+	 *
 	 * @param index what note to choose
 	 * @return note
 	 */
@@ -118,6 +126,7 @@ public enum Chord
 
 	/**
 	 * Gets the color of the chord as defined by the color of the root as an absolute note
+	 *
 	 * @return color of the chord
 	 */
 	public Color getColor()
