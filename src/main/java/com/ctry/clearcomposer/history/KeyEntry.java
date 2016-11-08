@@ -54,7 +54,7 @@ public class KeyEntry extends AbstractEntry
 	@Override
 	public String toString()
 	{
-		return "change chord to " + to + " from " + from;
+		return "Key Change";
 	}
 
 	/**

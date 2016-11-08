@@ -59,7 +59,7 @@ public class NotesEntry extends AbstractEntry
 	@Override
 	public String toString()
 	{
-		return "enter in notes";
+		return "Note Edits";
 	}
 
 	/**

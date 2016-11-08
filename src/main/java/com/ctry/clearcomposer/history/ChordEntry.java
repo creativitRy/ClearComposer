@@ -47,7 +47,7 @@ public class ChordEntry extends AbstractEntry
 	@Override
 	public String toString()
 	{
-		return "change chord to " + to + " from " + from;
+		return "Chord Change";
 	}
 
 	@Override

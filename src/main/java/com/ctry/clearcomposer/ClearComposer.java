@@ -50,6 +50,7 @@ import java.util.prefs.Preferences;
 import com.ctry.clearcomposer.history.AbstractEntry;
 import com.ctry.clearcomposer.history.ChordEntry;
 import com.ctry.clearcomposer.history.KeyEntry;
+import com.ctry.clearcomposer.history.TempoEntry;
 import com.ctry.clearcomposer.music.Chord;
 import com.ctry.clearcomposer.music.ChordProgressionHelper;
 import com.ctry.clearcomposer.music.Key;
@@ -70,17 +71,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.RadioMenuItem;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.Slider;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.TransferMode;
@@ -157,11 +148,14 @@ public class ClearComposer extends Application
 	//Menus
 	private MenuItem mnuEditUndo;
 	private MenuItem mnuEditRedo;
-	
+
+	//Note config stuff
 	private ComboBox<Key> cmbKeys;
 	private ComboBox<String> cmbNotes;
 	private Slider tempoSlider;
 	private Label tempoIndicator;
+
+	private double tempoBefore = -1;
 
 	//Disable states
 	private BooleanProperty saveDisabled = new SimpleBooleanProperty(false);
@@ -189,6 +183,9 @@ public class ClearComposer extends Application
 
 	private Deque<AbstractEntry> undoes = new LinkedList<>();
 	private Deque<AbstractEntry> redoes = new LinkedList<>();
+	private Tooltip undoTooltip;
+	private Tooltip redoTooltip;
+
 
 	/**
 	 * Sets all ui stuff to match MusicConstants
@@ -242,6 +239,9 @@ public class ClearComposer extends Application
 
 		top = new VBox();
 		pane.setTop(top);
+
+		undoTooltip = new Tooltip("Undo");
+		redoTooltip = new Tooltip("Redo");
 
 		MenuBar menuBar = initMenuBar();
 		Toolbar bar = initToolbar();
@@ -558,8 +558,12 @@ public class ClearComposer extends Application
 	
 		//Edit
 		bar.addSeparator();
-		bar.addRegularButton("Undo", this::undoCommand).disableProperty().bind(undoDisabled);
-		bar.addRegularButton("Redo", this::redoCommand).disableProperty().bind(redoDisabled);
+		ToolbarButton undoButton = bar.addRegularButton("Undo", this::undoCommand);
+		undoButton.disableProperty().bind(undoDisabled);
+		Tooltip.install(undoButton, undoTooltip);
+		ToolbarButton redoButton = bar.addRegularButton("Redo", this::redoCommand);
+		redoButton.disableProperty().bind(redoDisabled);
+		Tooltip.install(redoButton, redoTooltip);
 	
 		//Running
 		bar.addSeparator();
@@ -581,6 +585,10 @@ public class ClearComposer extends Application
 			1, "12 Notes", "16 Notes");
 		tempoSlider = bar.addSlider("Tempo", () -> constants.setTempo(tempoSlider.getValue()),
 			MusicConstants.DEFAULT_TEMPO_MIN, MusicConstants.DEFAULT_TEMPO_MAX, constants.getTempo());
+		tempoSlider.setOnMousePressed(evt -> tempoChanging());
+		tempoSlider.setOnKeyPressed(evt -> tempoChanging());
+		tempoSlider.setOnMouseReleased(evt -> tempoChanged());
+		tempoSlider.setOnKeyReleased(evt -> tempoChanged());
 		tempoIndicator = new Label();
 		tempoIndicator.textProperty().bind(tempoSlider.valueProperty().asString("%.0f BPM"));
 		tempoIndicator.setTextFill(Color.WHITE);
@@ -591,6 +599,21 @@ public class ClearComposer extends Application
 		bar.addToggleButton("Perma", permaToggle, null);
 		bar.addToggleButton("Toggling", noteToggle, null);
 		return bar;
+	}
+
+	private void tempoChanging()
+	{
+		if (tempoBefore == -1)
+			tempoBefore = tempoSlider.getValue();
+	}
+
+	private void tempoChanged()
+	{
+		if (tempoBefore != -1 && tempoBefore != tempoSlider.getValue())
+		{
+			pushMove(new TempoEntry(tempoBefore, tempoSlider.getValue()));
+			tempoBefore = -1;
+		}
 	}
 
 	/**
@@ -777,6 +800,8 @@ public class ClearComposer extends Application
 		
 		mnuEditUndo.setText(undoes.isEmpty() ? "_Undo" : "_Undo " + undoes.peek());
 		mnuEditRedo.setText(redoes.isEmpty() ? "_Redo" : "_Redo " + redoes.peek());
+		undoTooltip.setText(undoes.isEmpty() ? "Undo" : "Undo " + undoes.peek());
+		redoTooltip.setText(redoes.isEmpty() ? "Redo" : "Redo " + redoes.peek());
 	}
 	
 	/**
@@ -813,6 +838,12 @@ public class ClearComposer extends Application
 		constants.setKey(key);
 		chordButtons.forEach((c, btn) -> btn.setTextFill(c.getColor()));
 		updateTracks();
+	}
+
+	public void setTempo(double tempo)
+	{
+		constants.setTempo(tempo);
+		tempoSlider.setValue(tempo);
 	}
 
 	/**
