@@ -33,6 +33,10 @@
 package com.ctry.clearcomposer;
 
 import javafx.beans.NamedArg;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
@@ -54,7 +58,8 @@ public class CCButton extends StackPane
 
 	private Pane buttonHighlight;
 	private Label buttonText;
-	private boolean pressed;
+	private BooleanProperty pressed; //Lazily create property
+	private ObjectProperty<Paint> textFill;
 
 
 	public CCButton(String text, Color textFill)
@@ -64,25 +69,67 @@ public class CCButton extends StackPane
 		roundedEdges(buttonHighlight);
 
 		buttonText = new Label(text);
-		buttonText.setTextFill(textFill);
 		buttonText.setPadding(new Insets(5));
+		setTextFill(textFill);
 
 		getChildren().addAll(buttonHighlight, buttonText);
 		getStyleClass().addAll("ccbutton");
 	}
 
-	public boolean isButtonPressed()
+	public final boolean isButtonPressed()
 	{
+		return pressed != null && pressed.get();
+	}
+
+	public final void setButtonPressed(boolean press)
+	{
+		buttonPressedProperty().set(press);
+	}
+
+	public final BooleanProperty buttonPressedProperty()
+	{
+		if (pressed == null)
+		{
+			pressed = new SimpleBooleanProperty(this, "pressed")
+			{
+				@Override
+				protected void invalidated()
+				{
+					boolean pressed = get();
+					if (pressed && !getStyleClass().contains("pressed"))
+						getStyleClass().add("pressed");
+					else if (!pressed)
+						getStyleClass().remove("pressed");
+				}
+			};
+		}
 		return pressed;
 	}
 
-	public void setButtonPressed(boolean pressed)
+	public final Paint getTextFill()
 	{
-		this.pressed = pressed;
-		if (pressed && !getStyleClass().contains("pressed"))
-			getStyleClass().add("pressed");
-		else if (!pressed)
-			getStyleClass().remove("pressed");
+		return textFill == null ? null : textFill.get();
+	}
+
+	public final void setTextFill(Paint textFill)
+	{
+		textFillProperty().set(textFill);
+	}
+
+	public final ObjectProperty<Paint> textFillProperty()
+	{
+		if (textFill == null)
+		{
+			textFill = new SimpleObjectProperty<Paint>(this, "textFill")
+			{
+				@Override
+				protected void invalidated()
+				{
+					buttonText.setTextFill(get());
+				}
+			};
+		}
+		return textFill;
 	}
 
 	public void setBorder(Color color, double width)

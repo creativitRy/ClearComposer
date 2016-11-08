@@ -197,8 +197,7 @@ public class ClearComposer extends Application
 	{
 		//Scale Key
 		cmbKeys.setValue(constants.getKey());
-
-		//cmbKeys.getSelectionModel().select(constants.getKey().ordinal());
+		setKey(constants.getKey());
 
 		//Number of notes
 		int numNotesInd = -1;
@@ -812,6 +811,7 @@ public class ClearComposer extends Application
 	public void setKey(Key key)
 	{
 		constants.setKey(key);
+		chordButtons.forEach((c, btn) -> btn.setTextFill(c.getColor()));
 		updateTracks();
 	}
 
@@ -852,7 +852,7 @@ public class ClearComposer extends Application
 	/**
 	 * Loads all track data from an byte stream
 	 *
-	 * @param f file to load from.
+	 * @param is file to load from.
 	 */
 	public void loadData(InputStream is)
 	{
