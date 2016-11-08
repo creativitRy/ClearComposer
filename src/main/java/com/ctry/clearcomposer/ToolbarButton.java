@@ -56,8 +56,11 @@ public class ToolbarButton extends StackPane
 	private String actionName;
 	private Pane buttonBack;
 	private Pane buttonHighlight;
+	private Label buttonText;
 	private BooleanProperty pressed; //Lazily create property
-	
+
+	private Image toolbarImage;
+	private Image disabledImage;
 
 	public ToolbarButton(String name)
 	{
@@ -69,27 +72,26 @@ public class ToolbarButton extends StackPane
 		buttonBack = new Pane();
 		buttonBack.getStyleClass().add("back");
 		getChildren().addAll(buttonBack, buttonHighlight);
-		
-		URL url = ToolbarButton.class.getResource(name.toLowerCase().replace(' ', '_') + ".png");
+
+		//Load images
+		String path = name.toLowerCase().replace(' ', '_');
+		URL url = ToolbarButton.class.getResource(path + ".png");
 		if (url != null)
 		{
-			Image image = new Image(url.toExternalForm());
-			buttonBack.setBackground(new Background(new BackgroundImage(image,
-				BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
-				BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
-			buttonBack.setPickOnBounds(true);
-			buttonBack.setPrefSize(image.getWidth() + 8, image.getHeight() + 8);
+			toolbarImage = new Image(url.toExternalForm());
+			URL disabledUrl = ToolbarButton.class.getResource(path + "_disabled.png");
+			disabledImage = disabledUrl == null ? toolbarImage : new Image(disabledUrl.toExternalForm());
+
+			buttonBack.setPrefSize(toolbarImage.getWidth() + 8, toolbarImage.getHeight() + 8);
 		}
 		else
 		{
-			Label text = new Label(name);
-			text.setTextFill(Color.WHITE);
-			getChildren().add(text);
+			buttonText = new Label(name);
+			getChildren().add(buttonText);
 		}
+		updateState();
 
-		disabledProperty().addListener((val, before, after) -> {
-			//TODO: change image to show disabled.
-		});
+		disabledProperty().addListener((val, before, after) -> updateState());
 		
 		roundedEdges(this);
 		Tooltip.install(this, new Tooltip(name));
@@ -141,6 +143,17 @@ public class ToolbarButton extends StackPane
 	protected double computeMaxHeight(double width)
 	{
 		return prefHeight(width);
+	}
+
+	private void updateState()
+	{
+		if (toolbarImage != null)
+			buttonBack.setBackground(new Background(new BackgroundImage(
+					isDisabled() ? disabledImage : toolbarImage,
+					BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+					BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
+		else
+			buttonText.setTextFill(isDisabled() ? Color.LIGHTGRAY : Color.WHITE);
 	}
 
 }
