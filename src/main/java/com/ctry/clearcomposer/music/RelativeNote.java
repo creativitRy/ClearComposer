@@ -88,7 +88,7 @@ public enum RelativeNote
 	 */
 	public int getAbsolutePitch(int octave)
 	{
-		return ClearComposer.constants.getKey().getNote().getAbsolutePitch() + 12 * (octave + octaveOff) + steps;
+		return ClearComposer.cc.getKey().getNote().getAbsolutePitch() + 12 * (octave + octaveOff) + steps;
 	}
 
 	/**
@@ -108,7 +108,7 @@ public enum RelativeNote
 	 */
 	public AbsoluteNote getPitch()
 	{
-		return AbsoluteNote.values()[(ClearComposer.constants.getKey().getNote().getPitch() + steps) % 12];
+		return AbsoluteNote.values()[(ClearComposer.cc.getKey().getNote().getPitch() + steps) % 12];
 	}
 
 	public String getFormattedPitch()
@@ -132,7 +132,7 @@ public enum RelativeNote
 			{"Cb", "Db", "Eb", "Fb", "Gb", "Ab", "Bb"}
 		};
 
-		String base = formats[ClearComposer.constants.getKey().ordinal()][position];
+		String base = formats[ClearComposer.cc.getKey().ordinal()][position];
 		if (accidental == 0)
 			return base;
 

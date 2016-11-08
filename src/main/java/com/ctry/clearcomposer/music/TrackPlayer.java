@@ -77,7 +77,7 @@ public class TrackPlayer
 				double now = System.currentTimeMillis() * .001;
 				if (lastUpdate != -1) {
 					elapsed += now - lastUpdate;
-					if (elapsed >= 60.0 / ClearComposer.constants.getTempo())
+					if (elapsed >= 60.0 / ClearComposer.cc.getTempo())
 					{
 						elapsed = 0;
 						playNotes();
@@ -157,8 +157,8 @@ public class TrackPlayer
 		}
 
 		index++;
-		while (index >= ClearComposer.constants.getNoteAmount())
-			index -= ClearComposer.constants.getNoteAmount();
+		while (index >= ClearComposer.cc.getNumNotes())
+			index -= ClearComposer.cc.getNumNotes();
 	}
 
 

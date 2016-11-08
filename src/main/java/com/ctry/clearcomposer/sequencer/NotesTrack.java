@@ -53,7 +53,7 @@ public class NotesTrack extends GraphicTrack
 	 */
 	public NotesTrack(int octave, int index)
 	{
-		super(ClearComposer.constants.getChord().getNote(index).getPitch().getColor());
+		super(ClearComposer.cc.getChord().getNote(index).getPitch().getColor());
 
 		this.octave = octave;
 		this.index = index;
@@ -87,7 +87,7 @@ public class NotesTrack extends GraphicTrack
 	 */
 	private RelativeNote getNote()
 	{
-		return ClearComposer.constants.getChord().getNote(index);
+		return ClearComposer.cc.getChord().getNote(index);
 	}
 
 	/**

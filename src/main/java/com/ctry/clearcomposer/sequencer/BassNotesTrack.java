@@ -49,7 +49,7 @@ public class BassNotesTrack extends GraphicTrack
 	 */
 	public BassNotesTrack()
 	{
-		super(ClearComposer.constants.getChord().getColor());
+		super(ClearComposer.cc.getChord().getColor());
 
 		Text text = new Text(formatTrackName());
 		text.getStyleClass().add("chordNames");
@@ -72,7 +72,7 @@ public class BassNotesTrack extends GraphicTrack
 	public void updateTrack()
 	{
 		((Text) getTrack().getChildren().get(0)).setText(formatTrackName());
-		changeColor(ClearComposer.constants.getChord().getColor());
+		changeColor(ClearComposer.cc.getChord().getColor());
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class BassNotesTrack extends GraphicTrack
 	 */
 	private RelativeNote getNote()
 	{
-		return ClearComposer.constants.getChord().getBassNote();
+		return ClearComposer.cc.getChord().getBassNote();
 	}
 
 	/**

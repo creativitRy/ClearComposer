@@ -54,7 +54,7 @@ public abstract class GraphicTrack
 		track = new HBox();
 		this.color = color;
 
-		for (int i = 0; i < ClearComposer.constants.getNoteAmount(); i++)
+		for (int i = 0; i < ClearComposer.cc.getNumNotes(); i++)
 		{
 			track.getChildren().add(new GraphicNote(color));
 		}

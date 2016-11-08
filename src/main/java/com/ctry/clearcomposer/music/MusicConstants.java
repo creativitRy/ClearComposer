@@ -143,7 +143,7 @@ public class MusicConstants implements Serializable
 	 *
 	 * @return Value for property 'noteAmount'.
 	 */
-	public int getNoteAmount()
+	public int getNumNotes()
 	{
 		return noteAmount;
 	}

@@ -88,18 +88,18 @@ public class GraphicNote extends Rectangle
 		if (!isTouched)
 		{
 			//We need this to make change
-			if (ClearComposer.isToggle() || (on != NotePlayState.OFF ^ t.isPrimaryButtonDown()))
+			if (ClearComposer.cc.isToggle() || (on != NotePlayState.OFF ^ t.isPrimaryButtonDown()))
 			{
 				boolean isOn = on != NotePlayState.OFF;
-				boolean isPerma = isOn ? on == NotePlayState.ON_PERMA : ClearComposer.isPerma();
+				boolean isPerma = isOn ? on == NotePlayState.ON_PERMA : ClearComposer.cc.isPerma();
 				noteStates.put(this, new NotePrevState(isOn, isPerma));
 
 				isTouched = true;
-				if (ClearComposer.isToggle())
-					toggle(ClearComposer.isPerma());
+				if (ClearComposer.cc.isToggle())
+					toggle(ClearComposer.cc.isPerma());
 				else {
 					if (t.isPrimaryButtonDown())
-						turnOn(ClearComposer.isPerma());
+						turnOn(ClearComposer.cc.isPerma());
 					else
 						turnOff();
 				}

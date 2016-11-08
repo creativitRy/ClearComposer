@@ -71,7 +71,18 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.Slider;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.TransferMode;
@@ -93,32 +104,18 @@ public class ClearComposer extends Application
 
 	public static String DEFAULT_FOLDER_HOME = System.getProperty("user.home");
 
-	/**
-	 * Constants
-	 */
-	public static MusicConstants constants = new MusicConstants();
-
-	/**
-	 * Main entity
-	 */
+	/** Main entity */
 	public static ClearComposer cc;
+	//TODO: remove uses of this ^^ because it might break with multiple instances of the ClearComposer object.
+	
+	/** file opened currently or null */
+	private File openFile = null;
+	private boolean changed = false;
 
-	/**
-	 * if true, change on to off and off to on. if false, left click is on and right click is off.
-	 */
-	private static boolean toggle = true;
-	/**
-	 * what kind of on? true = permanent, false = temporary
-	 */
-	private static boolean perma = true;
-
-	/**
-	 * file opened currently or null
-	 */
-	private static File openFile = null;
-	private static boolean changed = false;
-
-
+	private MusicConstants constants = new MusicConstants();
+	private boolean toggle = true;
+	private boolean perma = true;
+	
 	/**
 	 * the buttons to change chords
 	 */
@@ -186,51 +183,14 @@ public class ClearComposer extends Application
 	private Tooltip undoTooltip;
 	private Tooltip redoTooltip;
 
-
 	/**
-	 * Sets all ui stuff to match MusicConstants
-	 */
-	public void resetUI()
-	{
-		//Scale Key
-		cmbKeys.setValue(constants.getKey());
-		setKey(constants.getKey());
-
-		//Number of notes
-		int numNotesInd = -1;
-		List<String> numNotes = cmbNotes.getItems();
-		for (int i = 0; i < numNotes.size(); i++)
-		{
-			if (parseNoteInt(numNotes.get(i)) == constants.getNoteAmount())
-			{
-				numNotesInd = i;
-				break;
-			}
-		}
-
-		if (numNotesInd == -1)
-		{
-			numNotesInd = numNotes.size();
-			numNotes.add(constants.getNoteAmount() + " Notes");
-		}
-
-		cmbNotes.getSelectionModel().select(numNotesInd);
-
-		//Chord
-		setChord(constants.getChord());
-
-		//Tempo
-		tempoSlider.setValue(constants.getTempo());
-	}
-
-	/**
-	 * Main javafx method
-	 *
-	 * @param primaryStage main stage
-	 * @throws Exception exception
+	 * Initializes all the scene components.
+	 * This is automatically called on a separate
+	 * thread before the {@link #start(Stage)} method is
+	 * called.
 	 */
 	@Override
-	public void start(Stage primaryStage) throws Exception
+	public void init()
 	{
 		cc = this;
 
@@ -288,7 +248,65 @@ public class ClearComposer extends Application
 
 		setChord(constants.getChord());
 		pane.setBottom(chordPane);
+	}
 
+	public void pushMove(AbstractEntry move)
+	{
+		changed = true;
+		setTitle();
+		redoes.clear();
+		if (undoes.size() >= MAX_UNDOS)
+			undoes.removeLast();
+		undoes.push(move);
+		updateMoveStack();
+	}
+
+	/**
+	 * Sets all ui stuff to match MusicConstants
+	 */
+	public void resetUI()
+	{
+		//Scale Key
+		cmbKeys.setValue(constants.getKey());
+		setKey(constants.getKey());
+
+		//Number of notes
+		int numNotesInd = -1;
+		List<String> numNotes = cmbNotes.getItems();
+		for (int i = 0; i < numNotes.size(); i++)
+		{
+			if (parseNoteInt(numNotes.get(i)) == constants.getNumNotes())
+			{
+				numNotesInd = i;
+				break;
+			}
+		}
+
+		if (numNotesInd == -1)
+		{
+			numNotesInd = numNotes.size();
+			numNotes.add(constants.getNumNotes() + " Notes");
+		}
+
+		cmbNotes.getSelectionModel().select(numNotesInd);
+
+		//Chord
+		setChord(constants.getChord());
+
+		//Tempo
+		tempoSlider.setValue(constants.getTempo());
+	}
+
+	
+	/**
+	 * Main javafx method
+	 *
+	 * @param primaryStage main stage
+	 * @throws Exception exception
+	 */
+	@Override
+	public void start(Stage primaryStage) throws Exception
+	{
 		//Scene settings
 		Scene scene = new Scene(pane, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		scene.setOnDragDetected(evt -> scene.startFullDrag());
@@ -307,8 +325,8 @@ public class ClearComposer extends Application
 				{
 					if (!checkSave())
 						return;
-
-
+	
+	
 					if (open != null)
 					{
 						loadData(open);
@@ -317,13 +335,13 @@ public class ClearComposer extends Application
 					}
 				});
 			}
-
+	
 			evt.setDropCompleted(true);
 			evt.consume();
 		});
 		scene.setOnMouseReleased(t -> GraphicNote.finishNotesEditing());
 		scene.getStylesheets().add(ClearComposer.class.getResource("clearcomposer.css").toExternalForm());
-
+	
 		//Configure main stage
 		primaryStage.getIcons().add(new Image(ClearComposer.class.getResourceAsStream("Logo.png")));
 		primaryStage.setScene(scene);
@@ -334,8 +352,132 @@ public class ClearComposer extends Application
 			exitCommand();
 		});
 		primaryStage.show();
-
+	
 		setTitle();
+	}
+
+	//*********************
+	//* ACCESSOR/ MUTATOR METHODS
+	//* 
+	//* Public accessor and mutator methods for certain parameters.
+	//* This is ordered by property name
+	//*********************
+	/**
+	 * This sets the chord to MusicConstants and
+	 * updates the ui for the chord
+	 *
+	 * @param ch chord chosen
+	 */
+	public void setChord(Chord ch)
+	{
+		constants.setChord(ch);
+		chordButtons.forEach((c, btn) ->
+		{
+			btn.setButtonPressed(c == ch);
+			btn.setBorder(new Color(0, 0, 0, 0), 3);
+		});
+		ChordProgressionHelper.getPossibleChordProgressions(ch).forEach((c, strength) ->
+			chordButtons.get(c).setBorder(new Color(1, 0.843, 0, strength / 3 + 0.5), strength * 2 + 2));
+		chordMenus.entrySet()
+			.parallelStream()
+			.filter(ent -> ent.getKey() == ch)
+			.findFirst()
+			.ifPresent(ent -> ent.getValue().setSelected(true));
+		updateTracks();
+	}
+	
+	public Chord getChord()
+	{
+		return constants.getChord();
+	}
+
+	/**
+	 * Sets key to new key
+	 *
+	 * @param key new key
+	 */
+	public void setKey(Key key)
+	{
+		constants.setKey(key);
+		chordButtons.forEach((c, btn) -> btn.setTextFill(c.getColor()));
+		updateTracks();
+	}
+
+	public Key getKey()
+	{
+		return constants.getKey();
+	}
+	
+	/**
+	 * Sets number of notes to new number of notes
+	 *
+	 * @param numNotes new number of notes
+	 */
+	public void setNumNotes(int numNotes)
+	{
+		//TODO: if user sets number of notes, all undoes/redoes will be lost.
+		try
+		{
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(baos);
+			player.saveTracks(oos);
+			oos.flush();
+	
+			constants.setNoteAmount(numNotes);
+			initMusicSequencer();
+			changed = true;
+			setTitle();
+			
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			ObjectInputStream ois = new ObjectInputStream(bais);
+			player.loadTracks(ois);
+		} catch (IOException e)
+		{
+			Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while setting number of notes", ButtonType.OK);
+			dlg.setHeaderText(null);
+			dlg.setTitle("ClearComposer");
+			dlg.initOwner(pane.getScene().getWindow());
+			dlg.showAndWait();
+			e.printStackTrace();
+		}
+	}
+
+	public int getNumNotes()
+	{
+		return constants.getNumNotes();
+	}
+	
+	/**
+	 * Getter for property 'perma'.
+	 * what kind of on? true = permanent, false = temporary
+	 *
+	 * @return Value for property 'perma'.
+	 */
+	public boolean isPerma()
+	{
+		return perma;
+	}
+
+	public void setTempo(double tempo)
+	{
+		constants.setTempo(tempo);
+		tempoSlider.setValue(tempo);
+	}
+
+	public double getTempo()
+	{
+		return constants.getTempo();
+	}
+	
+	/**
+	 * Getter for property 'toggle'.
+	 * if true, change on to off and off to on. if false, left click is on and right click is off.
+	 *
+	 * @return Value for property 'toggle'.
+	 */
+	public boolean isToggle()
+	{
+		return toggle;
 	}
 
 	//*********************
@@ -764,11 +906,28 @@ public class ClearComposer extends Application
 		move.undo();
 	}
 
+	private void updateMoveStack()
+	{
+		undoDisabled.set(undoes.isEmpty());
+		redoDisabled.set(redoes.isEmpty());
+		
+		mnuEditUndo.setText(undoes.isEmpty() ? "_Undo" : "_Undo " + undoes.peek());
+		mnuEditRedo.setText(redoes.isEmpty() ? "_Redo" : "_Redo " + redoes.peek());
+		undoTooltip.setText(undoes.isEmpty() ? "Undo" : "Undo " + undoes.peek());
+		redoTooltip.setText(redoes.isEmpty() ? "Redo" : "Redo " + redoes.peek());
+	}
+	
+	//*********************
+	//* LOAD/SAVE HELPER METHODS
+	//* 
+	//* These are helper methods used
+	//* to load and save files.
+	//*********************	
 	private boolean checkSave()
 	{
 		if (!changed)
 			return true;
-
+	
 		Alert dlg = new Alert(Alert.AlertType.WARNING, "Would you like to save the current file?", ButtonType.YES,
 			ButtonType.NO, ButtonType.CANCEL);
 		dlg.setHeaderText(null);
@@ -782,110 +941,12 @@ public class ClearComposer extends Application
 			return true;
 	}
 
-	public void pushMove(AbstractEntry move)
-	{
-		changed = true;
-		setTitle();
-		redoes.clear();
-		if (undoes.size() >= MAX_UNDOS)
-			undoes.removeLast();
-		undoes.push(move);
-		updateMoveStack();
-	}
-
-	private void updateMoveStack()
-	{
-		undoDisabled.set(undoes.isEmpty());
-		redoDisabled.set(redoes.isEmpty());
-		
-		mnuEditUndo.setText(undoes.isEmpty() ? "_Undo" : "_Undo " + undoes.peek());
-		mnuEditRedo.setText(redoes.isEmpty() ? "_Redo" : "_Redo " + redoes.peek());
-		undoTooltip.setText(undoes.isEmpty() ? "Undo" : "Undo " + undoes.peek());
-		redoTooltip.setText(redoes.isEmpty() ? "Redo" : "Redo " + redoes.peek());
-	}
-	
-	/**
-	 * This sets the chord to MusicConstants and
-	 * updates the ui for the chord
-	 *
-	 * @param ch chord chosen
-	 */
-	public void setChord(Chord ch)
-	{
-		constants.setChord(ch);
-		chordButtons.forEach((c, btn) ->
-		{
-			btn.setButtonPressed(c == ch);
-			btn.setBorder(new Color(0, 0, 0, 0), 3);
-		});
-		ChordProgressionHelper.getPossibleChordProgressions(ch).forEach((c, strength) ->
-			chordButtons.get(c).setBorder(new Color(1, 0.843, 0, strength / 3 + 0.5), strength * 2 + 2));
-		chordMenus.entrySet()
-			.parallelStream()
-			.filter(ent -> ent.getKey() == ch)
-			.findFirst()
-			.ifPresent(ent -> ent.getValue().setSelected(true));
-		updateTracks();
-	}
-
-	/**
-	 * Sets key to new key
-	 *
-	 * @param key new key
-	 */
-	public void setKey(Key key)
-	{
-		constants.setKey(key);
-		chordButtons.forEach((c, btn) -> btn.setTextFill(c.getColor()));
-		updateTracks();
-	}
-
-	public void setTempo(double tempo)
-	{
-		constants.setTempo(tempo);
-		tempoSlider.setValue(tempo);
-	}
-
-	/**
-	 * Sets number of notes to new number of notes
-	 *
-	 * @param numNotes new number of notes
-	 */
-	public void setNumNotes(int numNotes)
-	{
-		//TODO: if user sets number of notes, all undoes/redoes will be lost.
-		try
-		{
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(baos);
-			player.saveTracks(oos);
-			oos.flush();
-
-			constants.setNoteAmount(numNotes);
-			initMusicSequencer();
-			changed = true;
-			setTitle();
-			
-			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-			ObjectInputStream ois = new ObjectInputStream(bais);
-			player.loadTracks(ois);
-		} catch (IOException e)
-		{
-			Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while setting number of notes", ButtonType.OK);
-			dlg.setHeaderText(null);
-			dlg.setTitle("ClearComposer");
-			dlg.initOwner(pane.getScene().getWindow());
-			dlg.showAndWait();
-			e.printStackTrace();
-		}
-	}
-
 	/**
 	 * Loads all track data from an byte stream
 	 *
 	 * @param is file to load from.
 	 */
-	public void loadData(InputStream is)
+	private void loadData(InputStream is)
 	{
 		try (ObjectInputStream ois = new ObjectInputStream(is))
 		{
@@ -911,7 +972,7 @@ public class ClearComposer extends Application
 	 *
 	 * @param f file to load from.
 	 */
-	public void loadData(File f)
+	private void loadData(File f)
 	{
 		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f)))
 		{
@@ -937,7 +998,7 @@ public class ClearComposer extends Application
 	 *
 	 * @param f file to save to.
 	 */
-	public void saveData(File f)
+	private void saveData(File f)
 	{
 		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f)))
 		{
@@ -992,28 +1053,6 @@ public class ClearComposer extends Application
 			Preferences.userRoot().put("CCDefaultPath", result.getParent());
 
 		return result;
-	}
-
-	/**
-	 * Getter for property 'toggle'.
-	 * if true, change on to off and off to on. if false, left click is on and right click is off.
-	 *
-	 * @return Value for property 'toggle'.
-	 */
-	public static boolean isToggle()
-	{
-		return toggle;
-	}
-
-	/**
-	 * Getter for property 'perma'.
-	 * what kind of on? true = permanent, false = temporary
-	 *
-	 * @return Value for property 'perma'.
-	 */
-	public static boolean isPerma()
-	{
-		return perma;
 	}
 
 	public static void main(String[] args)
