@@ -35,15 +35,15 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.FlowPane;
 
-public class Toolbar extends HBox
+public class Toolbar extends FlowPane
 {
 	private HashMap<String, ToolbarButton> buttons = new HashMap<>();
 
 	public Toolbar()
 	{
-		super(5);
+		super(5, 5);
 		setPadding(new Insets(5));
 		setAlignment(Pos.CENTER_LEFT);
 		getStyleClass().add("panel");

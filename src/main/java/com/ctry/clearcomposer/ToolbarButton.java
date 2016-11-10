@@ -28,14 +28,11 @@ import java.net.URL;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -55,6 +52,7 @@ public class ToolbarButton extends StackPane
 
 	private String actionName;
 	private Pane buttonBack;
+	private ImageView buttonImg;
 	private Pane buttonHighlight;
 	private Label buttonText;
 	private BooleanProperty pressed; //Lazily create property
@@ -69,7 +67,7 @@ public class ToolbarButton extends StackPane
 		buttonHighlight = new Pane();
 		buttonHighlight.getStyleClass().add("highlight");
 
-		buttonBack = new Pane();
+		buttonBack = new StackPane();
 		buttonBack.getStyleClass().add("back");
 		getChildren().addAll(buttonBack, buttonHighlight);
 
@@ -78,17 +76,19 @@ public class ToolbarButton extends StackPane
 		URL url = ToolbarButton.class.getResource(path + ".png");
 		if (url != null)
 		{
+			buttonImg = new ImageView();
 			toolbarImage = new Image(url.toExternalForm());
 			URL disabledUrl = ToolbarButton.class.getResource(path + "_disabled.png");
 			disabledImage = disabledUrl == null ? toolbarImage : new Image(disabledUrl.toExternalForm());
-
-			buttonBack.setPrefSize(toolbarImage.getWidth() + 8, toolbarImage.getHeight() + 8);
+			buttonBack.getChildren().add(buttonImg);
 		}
 		else
 		{
 			buttonText = new Label(name);
-			getChildren().add(buttonText);
+			buttonBack.getChildren().add(buttonText);
 		}
+		buttonBack.setPadding(new Insets(4));
+		
 		updateState();
 
 		disabledProperty().addListener((val, before, after) -> updateState());
@@ -148,10 +148,7 @@ public class ToolbarButton extends StackPane
 	private void updateState()
 	{
 		if (toolbarImage != null)
-			buttonBack.setBackground(new Background(new BackgroundImage(
-					isDisabled() ? disabledImage : toolbarImage,
-					BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
-					BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
+			buttonImg.setImage(isDisabled() ? disabledImage : toolbarImage);
 		else
 			buttonText.setTextFill(isDisabled() ? Color.LIGHTGRAY : Color.WHITE);
 	}

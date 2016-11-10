@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.EnumMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.prefs.Preferences;
 
 import com.ctry.clearcomposer.history.AbstractEntry;
@@ -95,6 +94,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 
 public class ClearComposer extends Application
 {
@@ -148,7 +148,7 @@ public class ClearComposer extends Application
 
 	//Note config stuff
 	private ComboBox<Key> cmbKeys;
-	private ComboBox<String> cmbNotes;
+	private ComboBox<Integer> cmbNotes;
 	private Slider tempoSlider;
 	private Label tempoIndicator;
 
@@ -271,24 +271,7 @@ public class ClearComposer extends Application
 		setKey(constants.getKey());
 
 		//Number of notes
-		int numNotesInd = -1;
-		List<String> numNotes = cmbNotes.getItems();
-		for (int i = 0; i < numNotes.size(); i++)
-		{
-			if (parseNoteInt(numNotes.get(i)) == constants.getNumNotes())
-			{
-				numNotesInd = i;
-				break;
-			}
-		}
-
-		if (numNotesInd == -1)
-		{
-			numNotesInd = numNotes.size();
-			numNotes.add(constants.getNumNotes() + " Notes");
-		}
-
-		cmbNotes.getSelectionModel().select(numNotesInd);
+		cmbNotes.setValue(constants.getNumNotes());
 
 		//Chord
 		setChord(constants.getChord());
@@ -345,7 +328,8 @@ public class ClearComposer extends Application
 		//Configure main stage
 		primaryStage.getIcons().add(new Image(ClearComposer.class.getResourceAsStream("Logo.png")));
 		primaryStage.setScene(scene);
-		primaryStage.setResizable(false);
+		
+		//primaryStage.setResizable(false);
 		primaryStage.setOnCloseRequest(e ->
 		{
 			e.consume();
@@ -353,7 +337,14 @@ public class ClearComposer extends Application
 		});
 		primaryStage.show();
 	
+		double hInsets = primaryStage.getWidth() - scene.getWidth();
+		double vInsets = primaryStage.getHeight() - scene.getHeight();
+		
+		primaryStage.setMinWidth(pane.minWidth(-1) + hInsets);
+		primaryStage.setMinHeight(pane.minHeight(-1) + vInsets);
+		
 		setTitle();
+		
 	}
 
 	//*********************
@@ -723,8 +714,23 @@ public class ClearComposer extends Application
 			pushMove(new KeyEntry(newValue, constants.getKey()));
 			setKey(newValue);
 		}, constants.getKey().ordinal(), Key.values());
-		cmbNotes = bar.addComboBox("Number of Notes", () -> setNumNotes(parseNoteInt(cmbNotes.getValue())),
-			1, "12 Notes", "16 Notes");
+		cmbNotes = bar.addComboBox("Number of Notes", () -> setNumNotes(cmbNotes.getValue()),
+			1, 12, 16);
+		cmbNotes.setConverter(new StringConverter<Integer>()
+		{
+			
+			@Override
+			public String toString(Integer val)
+			{
+				return val + " Notes";
+			}
+			
+			@Override
+			public Integer fromString(String val)
+			{
+				return parseNoteInt(val);
+			}
+		});
 		tempoSlider = bar.addSlider("Tempo", () -> constants.setTempo(tempoSlider.getValue()),
 			MusicConstants.DEFAULT_TEMPO_MIN, MusicConstants.DEFAULT_TEMPO_MAX, constants.getTempo());
 		tempoSlider.setOnMousePressed(evt -> tempoChanging());
