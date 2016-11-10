@@ -51,6 +51,9 @@ public class TrackPlayer
 	private List<GraphicTrack> tracks;
 	private AnimationTimer tmr;
 	private Status playState;
+	
+	private int chordInterval;
+	private Chord newChord = null;
 
 	private static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... params)
 	{

@@ -61,6 +61,7 @@ import com.ctry.clearcomposer.sequencer.BeatTrack;
 import com.ctry.clearcomposer.sequencer.GraphicNote;
 import com.ctry.clearcomposer.sequencer.GraphicTrack;
 import com.ctry.clearcomposer.sequencer.NotesTrack;
+import com.sun.glass.ui.Screen;
 
 import javafx.animation.Animation.Status;
 import javafx.application.Application;
@@ -98,8 +99,7 @@ import javafx.util.StringConverter;
 
 public class ClearComposer extends Application
 {
-	public static final int DEFAULT_WIDTH = 1250;
-	public static final int DEFAULT_HEIGHT = 720;
+	public static final int INSETS = 300;
 	public static final int MAX_UNDOS = 1000;
 
 	public static String DEFAULT_FOLDER_HOME = System.getProperty("user.home");
@@ -149,6 +149,7 @@ public class ClearComposer extends Application
 	//Note config stuff
 	private ComboBox<Key> cmbKeys;
 	private ComboBox<Integer> cmbNotes;
+	private ComboBox<Integer> cmbChordChanges;
 	private Slider tempoSlider;
 	private Label tempoIndicator;
 
@@ -266,17 +267,11 @@ public class ClearComposer extends Application
 	 */
 	public void resetUI()
 	{
-		//Scale Key
 		cmbKeys.setValue(constants.getKey());
 		setKey(constants.getKey());
-
-		//Number of notes
 		cmbNotes.setValue(constants.getNumNotes());
-
-		//Chord
+		setNumNotes(constants.getNumNotes());
 		setChord(constants.getChord());
-
-		//Tempo
 		tempoSlider.setValue(constants.getTempo());
 	}
 
@@ -291,7 +286,8 @@ public class ClearComposer extends Application
 	public void start(Stage primaryStage) throws Exception
 	{
 		//Scene settings
-		Scene scene = new Scene(pane, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+		Screen res = Screen.getMainScreen();
+		Scene scene = new Scene(pane, res.getWidth() - INSETS, res.getHeight() - INSETS);
 		scene.setOnDragDetected(evt -> scene.startFullDrag());
 		scene.setOnDragOver(evt ->
 		{
@@ -328,8 +324,6 @@ public class ClearComposer extends Application
 		//Configure main stage
 		primaryStage.getIcons().add(new Image(ClearComposer.class.getResourceAsStream("Logo.png")));
 		primaryStage.setScene(scene);
-		
-		//primaryStage.setResizable(false);
 		primaryStage.setOnCloseRequest(e ->
 		{
 			e.consume();
@@ -337,8 +331,15 @@ public class ClearComposer extends Application
 		});
 		primaryStage.show();
 	
+		//TODO: finish resizing.
 		double hInsets = primaryStage.getWidth() - scene.getWidth();
 		double vInsets = primaryStage.getHeight() - scene.getHeight();
+		double width = hInsets + Preferences.userNodeForPackage(ClearComposer.class).getDouble("width", scene.getWidth());
+		double height = vInsets + Preferences.userNodeForPackage(ClearComposer.class).getDouble("height", scene.getHeight());
+		
+		primaryStage.setWidth(width);
+		primaryStage.setHeight(height);
+		primaryStage.centerOnScreen();
 		
 		primaryStage.setMinWidth(pane.minWidth(-1) + hInsets);
 		primaryStage.setMinHeight(pane.minHeight(-1) + vInsets);
@@ -361,7 +362,7 @@ public class ClearComposer extends Application
 	 */
 	public void setChord(Chord ch)
 	{
-		constants.setChord(ch);
+		constants.setChord(ch); //TODO: CHANGE TO TrackPlayer.setChord.
 		chordButtons.forEach((c, btn) ->
 		{
 			btn.setButtonPressed(c == ch);
@@ -380,6 +381,16 @@ public class ClearComposer extends Application
 	public Chord getChord()
 	{
 		return constants.getChord();
+	}
+
+	public void setChordInterval(Integer value)
+	{
+		// TODO Auto-generated method stub
+	}
+	
+	public int getChordInterval()
+	{
+		return 0;
 	}
 
 	/**
@@ -407,6 +418,14 @@ public class ClearComposer extends Application
 	public void setNumNotes(int numNotes)
 	{
 		//TODO: if user sets number of notes, all undoes/redoes will be lost.
+		
+		cmbChordChanges.getItems().clear();
+		for (int i = 1; i < numNotes; i++)
+		{
+			if (numNotes % i == 0)
+				cmbChordChanges.getItems().add(i);
+		}
+		
 		try
 		{
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -708,30 +727,34 @@ public class ClearComposer extends Application
 	
 		//Note config
 		bar.addSeparator();
-		cmbKeys = bar.addComboBox("Key", () ->
+		cmbKeys = bar.addComboBox("Set the major key", () ->
 		{
 			Key newValue = cmbKeys.getValue();
 			pushMove(new KeyEntry(newValue, constants.getKey()));
 			setKey(newValue);
 		}, constants.getKey().ordinal(), Key.values());
-		cmbNotes = bar.addComboBox("Number of Notes", () -> setNumNotes(cmbNotes.getValue()),
-			1, 12, 16);
+		cmbNotes = bar.addComboBox("Set the number of notes per cycle", () -> setNumNotes(cmbNotes.getValue()), 1, 12, 16);
 		cmbNotes.setConverter(new StringConverter<Integer>()
 		{
 			
 			@Override
-			public String toString(Integer val)
-			{
-				return val + " Notes";
-			}
+			public String toString(Integer val) { return val + " Notes"; }
 			
 			@Override
-			public Integer fromString(String val)
-			{
-				return parseNoteInt(val);
-			}
+			public Integer fromString(String val) { return Integer.parseInt(val.replaceAll("\\D", "")); }
 		});
-		tempoSlider = bar.addSlider("Tempo", () -> constants.setTempo(tempoSlider.getValue()),
+		cmbChordChanges = bar.addComboBox("Set when the chord can change", () -> setChordInterval(cmbChordChanges.getValue()), 0, 1, 2, 4, 8, 16);
+		cmbChordChanges.setConverter(new StringConverter<Integer>()
+		{
+			
+			@Override
+			public String toString(Integer val) { return "Per " + (val == 1 ? "beat" : val + " beats"); }
+			
+			@Override
+			public Integer fromString(String val) { return Integer.parseInt(val.replaceAll("\\D", "")); }
+		});
+				
+		tempoSlider = bar.addSlider("Set the tempo", () -> constants.setTempo(tempoSlider.getValue()),
 			MusicConstants.DEFAULT_TEMPO_MIN, MusicConstants.DEFAULT_TEMPO_MAX, constants.getTempo());
 		tempoSlider.setOnMousePressed(evt -> tempoChanging());
 		tempoSlider.setOnKeyPressed(evt -> tempoChanging());
@@ -1043,7 +1066,7 @@ public class ClearComposer extends Application
 		fileChooser.setTitle(open ? "Open CC file" : "Save CC file");
 		fileChooser.getExtensionFilters().add(new ExtensionFilter("CC File", "*.ccp"));
 
-		String defPath = Preferences.userRoot().get("CCDefaultPath", null);
+		String defPath = Preferences.userNodeForPackage(ClearComposer.class).get("CCDefaultPath", null);
 		File defFilePath;
 		if (defPath == null || !(defFilePath = new File(defPath)).exists())
 			defFilePath = new File(DEFAULT_FOLDER_HOME);
@@ -1056,7 +1079,7 @@ public class ClearComposer extends Application
 			result = fileChooser.showSaveDialog(pane.getScene().getWindow());
 
 		if (result != null)
-			Preferences.userRoot().put("CCDefaultPath", result.getParent());
+			Preferences.userNodeForPackage(ClearComposer.class).put("CCDefaultPath", result.getParent());
 
 		return result;
 	}
@@ -1064,10 +1087,5 @@ public class ClearComposer extends Application
 	public static void main(String[] args)
 	{
 		launch(args);
-	}
-
-	private static int parseNoteInt(String notes)
-	{
-		return Integer.parseInt(notes.replaceAll("\\D", ""));
 	}
 }
