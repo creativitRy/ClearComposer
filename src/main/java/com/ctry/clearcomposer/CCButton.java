@@ -56,6 +56,7 @@ public class CCButton extends StackPane
 		pane.setClip(clip);
 	}
 
+	private StackPane button;
 	private Pane buttonHighlight;
 	private Label buttonText;
 	private BooleanProperty pressed; //Lazily create property
@@ -64,16 +65,19 @@ public class CCButton extends StackPane
 
 	public CCButton(String text, Color textFill)
 	{
+		button = new StackPane();
+
 		buttonHighlight = new Pane();
 		buttonHighlight.getStyleClass().add("highlight");
 		roundedEdges(buttonHighlight);
 
 		buttonText = new Label(text);
-		buttonText.setPadding(new Insets(5));
+		buttonText.setPadding(new Insets(2));
 		setTextFill(textFill);
 
-		getChildren().addAll(buttonHighlight, buttonText);
-		getStyleClass().addAll("ccbutton");
+		button.getChildren().addAll(buttonHighlight, buttonText);
+		button.getStyleClass().addAll("ccbutton");
+		getChildren().addAll(button);
 	}
 
 	public final boolean isButtonPressed()
@@ -97,9 +101,9 @@ public class CCButton extends StackPane
 				{
 					boolean pressed = get();
 					if (pressed && !getStyleClass().contains("pressed"))
-						getStyleClass().add("pressed");
+						button.getStyleClass().add("pressed");
 					else if (!pressed)
-						getStyleClass().remove("pressed");
+						button.getStyleClass().remove("pressed");
 				}
 			};
 		}

@@ -83,6 +83,8 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.InnerShadow;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.TransferMode;
@@ -229,9 +231,9 @@ public class ClearComposer extends Application
 		for (Chord c : Chord.values())
 		{
 			CCButton button = new CCButton(c.toString(), c.getColor());
-			button.setMinSize(100, 35);
-			button.setPrefSize(100, 35);
-			button.setMaxSize(100, 35);
+			button.setMinSize(100, Region.USE_PREF_SIZE);
+			button.setPrefSize(100, Region.USE_COMPUTED_SIZE);
+			button.setMaxSize(100, Region.USE_PREF_SIZE);
 			button.setOnMousePressed(evt ->
 			{
 				if (button.isButtonPressed())
@@ -248,6 +250,7 @@ public class ClearComposer extends Application
 			else
 				primaryChords.getChildren().add(button);
 		}
+		updateChordOutlines();
 
 		setChord(constants.getChord());
 		pane.setBottom(chordPane);
@@ -361,6 +364,26 @@ public class ClearComposer extends Application
 		
 	}
 
+	/**
+	 * Updates all the chord cues (suggested chords and chord indicator).
+	 */
+	public void updateChordOutlines()
+	{
+		//Reset border and pressed.
+		chordButtons.forEach((c, btn) ->
+		{
+			if (c == getChord())
+				btn.setEffect(new InnerShadow(10, Color.RED));
+			else
+				btn.setEffect(null);
+			btn.setBorder(new Color(0, 0, 0, 0), 3);
+		});
+
+		//Outline the suggested chords
+		ChordProgressionHelper.getPossibleChordProgressions(getChord()).forEach((c, strength) ->
+				chordButtons.get(c).setBorder(new Color(1, 0.843, 0, strength / 3 + 0.5), strength * 2 + 2));
+	}
+
 	//*********************
 	//* ACCESSOR/ MUTATOR METHODS
 	//* 
@@ -377,16 +400,8 @@ public class ClearComposer extends Application
 	{
 		constants.setChord(ch);
 
-		//Reset border and pressed.
-		chordButtons.forEach((c, btn) ->
-		{
-			btn.setButtonPressed(c == ch);
-			btn.setBorder(new Color(0, 0, 0, 0), 3);
-		});
-
-		//Outline the suggested chords
-		ChordProgressionHelper.getPossibleChordProgressions(ch).forEach((c, strength) ->
-			chordButtons.get(c).setBorder(new Color(1, 0.843, 0, strength / 3 + 0.5), strength * 2 + 2));
+		//Toggle button pressed state
+		chordButtons.forEach((c, btn) -> btn.setButtonPressed(c == ch));
 
 		//Select chord in chord menu
 		chordMenus.entrySet()
@@ -687,6 +702,8 @@ public class ClearComposer extends Application
 		
 		player = new TrackPlayer();
 		player.setChordInterval(cmbChordChanges.getValue());
+		if (chordButtons != null)
+			updateChordOutlines();
 		VBox tracksDisplay = new VBox();
 		tracksDisplay.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 		tracksDisplay.setAlignment(Pos.CENTER);

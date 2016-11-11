@@ -164,6 +164,7 @@ public class TrackPlayer
 		{
 			prevChord = curChord;
 			tracks.forEach(GraphicTrack::updateChord);
+			ClearComposer.cc.updateChordOutlines();
 		}
 
 		for (GraphicTrack track : tracks)
