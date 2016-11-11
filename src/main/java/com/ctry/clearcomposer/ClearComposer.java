@@ -107,7 +107,9 @@ public class ClearComposer extends Application
 	/** Main entity */
 	public static ClearComposer cc;
 	//TODO: remove uses of this ^^ because it might break with multiple instances of the ClearComposer object.
-	
+
+	private Stage primaryStage;
+
 	/** file opened currently or null */
 	private File openFile = null;
 	private boolean changed = false;
@@ -285,6 +287,8 @@ public class ClearComposer extends Application
 	@Override
 	public void start(Stage primaryStage) throws Exception
 	{
+		this.primaryStage = primaryStage;
+
 		//Scene settings
 		Screen res = Screen.getMainScreen();
 		Scene scene = new Scene(pane, res.getWidth() - INSETS, res.getHeight() - INSETS);
@@ -334,12 +338,21 @@ public class ClearComposer extends Application
 		//TODO: finish resizing.
 		double hInsets = primaryStage.getWidth() - scene.getWidth();
 		double vInsets = primaryStage.getHeight() - scene.getHeight();
-		double width = hInsets + Preferences.userNodeForPackage(ClearComposer.class).getDouble("width", scene.getWidth());
-		double height = vInsets + Preferences.userNodeForPackage(ClearComposer.class).getDouble("height", scene.getHeight());
-		
+
+		double width = Preferences.userNodeForPackage(ClearComposer.class).getDouble("width", scene.getWidth() + hInsets);
+		double height = Preferences.userNodeForPackage(ClearComposer.class).getDouble("height", scene.getHeight() + vInsets);
+		double x = Preferences.userNodeForPackage(ClearComposer.class).getDouble("left", (res.getWidth() - width) / 2 );
+		double y = Preferences.userNodeForPackage(ClearComposer.class).getDouble("top", (res.getHeight() - height) / 2 );
+
 		primaryStage.setWidth(width);
 		primaryStage.setHeight(height);
-		primaryStage.centerOnScreen();
+		if (res.getHeight() < 960 || res.getWidth() < 1280)
+			primaryStage.setMaximized(true);
+		else
+		{
+			primaryStage.setX(x);
+			primaryStage.setY(y);
+		}
 		
 		primaryStage.setMinWidth(pane.minWidth(-1) + hInsets);
 		primaryStage.setMinHeight(pane.minHeight(-1) + vInsets);
@@ -442,7 +455,7 @@ public class ClearComposer extends Application
 			Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while setting number of notes", ButtonType.OK);
 			dlg.setHeaderText(null);
 			dlg.setTitle("ClearComposer");
-			dlg.initOwner(pane.getScene().getWindow());
+			dlg.initOwner(primaryStage);
 			dlg.showAndWait();
 			e.printStackTrace();
 		}
@@ -570,7 +583,7 @@ public class ClearComposer extends Application
 					Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while loading data", ButtonType.OK);
 					dlg.setHeaderText(null);
 					dlg.setTitle("ClearComposer");
-					dlg.initOwner(pane.getScene().getWindow());
+					dlg.initOwner(primaryStage);
 					dlg.showAndWait();
 					e.printStackTrace();
 				}
@@ -805,8 +818,8 @@ public class ClearComposer extends Application
 			sb.append('*');
 		saveDisabled.set(!changed);
 		
-		if (pane.getScene() != null && pane.getScene().getWindow() != null)
-			((Stage) pane.getScene().getWindow()).setTitle(sb.toString());
+		if (primaryStage != null)
+			primaryStage.setTitle(sb.toString());
 	}
 
 	//*********************
@@ -820,6 +833,13 @@ public class ClearComposer extends Application
 		if (!checkSave())
 			return;
 		MusicPlayer.turnOffNotes();
+
+		//Save window positioning properties
+		Preferences.userNodeForPackage(ClearComposer.class).putDouble("width", primaryStage.getWidth());
+		Preferences.userNodeForPackage(ClearComposer.class).putDouble("height", primaryStage.getHeight());
+		Preferences.userNodeForPackage(ClearComposer.class).putDouble("left", primaryStage.getX());
+		Preferences.userNodeForPackage(ClearComposer.class).putDouble("top", primaryStage.getY());
+
 		Platform.exit();
 	}
 
@@ -986,7 +1006,7 @@ public class ClearComposer extends Application
 			Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while loading data", ButtonType.OK);
 			dlg.setHeaderText(null);
 			dlg.setTitle("ClearComposer");
-			dlg.initOwner(pane.getScene().getWindow());
+			dlg.initOwner(primaryStage);
 			dlg.showAndWait();
 		}
 	}
@@ -1012,7 +1032,7 @@ public class ClearComposer extends Application
 			Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while loading data", ButtonType.OK);
 			dlg.setHeaderText(null);
 			dlg.setTitle("ClearComposer");
-			dlg.initOwner(pane.getScene().getWindow());
+			dlg.initOwner(primaryStage);
 			dlg.showAndWait();
 		}
 	}
@@ -1036,7 +1056,7 @@ public class ClearComposer extends Application
 			Alert dlg = new Alert(Alert.AlertType.ERROR, "Error while saving data", ButtonType.OK);
 			dlg.setHeaderText(null);
 			dlg.setTitle("ClearComposer");
-			dlg.initOwner(pane.getScene().getWindow());
+			dlg.initOwner(primaryStage);
 			dlg.showAndWait();
 			//TODO: stop whatever you are doing if this occurs.
 		}
@@ -1069,9 +1089,9 @@ public class ClearComposer extends Application
 
 		File result;
 		if (open)
-			result = fileChooser.showOpenDialog(pane.getScene().getWindow());
+			result = fileChooser.showOpenDialog(primaryStage);
 		else
-			result = fileChooser.showSaveDialog(pane.getScene().getWindow());
+			result = fileChooser.showSaveDialog(primaryStage);
 
 		if (result != null)
 			Preferences.userNodeForPackage(ClearComposer.class).put("CCDefaultPath", result.getParent());

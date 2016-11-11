@@ -103,7 +103,6 @@ public class TrackPlayer
 	}
 
 	public void setChordInterval(int chordInterval) {
-		System.out.println(chordInterval);
 		this.chordInterval = chordInterval;
 	}
 
