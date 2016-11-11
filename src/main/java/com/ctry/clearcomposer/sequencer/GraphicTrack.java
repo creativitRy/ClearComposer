@@ -36,6 +36,7 @@ import java.io.IOException;
 
 import com.ctry.clearcomposer.ClearComposer;
 
+import com.ctry.clearcomposer.music.Chord;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -44,6 +45,7 @@ public abstract class GraphicTrack
 {
 	private HBox track;
 	private Color color;
+	private Chord curChord;
 
 	/**
 	 * Constructs a new track and sets the color.
@@ -51,6 +53,7 @@ public abstract class GraphicTrack
 	 */
 	public GraphicTrack(Color color)
 	{
+		curChord = ClearComposer.cc.getChord();
 		track = new HBox();
 		this.color = color;
 
@@ -81,10 +84,25 @@ public abstract class GraphicTrack
 	 */
 	public abstract int playNote(int index);
 
+	public Chord getCurrentChord()
+	{
+		return curChord;
+	}
+
 	/**
-	 * Updates this track status
+	 * Updates this track to match the chord set in the GUI.
 	 */
-	public abstract void updateTrack();
+	//TODO: call this instead.
+	public void updateChord()
+	{
+		curChord = ClearComposer.cc.getChord();
+		updateTrackUI();
+	}
+
+	/**
+	 * Updates the UI display of the track
+	 */
+	protected abstract void updateTrackUI();
 	
 	/**
 	 * Getter for property 'track'.

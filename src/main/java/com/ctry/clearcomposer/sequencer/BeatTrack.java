@@ -91,7 +91,7 @@ public class BeatTrack extends GraphicTrack
 	}
 
 	@Override
-	public void updateTrack()
+	public void updateTrackUI()
 	{
 		//Does nothing
 	}

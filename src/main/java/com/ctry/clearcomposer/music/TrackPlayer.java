@@ -51,9 +51,9 @@ public class TrackPlayer
 	private List<GraphicTrack> tracks;
 	private AnimationTimer tmr;
 	private Status playState;
-	
-	private int chordInterval;
-	private Chord newChord = null;
+
+	private Chord prevChord;
+	private int chordInterval = 1;
 
 	private static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... params)
 	{
@@ -98,6 +98,14 @@ public class TrackPlayer
 		tracks = new ArrayList<>();
 	}
 
+	public int getChordInterval() {
+		return chordInterval;
+	}
+
+	public void setChordInterval(int chordInterval) {
+		System.out.println(chordInterval);
+		this.chordInterval = chordInterval;
+	}
 
 	/**
 	 * Saves track data to an data stream.
@@ -146,12 +154,19 @@ public class TrackPlayer
 		}
 	}
 
-
 	/**
 	 * plays all the notes in the current position
 	 */
 	private void playNotes()
 	{
+		//Update tracks when we can shift chords.
+		Chord curChord = ClearComposer.cc.getChord();
+		if (index % chordInterval == 0 && (prevChord == null || prevChord != curChord))
+		{
+			prevChord = curChord;
+			tracks.forEach(GraphicTrack::updateChord);
+		}
+
 		for (GraphicTrack track : tracks)
 		{
 			int temp = track.playNote(index);

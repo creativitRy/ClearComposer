@@ -76,7 +76,7 @@ public class NotesTrack extends GraphicTrack
 	 * changes color and track name
 	 */
 	@Override
-	public void updateTrack()
+	public void updateTrackUI()
 	{
 		((Text) getTrack().getChildren().get(0)).setText(formatTrackName());
 		changeColor(getNote().getPitch().getColor());
@@ -87,7 +87,7 @@ public class NotesTrack extends GraphicTrack
 	 */
 	private RelativeNote getNote()
 	{
-		return ClearComposer.cc.getChord().getNote(index);
+		return getCurrentChord().getNote(index);
 	}
 
 	/**

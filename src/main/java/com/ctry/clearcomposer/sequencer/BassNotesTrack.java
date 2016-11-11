@@ -69,10 +69,10 @@ public class BassNotesTrack extends GraphicTrack
 	 * changes color and track name
 	 */
 	@Override
-	public void updateTrack()
+	public void updateTrackUI()
 	{
 		((Text) getTrack().getChildren().get(0)).setText(formatTrackName());
-		changeColor(ClearComposer.cc.getChord().getColor());
+		changeColor(getCurrentChord().getColor());
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class BassNotesTrack extends GraphicTrack
 	 */
 	private RelativeNote getNote()
 	{
-		return ClearComposer.cc.getChord().getBassNote();
+		return getCurrentChord().getBassNote();
 	}
 
 	/**

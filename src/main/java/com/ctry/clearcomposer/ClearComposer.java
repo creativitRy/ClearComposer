@@ -362,20 +362,25 @@ public class ClearComposer extends Application
 	 */
 	public void setChord(Chord ch)
 	{
-		constants.setChord(ch); //TODO: CHANGE TO TrackPlayer.setChord.
+		constants.setChord(ch);
+
+		//Reset border and pressed.
 		chordButtons.forEach((c, btn) ->
 		{
 			btn.setButtonPressed(c == ch);
 			btn.setBorder(new Color(0, 0, 0, 0), 3);
 		});
+
+		//Outline the suggested chords
 		ChordProgressionHelper.getPossibleChordProgressions(ch).forEach((c, strength) ->
 			chordButtons.get(c).setBorder(new Color(1, 0.843, 0, strength / 3 + 0.5), strength * 2 + 2));
+
+		//Select chord in chord menu
 		chordMenus.entrySet()
 			.parallelStream()
 			.filter(ent -> ent.getKey() == ch)
 			.findFirst()
 			.ifPresent(ent -> ent.getValue().setSelected(true));
-		updateTracks();
 	}
 	
 	public Chord getChord()
@@ -383,15 +388,6 @@ public class ClearComposer extends Application
 		return constants.getChord();
 	}
 
-	public void setChordInterval(Integer value)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	public int getChordInterval()
-	{
-		return 0;
-	}
 
 	/**
 	 * Sets key to new key
@@ -402,7 +398,7 @@ public class ClearComposer extends Application
 	{
 		constants.setKey(key);
 		chordButtons.forEach((c, btn) -> btn.setTextFill(c.getColor()));
-		updateTracks();
+		player.getTracks().forEach(GraphicTrack::updateChord);
 	}
 
 	public Key getKey()
@@ -418,13 +414,13 @@ public class ClearComposer extends Application
 	public void setNumNotes(int numNotes)
 	{
 		//TODO: if user sets number of notes, all undoes/redoes will be lost.
-		
 		cmbChordChanges.getItems().clear();
-		for (int i = 1; i < numNotes; i++)
+		for (int i = 1; i <= numNotes; i++)
 		{
 			if (numNotes % i == 0)
 				cmbChordChanges.getItems().add(i);
 		}
+		cmbChordChanges.getSelectionModel().selectLast();
 		
 		try
 		{
@@ -677,6 +673,7 @@ public class ClearComposer extends Application
 		updateMoveStack();
 		
 		player = new TrackPlayer();
+		player.setChordInterval(cmbChordChanges.getValue());
 		VBox tracksDisplay = new VBox();
 		tracksDisplay.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 		tracksDisplay.setAlignment(Pos.CENTER);
@@ -743,12 +740,17 @@ public class ClearComposer extends Application
 			@Override
 			public Integer fromString(String val) { return Integer.parseInt(val.replaceAll("\\D", "")); }
 		});
-		cmbChordChanges = bar.addComboBox("Set when the chord can change", () -> setChordInterval(cmbChordChanges.getValue()), 0, 1, 2, 4, 8, 16);
+		cmbChordChanges = bar.addComboBox("Set when the chord can change", () -> {
+			if (player != null)
+				player.setChordInterval(cmbChordChanges.getValue());
+		}, 0, 1, 2, 4, 8, 16);
+		cmbChordChanges.getSelectionModel().selectLast();
 		cmbChordChanges.setConverter(new StringConverter<Integer>()
 		{
 			
 			@Override
-			public String toString(Integer val) { return "Per " + (val == 1 ? "beat" : val + " beats"); }
+			public String toString(Integer val) { return "Per " + (val == cmbNotes.getValue() ? "Measure" :
+					(val == 1 ? "Note" : val + " Notes")); }
 			
 			@Override
 			public Integer fromString(String val) { return Integer.parseInt(val.replaceAll("\\D", "")); }
@@ -805,13 +807,6 @@ public class ClearComposer extends Application
 		
 		if (pane.getScene() != null && pane.getScene().getWindow() != null)
 			((Stage) pane.getScene().getWindow()).setTitle(sb.toString());
-	}
-
-	private void updateTracks()
-	{
-		// iterate over all note tracks
-		for (GraphicTrack track : player.getTracks())
-			track.updateTrack();
 	}
 
 	//*********************
