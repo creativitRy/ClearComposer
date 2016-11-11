@@ -760,7 +760,7 @@ public class ClearComposer extends Application
 			pushMove(new KeyEntry(newValue, constants.getKey()));
 			setKey(newValue);
 		}, constants.getKey().ordinal(), Key.values());
-		cmbNotes = bar.addComboBox("Set the number of notes per cycle", () -> setNumNotes(cmbNotes.getValue()), 1, 12, 16);
+		cmbNotes = bar.addComboBox("Set the number of notes per cycle", () -> setNumNotes(cmbNotes.getValue()), 2, 8, 12, 16, 20);
 		cmbNotes.setConverter(new StringConverter<Integer>()
 		{
 			
