@@ -58,9 +58,6 @@ public class ChordProgressionHelper
 		add(Chord.vi, Chord.V, 0.75);
 		add(Chord.IV, Chord.V, 0.75);
 
-		//vi to IV
-		add(Chord.vi, Chord.IV, 0.6);
-
 		//predominant extension
 		add(Chord.IV, Chord.ii, 0.7);
 
@@ -124,6 +121,11 @@ public class ChordProgressionHelper
 		{
 			add(Chord.I, Chord.values()[i], 1);
 		}
+
+		//vi can go to most chords?
+		add(Chord.vi, Chord.IV, 0.6);
+		add(Chord.vi, Chord.I, 0.3);
+		add(Chord.vi, Chord.V_IV, 0.3);
 	}
 
 	/**
