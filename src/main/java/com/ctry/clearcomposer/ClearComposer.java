@@ -56,10 +56,15 @@ import com.ctry.clearcomposer.music.Key;
 import com.ctry.clearcomposer.music.MusicConstants;
 import com.ctry.clearcomposer.music.MusicPlayer;
 import com.ctry.clearcomposer.music.TrackPlayer;
-import com.ctry.clearcomposer.sequencer.*;
+import com.ctry.clearcomposer.sequencer.BassNotesTrack;
+import com.ctry.clearcomposer.sequencer.BeatTrack;
+import com.ctry.clearcomposer.sequencer.GraphicNote;
+import com.ctry.clearcomposer.sequencer.GraphicTrack;
+import com.ctry.clearcomposer.sequencer.NotesTrack;
 import com.sun.glass.ui.Screen;
 
 import javafx.animation.Animation.Status;
+import javafx.animation.Transition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -92,6 +97,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import javafx.util.StringConverter;
 
 public class ClearComposer extends Application
@@ -334,28 +340,39 @@ public class ClearComposer extends Application
 			exitCommand();
 		});
 		primaryStage.show();
-	
-		//TODO: finish resizing.
+		
 		double hInsets = primaryStage.getWidth() - scene.getWidth();
 		double vInsets = primaryStage.getHeight() - scene.getHeight();
 
+		
+		boolean maximized = Preferences.userNodeForPackage(ClearComposer.class).getBoolean("maximized", 
+				res.getHeight() < 960 || res.getWidth() < 1280);
 		double width = Preferences.userNodeForPackage(ClearComposer.class).getDouble("width", scene.getWidth() + hInsets);
 		double height = Preferences.userNodeForPackage(ClearComposer.class).getDouble("height", scene.getHeight() + vInsets);
 		double x = Preferences.userNodeForPackage(ClearComposer.class).getDouble("left", (res.getWidth() - width) / 2 );
 		double y = Preferences.userNodeForPackage(ClearComposer.class).getDouble("top", (res.getHeight() - height) / 2 );
 
-		primaryStage.setWidth(width);
-		primaryStage.setHeight(height);
-		if (res.getHeight() < 960 || res.getWidth() < 1280)
-			primaryStage.setMaximized(true);
-		else
-		{
-			primaryStage.setX(x);
-			primaryStage.setY(y);
-		}
-		
 		primaryStage.setMinWidth(pane.minWidth(-1) + hInsets);
 		primaryStage.setMinHeight(pane.minHeight(-1) + vInsets);
+		primaryStage.setWidth(width);
+		primaryStage.setHeight(height);
+		primaryStage.setX(x);
+		primaryStage.setY(y);
+		
+		new Transition()
+		{
+			
+			{
+				setCycleDuration(Duration.seconds(.1));
+			}
+			@Override
+			protected void interpolate(double frac)
+			{
+				if (frac == 1)
+					primaryStage.setMaximized(maximized);
+			}
+	
+		}.playFromStart();
 		
 		setTitle();
 		
@@ -858,6 +875,9 @@ public class ClearComposer extends Application
 			return;
 		MusicPlayer.turnOffNotes();
 
+		Preferences.userNodeForPackage(ClearComposer.class).putBoolean("maximized", primaryStage.isMaximized());
+		primaryStage.setMaximized(false);
+		
 		//Save window positioning properties
 		Preferences.userNodeForPackage(ClearComposer.class).putDouble("width", primaryStage.getWidth());
 		Preferences.userNodeForPackage(ClearComposer.class).putDouble("height", primaryStage.getHeight());
