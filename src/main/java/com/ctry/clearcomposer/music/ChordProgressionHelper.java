@@ -53,6 +53,9 @@ public class ChordProgressionHelper
 		{
 			add(chord, circleOfFifth(chord), 1);
 		}
+		add(Chord.V_ii, Chord.V_V, 0.8);
+		add(Chord.V_iii, Chord.V_vi, 0.8);
+		add(Chord.V_vi, Chord.V_ii, 0.8);
 
 		//half
 		add(Chord.vi, Chord.V, 0.75);
@@ -97,6 +100,9 @@ public class ChordProgressionHelper
 		add(Chord.IV, Chord.V_IV, 0.25);
 		add(Chord.V, Chord.V_V, 0.25);
 		add(Chord.vi, Chord.V_vi, 0.25);
+		add(Chord.V_V, Chord.V_ii, 0.2);
+		add(Chord.V_vi, Chord.V_iii, 0.2);
+		add(Chord.V_ii, Chord.V_vi, 0.2);
 
 		//minor to major and vice versa
 		add(Chord.vi, Chord.V_ii, 0.25);
