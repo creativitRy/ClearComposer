@@ -56,11 +56,7 @@ import com.ctry.clearcomposer.music.Key;
 import com.ctry.clearcomposer.music.MusicConstants;
 import com.ctry.clearcomposer.music.MusicPlayer;
 import com.ctry.clearcomposer.music.TrackPlayer;
-import com.ctry.clearcomposer.sequencer.BassNotesTrack;
-import com.ctry.clearcomposer.sequencer.BeatTrack;
-import com.ctry.clearcomposer.sequencer.GraphicNote;
-import com.ctry.clearcomposer.sequencer.GraphicTrack;
-import com.ctry.clearcomposer.sequencer.NotesTrack;
+import com.ctry.clearcomposer.sequencer.*;
 import com.sun.glass.ui.Screen;
 
 import javafx.animation.Animation.Status;
@@ -83,7 +79,6 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCombination;
@@ -119,7 +114,9 @@ public class ClearComposer extends Application
 	private MusicConstants constants = new MusicConstants();
 	private boolean toggle = true;
 	private boolean perma = true;
-	
+	private int chordInterval = 1;
+
+	private BeatTrack beatTrack;
 	/**
 	 * the buttons to change chords
 	 */
@@ -416,6 +413,15 @@ public class ClearComposer extends Application
 		return constants.getChord();
 	}
 
+	public int getChordInterval() {
+		return chordInterval;
+	}
+
+	public void setChordInterval(int chordInterval) {
+		this.chordInterval = chordInterval;
+		if (beatTrack != null)
+			beatTrack.updateChord();
+	}
 
 	/**
 	 * Sets key to new key
@@ -701,7 +707,7 @@ public class ClearComposer extends Application
 		updateMoveStack();
 		
 		player = new TrackPlayer();
-		player.setChordInterval(cmbChordChanges.getValue());
+		setChordInterval(cmbChordChanges.getValue());
 		if (chordButtons != null)
 			updateChordOutlines();
 		VBox tracksDisplay = new VBox();
@@ -714,8 +720,9 @@ public class ClearComposer extends Application
 			player.getTracks().add(0, new NotesTrack(i / 5, i % 5));
 			tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
 		}
-		player.getTracks().add(0, new BeatTrack());
-		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
+		beatTrack = new BeatTrack();
+		player.getTracks().add(0, beatTrack);
+		tracksDisplay.getChildren().add(beatTrack.getTrack());
 		player.getTracks().add(0, new BassNotesTrack());
 		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
 		pane.setCenter(tracksDisplay);
@@ -772,7 +779,7 @@ public class ClearComposer extends Application
 		});
 		cmbChordChanges = bar.addComboBox("Set when the chord can change", () -> {
 			if (player != null)
-				player.setChordInterval(cmbChordChanges.getValue());
+				setChordInterval(cmbChordChanges.getValue());
 		}, 0, 1, 2, 4, 8, 16);
 		cmbChordChanges.getSelectionModel().selectLast();
 		cmbChordChanges.setConverter(new StringConverter<Integer>()

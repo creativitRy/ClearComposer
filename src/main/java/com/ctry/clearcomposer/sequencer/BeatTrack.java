@@ -33,21 +33,24 @@ package com.ctry.clearcomposer.sequencer;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.List;
 
+import com.ctry.clearcomposer.ClearComposer;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 public class BeatTrack extends GraphicTrack
 {
-	private static final Color DEFAULT_COLOR = Color.BLACK;
+	private static final Color OFF_BEAT_COLOR = Color.BLACK;
+	private static final Color ON_BEAT_COLOR = Color.gray(.15);
 
 	/**
 	 * makes all constructed notes immutable
 	 */
 	public BeatTrack()
 	{
-		super(DEFAULT_COLOR);
+		super(OFF_BEAT_COLOR);
 
 		for (Node n : getTrack().getChildren())
 		{
@@ -63,6 +66,8 @@ public class BeatTrack extends GraphicTrack
 		Text text = new Text("      ");
 		text.getStyleClass().add("chordNames");
 		getTrack().getChildren().add(0, text);
+
+		updateChord();
 	}
 
 	/**
@@ -93,6 +98,13 @@ public class BeatTrack extends GraphicTrack
 	@Override
 	public void updateTrackUI()
 	{
-		//Does nothing
+		List<Node> notes = getTrack().getChildren();
+		for (int i = 0; i < notes.size() - 1; i++)
+		{
+			if (i % ClearComposer.cc.getChordInterval() == 0)
+				((GraphicNote)notes.get(i + 1)).changeColor(ON_BEAT_COLOR);
+			else
+				((GraphicNote)notes.get(i + 1)).changeColor(OFF_BEAT_COLOR);
+		}
 	}
 }

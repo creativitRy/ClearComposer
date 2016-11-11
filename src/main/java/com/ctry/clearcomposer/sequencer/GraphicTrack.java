@@ -92,7 +92,6 @@ public abstract class GraphicTrack
 	/**
 	 * Updates this track to match the chord set in the GUI.
 	 */
-	//TODO: call this instead.
 	public void updateChord()
 	{
 		curChord = ClearComposer.cc.getChord();

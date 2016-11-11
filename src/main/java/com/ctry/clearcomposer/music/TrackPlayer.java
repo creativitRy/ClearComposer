@@ -53,7 +53,6 @@ public class TrackPlayer
 	private Status playState;
 
 	private Chord prevChord;
-	private int chordInterval = 1;
 
 	private static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... params)
 	{
@@ -96,14 +95,6 @@ public class TrackPlayer
 		};
 
 		tracks = new ArrayList<>();
-	}
-
-	public int getChordInterval() {
-		return chordInterval;
-	}
-
-	public void setChordInterval(int chordInterval) {
-		this.chordInterval = chordInterval;
 	}
 
 	/**
@@ -160,7 +151,7 @@ public class TrackPlayer
 	{
 		//Update tracks when we can shift chords.
 		Chord curChord = ClearComposer.cc.getChord();
-		if (index % chordInterval == 0 && (prevChord == null || prevChord != curChord))
+		if (index % ClearComposer.cc.getChordInterval() == 0 && (prevChord == null || prevChord != curChord))
 		{
 			prevChord = curChord;
 			tracks.forEach(GraphicTrack::updateChord);
