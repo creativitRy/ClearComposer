@@ -107,6 +107,8 @@ public class ClearComposer extends Application
 
 	public static String DEFAULT_FOLDER_HOME = System.getProperty("user.home");
 
+	private static String ANALYTICS_URL = "https://c.statcounter.com/11161817/0/807aa70b/1/";
+
 	/** Main entity */
 	public static ClearComposer cc;
 	//TODO: remove uses of this ^^ because it might break with multiple instances of the ClearComposer object.
@@ -200,6 +202,17 @@ public class ClearComposer extends Application
 	@Override
 	public void init()
 	{
+		//Count analytics
+		try {
+			InputStream in = new URL(ANALYTICS_URL).openStream();
+			while (in.read() != -1) ;
+			in.close();
+		}
+		catch (IOException e)
+		{
+			//Does nothing.
+		}
+
 		cc = this;
 
 		pane = new BorderPane();
