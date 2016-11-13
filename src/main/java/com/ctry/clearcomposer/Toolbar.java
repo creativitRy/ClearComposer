@@ -111,6 +111,7 @@ public class Toolbar extends FlowPane
 		class Val {
 			T val;
 		}
+		//TODO: account for if value changes programmatically.
 		Val before = new Val();
 		ComboBox<T> comboBox = new ComboBox<>();
 		comboBox.getItems().addAll(options);
