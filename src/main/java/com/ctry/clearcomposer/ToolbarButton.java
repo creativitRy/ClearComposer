@@ -33,6 +33,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -96,6 +97,8 @@ public class ToolbarButton extends StackPane
 		roundedEdges(this);
 		Tooltip.install(this, new Tooltip(name));
 		getStyleClass().add("tblButton");
+
+		addEventHandler(MouseEvent.ANY, evt -> evt.consume());
 	}
 
 	public String getActionName()

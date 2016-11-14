@@ -64,6 +64,7 @@ import com.ctry.clearcomposer.sequencer.NotesTrack;
 import com.sun.glass.ui.Screen;
 
 import javafx.animation.Animation.Status;
+import javafx.animation.Interpolator;
 import javafx.animation.Transition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
@@ -220,15 +221,21 @@ public class ClearComposer extends Application {
 		topBar.setMaxHeight(Region.USE_PREF_SIZE);
 		pane.setTop(topBar);
 		StackPane.setAlignment(topBar, Pos.TOP_CENTER);
+		//Toggle hidden/show state if you double click bar.
+		topBar.addEventHandler(MouseEvent.MOUSE_CLICKED, evt -> {
+			if (evt.getClickCount() == 2)
+				showToolbar(topBar.getParent() == topHidden);
+			evt.consume();
+		});
 
-		barSlide = new TranslateTransition(Duration.seconds(1), topBar);
+		barSlide = new TranslateTransition(Duration.seconds(.5), topBar);
 		barSlide.fromYProperty().bind(topBar.heightProperty().negate());
-		//slideIn.setInterpolator(Interpolator.EASE_OUT);
+		barSlide.setInterpolator(Interpolator.EASE_BOTH);
 		barSlide.setToY(0);
 
 		hidingDelay = new Transition() {
 			{
-				setCycleDuration(Duration.seconds(2));
+				setCycleDuration(Duration.seconds(1));
 			}
 			@Override
 			protected void interpolate(double frac) {
@@ -248,10 +255,10 @@ public class ClearComposer extends Application {
 		topHidden.setPrefHeight(20);
 		topHidden.setMaxHeight(20);
 		topHidden.addEventFilter(MouseEvent.MOUSE_ENTERED, evt -> {
+			hidingDelay.stop();
 			if (barSlide.getCurrentRate() <= 0 && barSlide.getCurrentTime().lessThan(barSlide.getDuration())) {
-				barSlide.play();
 				barSlide.setRate(1);
-				hidingDelay.stop();
+				barSlide.play();
 			}
 		});
 		topHidden.addEventFilter(MouseEvent.MOUSE_EXITED, evt -> {
@@ -265,6 +272,10 @@ public class ClearComposer extends Application {
 		MenuBar menuBar = initMenuBar();
 		Toolbar bar = initToolbar();
 		topBar.getChildren().addAll(menuBar, bar);
+		menuBar.addEventFilter(MouseEvent.MOUSE_CLICKED, evt -> { //copy from ToolBar listener
+			if (evt.getClickCount() == 2)
+				showToolbar(topBar.getParent() == topHidden);
+		});
 
 		//Music sequencer
 		initMusicSequencer();
@@ -374,24 +385,16 @@ public class ClearComposer extends Application {
 			evt.consume();
 		});
 		scene.setOnMouseReleased(t -> GraphicNote.finishNotesEditing());
+		scene.setOnMouseClicked(evt -> {
+			if (evt.getClickCount() == 2)
+			{
+				primaryStage.setFullScreen(!primaryStage.isFullScreen());
+			}
+		});
 		scene.getStylesheets().add(ClearComposer.class.getResource("clearcomposer.css").toExternalForm());
 
 		//Configure main stage
-		primaryStage.fullScreenProperty().addListener((val, before, after) -> {
-			if (after) {
-				pane.setTop(topHidden);
-				topHidden.getChildren().add(topBar);
-				topBar.setTranslateY(-topBar.getHeight());
-			}
-			else
-			{
-				hidingDelay.stop();
-				barSlide.stop();
-				topHidden.getChildren().remove(topBar);
-				pane.setTop(topBar);
-				topBar.setTranslateY(0);
-			}
-		});
+		primaryStage.fullScreenProperty().addListener((val, before, after) -> showToolbar(!after));
 
 		primaryStage.getIcons().add(new Image(ClearComposer.class.getResourceAsStream("Logo.png")));
 		primaryStage.setScene(scene);
@@ -909,6 +912,26 @@ public class ClearComposer extends Application {
 
 		if (primaryStage != null)
 			primaryStage.setTitle(sb.toString());
+	}
+
+	private void showToolbar(boolean shown)
+	{
+		//Only change state if it is hidden and we show it or vice versa.
+		if (topBar.getParent() == topHidden ^ shown)
+			return;
+
+		if (shown) {
+			hidingDelay.stop();
+			barSlide.stop();
+			barSlide.jumpTo(Duration.ZERO);
+			topHidden.getChildren().remove(topBar);
+			pane.setTop(topBar);
+			topBar.setTranslateY(0);
+		} else {
+			pane.setTop(topHidden);
+			topHidden.getChildren().add(topBar);
+			topBar.setTranslateY(-topBar.getHeight());
+		}
 	}
 
 	//*********************

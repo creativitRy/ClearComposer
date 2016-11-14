@@ -39,6 +39,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -78,6 +79,8 @@ public class CCButton extends StackPane
 		button.getChildren().addAll(buttonHighlight, buttonText);
 		button.getStyleClass().addAll("ccbutton");
 		getChildren().addAll(button);
+
+		addEventHandler(MouseEvent.ANY, evt -> evt.consume());
 	}
 
 	public final boolean isButtonPressed()
