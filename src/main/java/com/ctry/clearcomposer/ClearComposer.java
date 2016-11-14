@@ -204,13 +204,13 @@ public class ClearComposer extends Application {
 	@Override
 	public void init() {
 		//Count analytics
-		try {
-			InputStream in = new URL(ANALYTICS_URL).openStream();
-			while (in.read() != -1) ;
-			in.close();
-		} catch (IOException e) {
-			//Does nothing.
-		}
+//		try {
+//			InputStream in = new URL(ANALYTICS_URL).openStream();
+//			while (in.read() != -1) ;
+//			in.close();
+//		} catch (IOException e) {
+//			//Does nothing.
+//		}
 
 		cc = this;
 
