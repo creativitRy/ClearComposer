@@ -29,7 +29,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
+import jwrapper.jwutils.JWLauncher;
 import jwrapper.jwutils.JWUpdateApp;
+import jwrapper.updater.JWApp;
 
 /**
  * This virtual app is called by JWrapper before each update.

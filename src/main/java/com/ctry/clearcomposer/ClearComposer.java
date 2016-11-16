@@ -98,6 +98,8 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
+import jwrapper.jwutils.JWSystem;
+import jwrapper.updater.JWLaunchProperties;
 
 public class ClearComposer extends Application {
 	public static final int INSETS = 300;
@@ -372,12 +374,8 @@ public class ClearComposer extends Application {
 					if (!checkSave())
 						return;
 
-
-					if (open != null) {
+					if (open != null)
 						loadData(open);
-						openFile = open;
-						setTitle();
-					}
 				});
 			}
 
@@ -445,6 +443,12 @@ public class ClearComposer extends Application {
 
 		setTitle();
 
+		if (JWLaunchProperties.isJWrapperSetup())
+		{
+			String open = JWSystem.getAppLaunchProperty("OpenFile");
+			if (open != null && !open.isEmpty())
+				loadData(new File(open));
+		}
 	}
 
 	/**
@@ -955,7 +959,7 @@ public class ClearComposer extends Application {
 		Preferences.userNodeForPackage(ClearComposer.class).putDouble("left", primaryStage.getX());
 		Preferences.userNodeForPackage(ClearComposer.class).putDouble("topBar", primaryStage.getY());
 
-		Platform.exit();
+		System.exit(0);
 	}
 
 	private boolean newCommand() {
@@ -973,11 +977,8 @@ public class ClearComposer extends Application {
 		if (!checkSave())
 			return false;
 		File open = showFileChooser(true);
-		if (open != null) {
+		if (open != null)
 			loadData(open);
-			openFile = open;
-			setTitle();
-		}
 		return true;
 	}
 
@@ -1124,6 +1125,7 @@ public class ClearComposer extends Application {
 			initMusicSequencer();
 			player.loadTracks(ois);
 			changed = false;
+			openFile = f;
 			setTitle();
 		} catch (ClassNotFoundException | IOException e) {
 			e.printStackTrace();
