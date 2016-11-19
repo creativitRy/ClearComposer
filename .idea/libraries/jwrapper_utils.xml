@@ -1,9 +1,10 @@
 <component name="libraryTable">
   <library name="jwrapper_utils">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/jwrapperlib/jwrapper_utils.jar!/" />
+      <root url="file://$PROJECT_DIR$/jwrapperlib/jwrapper_utils.jare" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
+    <jarDirectory url="file://$PROJECT_DIR$/jwrapperlib/jwrapper_utils.jare" recursive="false" />
   </library>
 </component>

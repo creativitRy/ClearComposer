@@ -30,6 +30,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import jwrapper.jwutils.JWLauncher;
+import jwrapper.jwutils.JWUninstallApp;
 import jwrapper.jwutils.JWUpdateApp;
 import jwrapper.updater.JWApp;
 
@@ -40,6 +41,7 @@ import jwrapper.updater.JWApp;
 public class UpdateApp extends Application {
 	public void start(Stage primaryStage)
 	{
+		//TODO: for versions before the setup dialog, show it first, and if necessary, uninstall everything.
 		ButtonType update = new ButtonType("Update now");
 		ButtonType ignore = new ButtonType("Ignore this update");
 		ButtonType later = new ButtonType("Remind me later");
