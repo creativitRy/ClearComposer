@@ -85,10 +85,15 @@ public class GraphicNote extends Rectangle
 	 */
 	private void mouseAction(MouseEvent t)
 	{
+		click(t.isPrimaryButtonDown());
+	}
+
+	public void click(boolean primary)
+	{
 		if (!isTouched)
 		{
 			//We need this to make change
-			if (ClearComposer.cc.isToggle() || (on != NotePlayState.OFF ^ t.isPrimaryButtonDown()))
+			if (ClearComposer.cc.isToggle() || (on != NotePlayState.OFF ^ primary))
 			{
 				boolean isOn = on != NotePlayState.OFF;
 				boolean isPerma = isOn ? on == NotePlayState.ON_PERMA : ClearComposer.cc.isPerma();
@@ -98,7 +103,7 @@ public class GraphicNote extends Rectangle
 				if (ClearComposer.cc.isToggle())
 					toggle(ClearComposer.cc.isPerma());
 				else {
-					if (t.isPrimaryButtonDown())
+					if (primary)
 						turnOn(ClearComposer.cc.isPerma());
 					else
 						turnOff();
@@ -134,6 +139,7 @@ public class GraphicNote extends Rectangle
 
 		setStroke(isPerma ? PERMA_STROKE : fillOn.invert());
 		setFill(fillOn);
+		ClearComposer.cc.updateNotes();
 	}
 
 	/**
@@ -148,34 +154,29 @@ public class GraphicNote extends Rectangle
 
 		setStroke(PERMA_STROKE);
 		setFill(FILL_OFF);
-	}
-
-	public NotePlayState getPlayState()
-	{
-		return on;
+		ClearComposer.cc.updateNotes();
 	}
 
 	/**
 	 * if on is temporary, changes it to off
 	 * @return true if on, false otherwise
 	 */
-	protected boolean isOn()
+	public boolean isOn()
 	{
-		if (on == NotePlayState.OFF)
-			return false;
-
-		if (on == NotePlayState.ON_TEMP)
-			on = NotePlayState.OFF;
-		
-		playColor();
-		return true;
+		return on != NotePlayState.OFF;
 	}
 
 	/**
 	 * changes color to white and fades it back to ordinary color
 	 */
-	private void playColor()
+	protected void playColor()
 	{
+		if (on == NotePlayState.OFF)
+			return;
+
+		if (on == NotePlayState.ON_TEMP)
+			on = NotePlayState.OFF;
+
 		Color stroke = (Color)getStroke();
 		ft = new Transition()
 		{
@@ -198,6 +199,8 @@ public class GraphicNote extends Rectangle
 			}
 		};
 		ft.play();
+
+		ClearComposer.cc.updateNotes();
 	}
 
 	/**
@@ -211,6 +214,7 @@ public class GraphicNote extends Rectangle
 		setFill(fillOn);
 		setStroke(PERMA_STROKE);
 		noteStates.remove(this);
+		ClearComposer.cc.updateNotes();
 	}
 
 	/**

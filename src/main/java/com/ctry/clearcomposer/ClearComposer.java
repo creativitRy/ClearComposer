@@ -46,10 +46,7 @@ import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.prefs.Preferences;
 
-import com.ctry.clearcomposer.history.AbstractEntry;
-import com.ctry.clearcomposer.history.ChordEntry;
-import com.ctry.clearcomposer.history.KeyEntry;
-import com.ctry.clearcomposer.history.TempoEntry;
+import com.ctry.clearcomposer.history.*;
 import com.ctry.clearcomposer.music.Chord;
 import com.ctry.clearcomposer.music.ChordProgressionHelper;
 import com.ctry.clearcomposer.music.Key;
@@ -176,6 +173,7 @@ public class ClearComposer extends Application {
 	private BooleanProperty saveDisabled = new SimpleBooleanProperty(false);
 	private BooleanProperty undoDisabled = new SimpleBooleanProperty(true);
 	private BooleanProperty redoDisabled = new SimpleBooleanProperty(true);
+	private BooleanProperty clearDisabled = new SimpleBooleanProperty(true);
 
 	//Toggling states
 	private BooleanProperty pauseToggle = new SimpleBooleanProperty();
@@ -192,6 +190,7 @@ public class ClearComposer extends Application {
 		}
 	};
 
+	private MultipleEntry entGroup;
 	private Deque<AbstractEntry> undoes = new LinkedList<>();
 	private Deque<AbstractEntry> redoes = new LinkedList<>();
 	private Tooltip undoTooltip;
@@ -326,9 +325,32 @@ public class ClearComposer extends Application {
 		changed = true;
 		setTitle();
 		redoes.clear();
+		if (entGroup != null)
+			entGroup.pushEntry(move);
+		else
+		{
+			if (undoes.size() >= MAX_UNDOS)
+				undoes.removeLast();
+			undoes.push(move);
+		}
+		updateMoveStack();
+	}
+
+	public void beginEntryGroup(String name)
+	{
+		redoes.clear();
+		if (entGroup != null)
+			endEntryGroup();
+		entGroup = new MultipleEntry(name);
+		updateMoveStack();
+	}
+
+	public void endEntryGroup()
+	{
 		if (undoes.size() >= MAX_UNDOS)
 			undoes.removeLast();
-		undoes.push(move);
+		undoes.push(entGroup);
+		entGroup = null;
 		updateMoveStack();
 	}
 
@@ -468,6 +490,25 @@ public class ClearComposer extends Application {
 		//Outline the suggested chords
 		ChordProgressionHelper.getPossibleChordProgressions(getChord()).forEach((c, strength) ->
 				chordButtons.get(c).setBorder(new Color(1, 0.843, 0, strength / 3 + 0.5), strength * 2 + 2));
+	}
+
+	public void updateNotes()
+	{
+		if (player == null)
+			clearDisabled.set(true);
+		else
+		{
+			boolean empty = true;
+			for (GraphicTrack track : player.getTracks())
+			{
+				if (!track.isEmpty())
+				{
+					empty = false;
+					break;
+				}
+			}
+			clearDisabled.set(empty);
+		}
 	}
 
 	//*********************
@@ -701,6 +742,8 @@ public class ClearComposer extends Application {
 				mnuEditUndo,
 				mnuEditRedo,
 				new SeparatorMenuItem(),
+				createMenuItem("_Clear", "Alt+Shift+X", this::clearCommand, clearDisabled),
+				new SeparatorMenuItem(),
 				mnuEditChords
 		);
 
@@ -768,9 +811,10 @@ public class ClearComposer extends Application {
 		if (player != null)
 			player.stop();
 
-		//Reset undo/redoes
+		//Reset changes
 		undoes.clear();
 		redoes.clear();
+		entGroup = null;
 		changed = false;
 
 		//Update the stuff likewise
@@ -795,7 +839,11 @@ public class ClearComposer extends Application {
 		tracksDisplay.getChildren().add(beatTrack.getTrack());
 		player.getTracks().add(0, new BassNotesTrack());
 		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
+		//Prevent inadvertently going into full-screen mode.
+		tracksDisplay.addEventHandler(MouseEvent.MOUSE_CLICKED, evt -> evt.consume());
 		pane.setCenter(tracksDisplay);
+
+		updateNotes();
 	}
 
 	/**
@@ -820,6 +868,8 @@ public class ClearComposer extends Application {
 		ToolbarButton redoButton = bar.addRegularButton("Redo", this::redoCommand);
 		redoButton.disableProperty().bind(redoDisabled);
 		Tooltip.install(redoButton, redoTooltip);
+		ToolbarButton clearButton = bar.addRegularButton("Clear", this::clearCommand);
+		clearButton.disableProperty().bind(clearDisabled);
 
 		//Running
 		bar.addSeparator();
@@ -943,7 +993,14 @@ public class ClearComposer extends Application {
 	//* 
 	//* These are the handler procedure called
 	//* when a command is selected in the GUI.
-	//*********************	
+	//*********************
+	private void clearCommand()
+	{
+		beginEntryGroup("Clear notes");
+		player.getTracks().forEach(GraphicTrack::clearNotes);
+		endEntryGroup();
+	}
+
 	private void exitCommand() {
 		if (!checkSave())
 			return;
@@ -1007,6 +1064,8 @@ public class ClearComposer extends Application {
 		if (redoes.isEmpty())
 			return;
 		changed = true;
+		setTitle();
+
 		AbstractEntry move = redoes.pop();
 		undoes.push(move);
 		updateMoveStack();
@@ -1049,7 +1108,11 @@ public class ClearComposer extends Application {
 	private void undoCommand() {
 		if (undoes.isEmpty())
 			return;
+		if (entGroup != null)
+			endEntryGroup();
 		changed = true;
+		setTitle();
+
 		AbstractEntry move = undoes.pop();
 		redoes.push(move);
 		updateMoveStack();
@@ -1058,12 +1121,13 @@ public class ClearComposer extends Application {
 	}
 
 	private void updateMoveStack() {
-		undoDisabled.set(undoes.isEmpty());
+
+		undoDisabled.set(undoes.isEmpty() && entGroup == null);
 		redoDisabled.set(redoes.isEmpty());
 
-		mnuEditUndo.setText(undoes.isEmpty() ? "_Undo" : "_Undo " + undoes.peek());
+		mnuEditUndo.setText(undoes.isEmpty() ? "_Undo" : "_Undo " + (entGroup != null ? entGroup : undoes.peek()));
 		mnuEditRedo.setText(redoes.isEmpty() ? "_Redo" : "_Redo " + redoes.peek());
-		undoTooltip.setText(undoes.isEmpty() ? "Undo" : "Undo " + undoes.peek());
+		undoTooltip.setText(undoes.isEmpty() ? "Undo" : "Undo " + (entGroup != null ? entGroup : undoes.peek()));
 		redoTooltip.setText(redoes.isEmpty() ? "Redo" : "Redo " + redoes.peek());
 	}
 

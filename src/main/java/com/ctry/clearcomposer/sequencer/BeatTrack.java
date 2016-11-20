@@ -70,6 +70,17 @@ public class BeatTrack extends GraphicTrack
 		updateChord();
 	}
 
+	@Override
+	public boolean isEmpty()
+	{
+		return true;
+	}
+
+	@Override
+	public void clearNotes() {
+		//Does nothing
+	}
+
 	/**
 	 * just update color
 	 * @param index position being played
@@ -79,9 +90,7 @@ public class BeatTrack extends GraphicTrack
 	public int playNote(int index)
 	{
 		GraphicNote note = (GraphicNote) getTrack().getChildren().get(index + 1);
-
-		note.isOn();
-
+		note.playColor();
 		return -1;
 	}
 

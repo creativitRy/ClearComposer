@@ -30,16 +30,37 @@
  */
 package com.ctry.clearcomposer.history;
 
-import java.util.ArrayList;
-import java.util.List;
+import sun.awt.image.ImageWatched.Link;
+
+import java.util.*;
 
 public class MultipleEntry extends AbstractEntry
 {
-	private List<AbstractEntry> entries;
+	private String description;
+	private ArrayList<AbstractEntry> entries;
 
-	public MultipleEntry(List<AbstractEntry> entries)
+	public MultipleEntry(String description)
 	{
-		this.entries = entries;
+		this.description = description;
+		this.entries = new ArrayList<>();
+	}
+
+	/**
+	 * Adds another entry to the end of this multiple entry.
+	 * @param ent entry to add
+	 */
+	public void pushEntry(AbstractEntry ent)
+	{
+		entries.add(ent);
+	}
+
+	/**
+	 * Removes the last entry to this multiple entry
+	 * @return entry removed.
+	 */
+	public AbstractEntry popEntry()
+	{
+		return entries.remove(entries.size() - 1);
 	}
 
 	/**
@@ -50,7 +71,7 @@ public class MultipleEntry extends AbstractEntry
 	@Override
 	public String toString()
 	{
-		return entries.toString();
+		return description == null ? entries.toString() : description;
 	}
 
 	/**
@@ -59,10 +80,11 @@ public class MultipleEntry extends AbstractEntry
 	@Override
 	public void undo()
 	{
-		for (AbstractEntry entry : entries)
-		{
-			entry.undo();
-		}
+		if (entries.isEmpty())
+			return;
+		ListIterator<AbstractEntry> itr = entries.listIterator(entries.size() - 1);
+		while (itr.hasPrevious())
+			itr.previous().undo();
 	}
 
 	/**
@@ -71,9 +93,6 @@ public class MultipleEntry extends AbstractEntry
 	@Override
 	public void redo()
 	{
-		for (AbstractEntry entry : entries)
-		{
-			entry.redo();
-		}
+		entries.forEach(AbstractEntry::redo);
 	}
 }

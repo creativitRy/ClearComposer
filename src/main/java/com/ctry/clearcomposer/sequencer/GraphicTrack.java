@@ -64,6 +64,29 @@ public abstract class GraphicTrack
 	}
 
 	/**
+	 * Clears all the notes of this note track.
+	 */
+	public abstract void clearNotes();
+
+	/**
+	 * Determines whether or not this track has any notes
+	 * @return true if it is devoid of notes, false if it has notes.
+	 */
+	public boolean isEmpty()
+	{
+		for (Node n : getTrack().getChildren())
+		{
+			if (!(n instanceof GraphicNote))
+				continue;
+
+			GraphicNote note = (GraphicNote) n;
+			if (note.isOn())
+				return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Saves track data to a data stream.
 	 * @param out data stream to write to.
 	 * @throws IOException if an error occurs during I/O

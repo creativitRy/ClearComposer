@@ -90,7 +90,7 @@ public class NotesEntry extends AbstractEntry
 			boolean turnOn = invert ^ prev.wasOn();
 
 			//Only toggle if we need to change note state.
-			if (turnOn ^ note.getPlayState() != NotePlayState.OFF)
+			if (turnOn ^ note.isOn())
 				note.toggle(prev.wasPerma());
 		}
 	}

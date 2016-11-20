@@ -56,6 +56,24 @@ public class BassNotesTrack extends GraphicTrack
 		getTrack().getChildren().add(0, text);
 	}
 
+
+	@Override
+	public void clearNotes() {
+		boolean first = true;
+		for (Node child : getTrack().getChildren())
+		{
+			if (first)
+			{
+				first = false;
+				continue;
+			}
+			GraphicNote note = (GraphicNote) child;
+			if (note.isOn())
+				note.click(false); //Doesn't matter whether if we are in toggle mode or not
+		}
+		GraphicNote.finishNotesEditing();
+	}
+
 	/**
 	 * Obtains a formatted track name.
 	 * @return track name that displays pitch of note without octaves
@@ -92,7 +110,7 @@ public class BassNotesTrack extends GraphicTrack
 	public int playNote(int index)
 	{
 		GraphicNote note = (GraphicNote) getTrack().getChildren().get(index + 1);
-
+		note.playColor();
 		if (note.isOn())
 			return getNote().getPitch().getBassPitch();
 		return -1;
