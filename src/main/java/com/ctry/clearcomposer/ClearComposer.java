@@ -136,6 +136,7 @@ public class ClearComposer extends Application {
 	 * plays music and keeps track of note/beat tracks
 	 */
 	private TrackPlayer player;
+	private int numNotes = -1;
 
 	/**
 	 * Main pane
@@ -156,9 +157,9 @@ public class ClearComposer extends Application {
 	private MenuItem mnuPlayingStart;
 
 	//Note config stuff
-	private ComboBox<Key> cmbKeys;
-	private ComboBox<Integer> cmbNotes;
-	private ComboBox<Integer> cmbChordChanges;
+	private CCComboBox<Key> cmbKeys;
+	private CCComboBox<Integer> cmbNotes;
+	private CCComboBox<Integer> cmbChordChanges;
 	private Slider tempoSlider;
 	private Label tempoIndicator;
 
@@ -354,11 +355,19 @@ public class ClearComposer extends Application {
 	 * Sets all ui stuff to match MusicConstants
 	 */
 	public void resetUI() {
+		cmbKeys.setIgnoreChanges(true);
 		cmbKeys.setValue(constants.getKey());
+		cmbKeys.setIgnoreChanges(false);
 		setKey(constants.getKey());
+
+		cmbNotes.setIgnoreChanges(true);
 		cmbNotes.setValue(constants.getNumNotes());
+		cmbNotes.setIgnoreChanges(false);
 		setNumNotes(constants.getNumNotes());
+
+		cmbChordChanges.setIgnoreChanges(true);
 		setChord(constants.getChord());
+		cmbChordChanges.setIgnoreChanges(false);
 		tempoSlider.setValue(constants.getTempo());
 	}
 
@@ -576,6 +585,10 @@ public class ClearComposer extends Application {
 	 * @param numNotes new number of notes
 	 */
 	public void setNumNotes(int numNotes) {
+		//Only reset if we need to change number of notes.
+		if (numNotes == this.numNotes)
+			return;
+
 		//TODO: if user sets number of notes, all undoes/redoes will be lost.
 		cmbChordChanges.getItems().clear();
 		for (int i = 1; i <= numNotes; i++) {
@@ -828,6 +841,7 @@ public class ClearComposer extends Application {
 		updateMoveStack();
 
 		player = new TrackPlayer();
+		numNotes = constants.getNumNotes();
 		setChordInterval(cmbChordChanges.getValue());
 		if (chordButtons != null)
 			updateChordOutlines();
@@ -904,7 +918,7 @@ public class ClearComposer extends Application {
 			}
 		});
 		cmbChordChanges = bar.addComboBox("Set when the chord can change", () -> {
-			if (player != null)
+			if (player != null && cmbChordChanges.getValue() != null)
 				setChordInterval(cmbChordChanges.getValue());
 		}, 0, 1, 2, 4, 8, 16);
 		cmbChordChanges.getSelectionModel().selectLast();

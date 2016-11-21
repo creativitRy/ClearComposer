@@ -106,27 +106,23 @@ public class Toolbar extends FlowPane
 		return button;
 	}
 
-	public <T> ComboBox<T> addComboBox(String tooltip, Runnable onChange, int selectedIndex, T... options)
+	public <T> CCComboBox<T> addComboBox(String tooltip, Runnable onChange, int selectedIndex, T... options)
 	{
 		class Val {
 			T val;
 		}
-		//TODO: account for if value changes programmatically.
 		Val before = new Val();
-		ComboBox<T> comboBox = new ComboBox<>();
+		CCComboBox<T> comboBox = new CCComboBox<>();
 		comboBox.getItems().addAll(options);
 		comboBox.getSelectionModel().select(selectedIndex);
 		comboBox.setTooltip(new Tooltip(tooltip));
 		comboBox.setFocusTraversable(false);
-		comboBox.setOnHidden(evt -> {
-			onChange.run();
-			before.val = comboBox.getValue();
-		});
-		comboBox.setOnKeyReleased(evt -> {
+		comboBox.setOnAction(evt -> {
 			T now = comboBox.getValue();
 			if (now != before.val)
 			{
-				onChange.run();
+				if (!comboBox.isIgnoreChanges())
+					onChange.run();
 				before.val = now;
 			}
 		});
