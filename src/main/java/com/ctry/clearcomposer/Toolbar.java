@@ -117,6 +117,7 @@ public class Toolbar extends FlowPane
 		comboBox.getItems().addAll(options);
 		comboBox.getSelectionModel().select(selectedIndex);
 		comboBox.setTooltip(new Tooltip(tooltip));
+		comboBox.setFocusTraversable(false);
 		comboBox.setOnHidden(evt -> {
 			onChange.run();
 			before.val = comboBox.getValue();
@@ -141,6 +142,7 @@ public class Toolbar extends FlowPane
 	public Slider addSlider(String action, Runnable onChange, double min, double max, double value)
 	{
 		Slider slider = new Slider(min, max, value);
+		slider.setFocusTraversable(false);
 		slider.valueProperty().addListener(val -> onChange.run());
 		getChildren().add(slider);
 		Tooltip.install(slider, new Tooltip(action));
@@ -155,18 +157,20 @@ public class Toolbar extends FlowPane
 		getChildren().add(separator);
 	}
 
-	public void removeNode(Node n)
-	{
-		if (n instanceof ToolbarButton)
-			removeButton(((ToolbarButton)n).getActionName());
-		else
-			getChildren().remove(n);
-	}
+//	public void removeNode(Node n)
+//	{
+//		if (n instanceof ToolbarButton) {
+//			removeButton(((ToolbarButton) n).);
+//			buttons.ke
+//		}
+//		else
+//			getChildren().remove(n);
+//	}
 	
-	public void removeButton(String action)
-	{
-		ToolbarButton but = buttons.remove(action);
-		if (but != null)
-			getChildren().remove(but);
-	}
+//	public void removeButton(String action)
+//	{
+//		ToolbarButton but = buttons.remove(action);
+//		if (but != null)
+//			getChildren().remove(but);
+//	}
 }

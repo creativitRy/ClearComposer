@@ -40,10 +40,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.EnumMap;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.prefs.Preferences;
 
 import com.ctry.clearcomposer.history.*;
@@ -60,7 +57,6 @@ import com.ctry.clearcomposer.sequencer.GraphicTrack;
 import com.ctry.clearcomposer.sequencer.NotesTrack;
 import com.sun.glass.ui.Screen;
 
-import javafx.animation.Animation.Status;
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
 import javafx.animation.TranslateTransition;
@@ -68,6 +64,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -85,9 +82,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -154,11 +149,11 @@ public class ClearComposer extends Application {
 
 	//Buttons
 	private ToolbarButton btnPlay;
-	private ToolbarButton btnPause;
 
 	//Menus
 	private MenuItem mnuEditUndo;
 	private MenuItem mnuEditRedo;
+	private MenuItem mnuPlayingStart;
 
 	//Note config stuff
 	private ComboBox<Key> cmbKeys;
@@ -176,7 +171,6 @@ public class ClearComposer extends Application {
 	private BooleanProperty clearDisabled = new SimpleBooleanProperty(true);
 
 	//Toggling states
-	private BooleanProperty pauseToggle = new SimpleBooleanProperty();
 	private BooleanProperty permaToggle = new SimpleBooleanProperty(perma) {
 		@Override
 		protected void invalidated() {
@@ -319,6 +313,8 @@ public class ClearComposer extends Application {
 
 		setChord(constants.getChord());
 		pane.setBottom(chordPane);
+
+		MusicPlayer.init();
 	}
 
 	public void pushMove(AbstractEntry move) {
@@ -403,6 +399,13 @@ public class ClearComposer extends Application {
 
 			evt.setDropCompleted(true);
 			evt.consume();
+		});
+		scene.addEventFilter(KeyEvent.KEY_RELEASED, evt -> {
+			if (evt.getCode() == KeyCode.SPACE)
+			{
+				playCommand();
+				evt.consume();
+			}
 		});
 		scene.setOnMouseReleased(t -> GraphicNote.finishNotesEditing());
 		scene.setOnMouseClicked(evt -> {
@@ -669,7 +672,7 @@ public class ClearComposer extends Application {
 	private MenuItem createMenuItem(String name, String keyAccelerator, Runnable onAction, BooleanProperty disabledProperty) {
 		MenuItem mnuItem = new MenuItem(name);
 		mnuItem.setMnemonicParsing(true);
-		if (keyAccelerator != null)
+		if (keyAccelerator != null && !keyAccelerator.isEmpty())
 			mnuItem.setAccelerator(KeyCombination.keyCombination(keyAccelerator));
 		mnuItem.setOnAction(evt -> onAction.run());
 		if (disabledProperty != null)
@@ -787,14 +790,19 @@ public class ClearComposer extends Application {
 			mnuEditChords.getItems().add(chordMenu);
 		}
 
-		Menu mnuView = new Menu("_View");
-		mnuView.setMnemonicParsing(true);
-		mnuView.getItems().addAll(
-				createMenuItem("Full screen...", "F5", this::fullScreenCommand)
-		);
-		//TODO
+		//Play
+		Menu mnuPlaying = new Menu("Play_ing");
+		mnuPlaying.setMnemonicParsing(true);
 
-		bar.getMenus().addAll(mnuFile, mnuEdit, mnuView);
+		mnuPlayingStart = createMenuItem("_Play", null, this::playCommand);
+		mnuPlaying.getItems().addAll(
+				mnuPlayingStart,
+				createMenuItem("_Stop", "Esc", this::stopCommand),
+				new SeparatorMenuItem(),
+				createMenuItem("_Full screen...", "F5", this::fullScreenCommand)
+		);
+
+		bar.getMenus().addAll(mnuFile, mnuEdit, mnuPlaying);
 		return bar;
 	}
 
@@ -804,10 +812,8 @@ public class ClearComposer extends Application {
 	 */
 	private void initMusicSequencer() {
 		//Stop everything
-		if (btnPause != null)
-			btnPause.setButtonPressed(false);
 		if (btnPlay != null)
-			btnPlay.setButtonPressed(false);
+			btnPlay.setButtonAction("Play");
 		if (player != null)
 			player.stop();
 
@@ -840,7 +846,7 @@ public class ClearComposer extends Application {
 		player.getTracks().add(0, new BassNotesTrack());
 		tracksDisplay.getChildren().add(player.getTracks().get(0).getTrack());
 		//Prevent inadvertently going into full-screen mode.
-		tracksDisplay.addEventHandler(MouseEvent.MOUSE_CLICKED, evt -> evt.consume());
+		tracksDisplay.addEventHandler(MouseEvent.MOUSE_CLICKED, Event::consume);
 		pane.setCenter(tracksDisplay);
 
 		updateNotes();
@@ -873,10 +879,7 @@ public class ClearComposer extends Application {
 
 		//Running
 		bar.addSeparator();
-		btnPlay = bar.addButton("Play");
-		btnPlay.setOnMousePressed(evt -> btnPlay.setButtonPressed(true));
-		btnPlay.setOnMouseClicked(evt -> playCommand());
-		btnPause = bar.addToggleButton("Pause", pauseToggle, this::pausedCommand);
+		btnPlay = bar.addRegularButton("Play", this::playCommand);
 		bar.addRegularButton("Stop", this::stopCommand);
 
 		//Note config
@@ -909,7 +912,7 @@ public class ClearComposer extends Application {
 
 			@Override
 			public String toString(Integer val) {
-				return "Per " + (val == cmbNotes.getValue() ? "Measure" :
+				return "Per " + (Objects.equals(val, cmbNotes.getValue()) ? "Measure" :
 						(val == 1 ? "Note" : val + " Notes"));
 			}
 
@@ -996,9 +999,11 @@ public class ClearComposer extends Application {
 	//*********************
 	private void clearCommand()
 	{
-		beginEntryGroup("Clear notes");
+		beginEntryGroup("clear all notes");
 		player.getTracks().forEach(GraphicTrack::clearNotes);
+		GraphicNote.finishNotesEditing();
 		endEntryGroup();
+		stopCommand();
 	}
 
 	private void exitCommand() {
@@ -1033,6 +1038,7 @@ public class ClearComposer extends Application {
 	private boolean openCommand() {
 		if (!checkSave())
 			return false;
+		stopCommand();
 		File open = showFileChooser(true);
 		if (open != null)
 			loadData(open);
@@ -1044,21 +1050,21 @@ public class ClearComposer extends Application {
 	}
 
 	private void playCommand() {
-		if (!btnPause.isButtonPressed() && player.getPlayState() != Status.RUNNING) //Only play if we are stopped
+		switch (player.getPlayState())
 		{
-			btnPlay.setButtonPressed(true);
-			player.play();
+			case RUNNING:
+				btnPlay.setButtonAction("Resume");
+				mnuPlayingStart.setText("Resume");
+				player.pause();
+				break;
+			case STOPPED:
+			case PAUSED:
+				btnPlay.setButtonAction("Pause");
+				mnuPlayingStart.setText("Pause");
+				player.play();
 		}
 	}
 
-	private void pausedCommand() {
-		if (pauseToggle.get()) {
-			btnPlay.setButtonPressed(true); //In case user presses pause first.
-			if (player.getPlayState() == Status.RUNNING)
-				player.pause();
-		} else
-			player.play();
-	}
 
 	private void redoCommand() {
 		if (redoes.isEmpty())
@@ -1088,6 +1094,7 @@ public class ClearComposer extends Application {
 			return true;
 
 		if (openFile == null) {
+			stopCommand();
 			File save = showFileChooser(false);
 			if (save == null)
 				return false;
@@ -1099,9 +1106,8 @@ public class ClearComposer extends Application {
 	}
 
 	private void stopCommand() {
-		btnPlay.setButtonPressed(false);
-		btnPause.setButtonPressed(false);
-		pauseToggle.setValue(false);
+		btnPlay.setButtonAction("Play");
+		mnuPlayingStart.setText("Play");
 		player.stop();
 	}
 
@@ -1140,6 +1146,8 @@ public class ClearComposer extends Application {
 	private boolean checkSave() {
 		if (!changed)
 			return true;
+
+		stopCommand();
 
 		Alert dlg = new Alert(Alert.AlertType.WARNING, "Would you like to save the current file?", ButtonType.YES,
 				ButtonType.NO, ButtonType.CANCEL);
@@ -1231,8 +1239,7 @@ public class ClearComposer extends Application {
 	 */
 	private File showFileChooser(boolean open) {
 		player.stop();
-		btnPause.setButtonPressed(false);
-		btnPlay.setButtonPressed(false);
+		btnPlay.setButtonAction("Play");
 
 		FileChooser fileChooser = new FileChooser();
 

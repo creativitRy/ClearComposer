@@ -48,14 +48,22 @@ public class MusicPlayer
 	public static Timeline time = null;
 	private static Synthesizer synth;
 
-	static
+	/**
+	 * This method initializes the MusicPlayer
+	 */
+	public static boolean init()
 	{
 		try
 		{
-			synth = MidiSystem.getSynthesizer();
+			if (synth == null)
+				synth = MidiSystem.getSynthesizer();
+			if (!synth.isOpen())
+				synth.open();
+			return true;
 		} catch (MidiUnavailableException e)
 		{
 			e.printStackTrace();
+			return false;
 		}
 	}
 
@@ -65,40 +73,31 @@ public class MusicPlayer
 	 */
 	public static void playNote(int pitch)
 	{
-		try
-		{
-			if (!synth.isOpen())
-				synth.open();
+		if (!init())
+			return;
 
-			MidiChannel[] channels = synth.getChannels();
-			channels[CHANNEL].noteOn(pitch, VOLUME);
+		MidiChannel[] channels = synth.getChannels();
+		channels[CHANNEL].noteOn(pitch, VOLUME);
 
-			if (time != null)
-				time.stop();
+		if (time != null)
+			time.stop();
 
-			time = new Timeline(new KeyFrame(DURATION, ae -> turnOffNotes()));
-			time.play();
-
-
-		} catch (MidiUnavailableException e)
-		{
-			e.printStackTrace();
-		}
+		time = new Timeline(new KeyFrame(DURATION, ae -> turnOffNotes()));
+		time.play();
 	}
 
 	/**
-	 * after a delay, all notes is turned off
+	 * Turns all notes off. This can directly called
+	 * or will automatically be called a while after
+	 * some notes are played.
 	 */
 	public static void turnOffNotes()
 	{
+		if (synth == null || !synth.isOpen())
+			return;
+
 		MidiChannel[] channels = synth.getChannels();
-
-		if (synth.isOpen())
-		{
-			channels[CHANNEL].allNotesOff();
-
-			synth.close();
-		}
+		channels[CHANNEL].allNotesOff();
 
 		time = null;
 	}

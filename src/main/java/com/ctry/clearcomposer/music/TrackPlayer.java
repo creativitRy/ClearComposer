@@ -50,7 +50,7 @@ public class TrackPlayer
 	private int index;
 	private List<GraphicTrack> tracks;
 	private AnimationTimer tmr;
-	private Status playState;
+	private Status playState = Status.STOPPED;
 
 	private Chord prevChord;
 

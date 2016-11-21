@@ -80,9 +80,7 @@ public class MultipleEntry extends AbstractEntry
 	@Override
 	public void undo()
 	{
-		if (entries.isEmpty())
-			return;
-		ListIterator<AbstractEntry> itr = entries.listIterator(entries.size() - 1);
+		ListIterator<AbstractEntry> itr = entries.listIterator(entries.size());
 		while (itr.hasPrevious())
 			itr.previous().undo();
 	}

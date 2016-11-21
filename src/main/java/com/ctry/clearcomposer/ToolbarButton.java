@@ -28,6 +28,8 @@ import java.net.URL;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
@@ -51,61 +53,89 @@ public class ToolbarButton extends StackPane
 		pane.setClip(clip);
 	}
 
-	private String actionName;
 	private Pane buttonBack;
 	private ImageView buttonImg;
 	private Pane buttonHighlight;
 	private Label buttonText;
-	private BooleanProperty pressed; //Lazily create property
+	private Tooltip description;
+
+	private StringProperty action;
+	private BooleanProperty pressed;
 
 	private Image toolbarImage;
 	private Image disabledImage;
 
 	public ToolbarButton(String name)
 	{
-		actionName = name;
-		
+		description = new Tooltip(name);
+
 		buttonHighlight = new Pane();
 		buttonHighlight.getStyleClass().add("highlight");
 
 		buttonBack = new StackPane();
 		buttonBack.getStyleClass().add("back");
+		buttonBack.setPadding(new Insets(4));
 		getChildren().addAll(buttonBack, buttonHighlight);
 
-		//Load images
-		String path = name.toLowerCase().replace(' ', '_');
-		URL url = ToolbarButton.class.getResource(path + ".png");
-		if (url != null)
-		{
-			buttonImg = new ImageView();
-			toolbarImage = new Image(url.toExternalForm());
-			URL disabledUrl = ToolbarButton.class.getResource(path + "_disabled.png");
-			disabledImage = disabledUrl == null ? toolbarImage : new Image(disabledUrl.toExternalForm());
-			buttonBack.getChildren().add(buttonImg);
-		}
-		else
-		{
-			buttonText = new Label(name);
-			buttonBack.getChildren().add(buttonText);
-		}
-		buttonBack.setPadding(new Insets(4));
-		
-		updateState();
+		buttonImg = new ImageView();
+		buttonText = new Label(name);
+		setButtonAction(name);
 
 		disabledProperty().addListener((val, before, after) -> updateState());
 		
 		roundedEdges(this);
-		Tooltip.install(this, new Tooltip(name));
+		Tooltip.install(this, description);
 		getStyleClass().add("tblButton");
 
 		addEventHandler(MouseEvent.ANY, evt -> evt.consume());
 	}
 
-	public String getActionName()
+	public final String getButtonAction()
 	{
-		return actionName;
+		return action != null ? action.get() : null;
 	}
-	
+
+	public final void setButtonAction(String action)
+	{
+		buttonActionProperty().set(action);
+	}
+
+	public final StringProperty buttonActionProperty()
+	{
+		if (action == null)
+		{
+			action = new SimpleStringProperty(this, "buttonAction")
+			{
+				@Override
+				protected void invalidated()
+				{
+					String name = get();
+					description.setText(name);
+
+					String path = name.toLowerCase().replace(' ', '_');
+					URL url = ToolbarButton.class.getResource(path + ".png");
+					if (url != null)
+					{
+
+						toolbarImage = new Image(url.toExternalForm());
+						URL disabledUrl = ToolbarButton.class.getResource(path + "_disabled.png");
+						disabledImage = disabledUrl == null ? toolbarImage : new Image(disabledUrl.toExternalForm());
+						buttonBack.getChildren().clear();
+						buttonBack.getChildren().add(buttonImg);
+					}
+					else
+					{
+						buttonText.setText(name);
+						buttonBack.getChildren().clear();
+						buttonBack.getChildren().add(buttonText);
+					}
+					updateState();
+				}
+			};
+		}
+		return action;
+	}
+
 	public final boolean isButtonPressed()
 	{
 		return pressed != null && pressed.get();
