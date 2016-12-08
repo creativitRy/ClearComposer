@@ -116,10 +116,9 @@ public class NotesTrack extends GraphicTrack
 	public int playNote(int index)
 	{
 		GraphicNote note = (GraphicNote) getTrack().getChildren().get(index + 1);
+		boolean on = note.isOn();
 		note.playColor();
-		if (note.isOn())
-			return getNote().getAbsolutePitch(octave);
-		return -1;
+		return on ? getNote().getAbsolutePitch(octave) : -1;
 	}
 
 	/**

@@ -200,13 +200,16 @@ public class ClearComposer extends Application {
 	@Override
 	public void init() {
 		//Count analytics
-//		try {
-//			InputStream in = new URL(ANALYTICS_URL).openStream();
-//			while (in.read() != -1) ;
-//			in.close();
-//		} catch (IOException e) {
-//			//Does nothing.
-//		}
+		try {
+			if (Preferences.userNodeForPackage(ClearComposer.class).getBoolean("Analytics", false))
+			{
+				InputStream in = new URL(ANALYTICS_URL).openStream();
+				while (in.read() != -1) ;
+				in.close();
+			}
+		} catch (IOException e) {
+			//Does nothing.
+		}
 
 		cc = this;
 
@@ -445,9 +448,9 @@ public class ClearComposer extends Application {
 		double width = Preferences.userNodeForPackage(ClearComposer.class).getDouble("width", scene.getWidth() + hInsets);
 		double height = Preferences.userNodeForPackage(ClearComposer.class).getDouble("height", scene.getHeight() + vInsets);
 		double x = Preferences.userNodeForPackage(ClearComposer.class).getDouble("left", (res.getWidth() - width) / 2);
-		double y = Preferences.userNodeForPackage(ClearComposer.class).getDouble("topBar", (res.getHeight() - height) / 2);
+		double y = Preferences.userNodeForPackage(ClearComposer.class).getDouble("top", (res.getHeight() - height) / 2);
 
-		if (x < res.getWidth() || y < res.getHeight())
+		if (x < -res.getWidth() || y < -res.getHeight())
 		{
 			x = (res.getWidth() - width) / 2;
 			y = (res.getHeight() - height) / 2;
@@ -810,7 +813,7 @@ public class ClearComposer extends Application {
 		mnuPlayingStart = createMenuItem("_Play", null, this::playCommand);
 		mnuPlaying.getItems().addAll(
 				mnuPlayingStart,
-				createMenuItem("_Stop", "Esc", this::stopCommand),
+				createMenuItem("_Stop", "Backspace", this::stopCommand),
 				new SeparatorMenuItem(),
 				createMenuItem("_Full screen...", "F5", this::fullScreenCommand)
 		);
@@ -1033,7 +1036,7 @@ public class ClearComposer extends Application {
 		Preferences.userNodeForPackage(ClearComposer.class).putDouble("width", primaryStage.getWidth());
 		Preferences.userNodeForPackage(ClearComposer.class).putDouble("height", primaryStage.getHeight());
 		Preferences.userNodeForPackage(ClearComposer.class).putDouble("left", primaryStage.getX());
-		Preferences.userNodeForPackage(ClearComposer.class).putDouble("topBar", primaryStage.getY());
+		Preferences.userNodeForPackage(ClearComposer.class).putDouble("top", primaryStage.getY());
 
 		System.exit(0);
 	}
@@ -1278,6 +1281,15 @@ public class ClearComposer extends Application {
 			Preferences.userNodeForPackage(ClearComposer.class).put("CCDefaultPath", result.getParent());
 
 		return result;
+	}
+
+	public static Image loadImage(String classPath)
+	{
+		InputStream is = ClearComposer.class.getResourceAsStream(classPath);
+		if (is == null)
+			return null;
+		else
+			return new Image(is);
 	}
 
 	public static void main(String[] args) {

@@ -30,6 +30,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
@@ -87,7 +88,7 @@ public class ToolbarButton extends StackPane
 		Tooltip.install(this, description);
 		getStyleClass().add("tblButton");
 
-		addEventHandler(MouseEvent.ANY, evt -> evt.consume());
+		addEventHandler(MouseEvent.ANY, Event::consume);
 	}
 
 	public final String getButtonAction()
@@ -113,13 +114,12 @@ public class ToolbarButton extends StackPane
 					description.setText(name);
 
 					String path = name.toLowerCase().replace(' ', '_');
-					URL url = ToolbarButton.class.getResource(path + ".png");
-					if (url != null)
+					toolbarImage = ClearComposer.loadImage(path + ".png");
+					if (toolbarImage != null)
 					{
-
-						toolbarImage = new Image(url.toExternalForm());
-						URL disabledUrl = ToolbarButton.class.getResource(path + "_disabled.png");
-						disabledImage = disabledUrl == null ? toolbarImage : new Image(disabledUrl.toExternalForm());
+						disabledImage = ClearComposer.loadImage(path + "_disabled.png");
+						if (disabledImage == null)
+							disabledImage = toolbarImage;
 						buttonBack.getChildren().clear();
 						buttonBack.getChildren().add(buttonImg);
 					}

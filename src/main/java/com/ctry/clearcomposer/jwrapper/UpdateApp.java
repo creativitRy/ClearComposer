@@ -24,15 +24,16 @@
 
 package com.ctry.clearcomposer.jwrapper;
 
+import com.ctry.clearcomposer.ClearComposer;
 import javafx.application.Application;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-import jwrapper.jwutils.JWLauncher;
 import jwrapper.jwutils.JWUninstallApp;
 import jwrapper.jwutils.JWUpdateApp;
-import jwrapper.updater.JWApp;
+
+import java.util.prefs.Preferences;
 
 /**
  * This virtual app is called by JWrapper before each update.
@@ -41,7 +42,9 @@ import jwrapper.updater.JWApp;
 public class UpdateApp extends Application {
 	public void start(Stage primaryStage)
 	{
-		//TODO: for versions before the setup dialog, show it first, and if necessary, uninstall everything.
+		if (Preferences.userNodeForPackage(ClearComposer.class).getBoolean("AutoUpdate", false))
+			JWUpdateApp.exitJvm_UpdateAppAndRun();
+
 		ButtonType update = new ButtonType("Update now");
 		ButtonType ignore = new ButtonType("Ignore this update");
 		ButtonType later = new ButtonType("Remind me later");

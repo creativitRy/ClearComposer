@@ -3,6 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/ClearComposer_jar</output-path>
     <root id="archive" name="ClearComposer.jar">
       <element id="module-output" name="ClearComposer" />
+      <element id="file-copy" path="$PROJECT_DIR$/jwrapperlib/jwrapper_utils.jare" />
     </root>
   </artifact>
 </component>

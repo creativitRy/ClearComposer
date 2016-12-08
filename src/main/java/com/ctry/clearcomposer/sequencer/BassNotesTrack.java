@@ -110,10 +110,9 @@ public class BassNotesTrack extends GraphicTrack
 	public int playNote(int index)
 	{
 		GraphicNote note = (GraphicNote) getTrack().getChildren().get(index + 1);
+		boolean on = note.isOn();
 		note.playColor();
-		if (note.isOn())
-			return getNote().getPitch().getBassPitch();
-		return -1;
+		return on ? getNote().getPitch().getBassPitch() : -1;
 	}
 
 	/**
