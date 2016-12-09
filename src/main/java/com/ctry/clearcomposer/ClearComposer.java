@@ -1046,7 +1046,6 @@ public class ClearComposer extends Application {
 			return false;
 
 		openFile = null;
-		constants = new MusicConstants();
 		resetUI();
 		initMusicSequencer();
 		return true;
